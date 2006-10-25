@@ -15,13 +15,16 @@
 	Build file for the GLite slcs ui component
 	
 	Authors: Joachim Flammer <Joachim.Flammer@Cern.ch>	
-	Version info: $Id: build.xml,v 1.1 2006/09/14 12:33:40 vtschopp Exp $
+	Version info: $Id: build.xml,v 1.2 2006/10/25 11:19:44 vtschopp Exp $
 	Release: $Name:  $
 
 	Revision history:
 	$Log: build.xml,v $
-	Revision 1.1  2006/09/14 12:33:40  vtschopp
-	Initial revision
+	Revision 1.2  2006/10/25 11:19:44  vtschopp
+	package etc config and bin scripts
+
+	Revision 1.1.1.1  2006/09/14 12:33:40  vtschopp
+	SWITCHslcs client gLite-UI
 
 	Revision 1.7  2006/04/26 11:39:55  flammer
 	Corrected wrong template syntax.
@@ -112,6 +115,12 @@
 	
 	<target name="localinit"
 		description="Module specific initialization tasks">
+
+        <echo message="module.build.dir=${module.build.dir}"/>
+
+        <!-- XXX: slcs external libs until added as ext.* -->
+        <mkdir dir="${workspace.dir}/repository-slcs" />
+
         <!-- Set compile classpaths -->
         <path id="compile.classpath">
             <!-- stage classpath -->
@@ -123,10 +132,18 @@
             <!-- external dependencies -->
             <!-- log4j classpath -->
             <path refid="ext.log4j.classpath"/>
+            <!-- commons-logging classpath -->
+            <path refid="ext.commons-logging.classpath"/>
             <!-- commons-cli classpath -->
             <path refid="ext.commons-cli.classpath"/>
             <!-- jericho-html classpath 
             <path refid="ext.jericho-html.classpath"/> -->
+            
+            <!-- XXX: slcs external libs until added as ext.* -->
+            <fileset dir="${workspace.dir}/repository-slcs">
+                <include name="**/*.jar"/>
+            </fileset>
+
         </path>
         <!-- Set test classpaths -->
         <path id="test.classpath">
@@ -147,6 +164,34 @@
 
 	<target name="localclean"
 		description="Module specific cleaning tasks">
+	</target>
+
+
+    <target name="localdistbin"
+        description="Custom actions to be done before creating the tarball">
+
+        <!-- define if not set -->
+        <property name="prefix" value="/opt/glite"/>
+
+        <!-- /opt/glite/etc/glite-slcs-ui content -->
+        <echo message="copy ${prefix}/etc/${module.package.name} content..."/>
+        <mkdir dir="${prefix}/etc/${module.package.name}"/>
+        <copy toDir="${prefix}/etc/${module.package.name}">
+            <fileset dir="${module.dir}/etc">
+                <include name="*" />
+            </fileset>
+        </copy>
+
+        <!-- copy and fix /opt/glite/bin/slcs-* scripts permission -->
+        <echo message="copy and fix permission in ${prefix}/bin"/>
+        <mkdir dir="${prefix}/bin"/>
+        <copy toDir="${prefix}/bin">
+            <fileset dir="${module.dir}/scripts">
+                <include name="slcs-*" />
+            </fileset>
+        </copy>
+        <chmod dir="${prefix}/bin" perm="ugo+rx" includes="slcs-*"/>
+        
 	</target>
 	
 </project>		
