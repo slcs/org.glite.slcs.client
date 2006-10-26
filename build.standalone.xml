@@ -1,0 +1,138 @@
+
+<!-- STANDALONE build for org.glite.slcs.ui -->
+<!-- Valery Tschopp <tschopp@switch.ch> -->
+<!-- $Id: build.standalone.xml,v 1.1 2006/10/26 11:47:25 vtschopp Exp $ -->
+
+
+<project name="org.glite.slcs.client" default="tar" basedir=".">
+
+	<property file="build.standalone.properties" />
+
+	<!-- set global properties for this build -->
+	<property name="src.dir" location="${basedir}/src" />
+    <property name="slcs.lib.dir" location="${basedir}/../repository-slcs" />
+    <property name="external.lib.dir" location="${basedir}/../repository" />
+	<property name="bin.dir" location="${basedir}/scripts" />
+	<property name="etc.dir" location="${basedir}/etc" />
+	<property name="build.dir" location="${basedir}/build" />
+	<property name="dist.dir" location="${basedir}/dist" />
+
+	<target name="init">
+		<tstamp />
+
+        <!-- condition: depends on SLCS-common package -->
+        <condition property="slcs.common.dist.present">
+            <available file="${slcs.common.dist.dir}" type="dir" />
+        </condition>
+
+       <!-- slcs ui jar list (JRA1MW and not) -->
+        <fileset id="slcs.lib.jar.set" dir="${slcs.lib.dir}">
+            <include name="jericho-html-2.2.jar"/>
+        </fileset>
+        <fileset id="external.lib.jar.set" dir="${external.lib.dir}">
+            <include name="commons-cli/1.0/share/commons-cli-1.0.jar"/>
+        </fileset>
+
+        <!-- slcs common jar list (JRA1MW and not) -->
+        <fileset id="slcs.common.lib.jar.set" dir="${slcs.common.dist.dir}">
+            <include name="share/**/*.jar" />
+            <include name="externals/share/**/*.jar" />
+        </fileset>
+
+        <!-- build classpath -->
+        <path id="compile.classpath">
+            <!-- local third-party libs -->
+            <fileset refid="slcs.lib.jar.set"/>
+            <!-- local third-party libs -->
+            <fileset refid="external.lib.jar.set"/>
+            <!-- SLCS common lib and all common third-party libs -->
+            <fileset refid="slcs.common.lib.jar.set"/>
+        </path>
+
+	</target>
+
+	<target name="prepare" depends="init">
+		<mkdir dir="${build.dir}" />
+	</target>
+
+	<!-- call SLCS common 'package' task if not yet available -->
+	<target name="package.slcs.common" depends="prepare" unless="${slcs.common.dist.present}">
+		<ant dir="${slcs.common.dir}" antfile="build.standalone.xml" target="package" inheritall="false"/>
+	</target>
+
+	<target name="compile" depends="package.slcs.common">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src.dir}" destdir="${build.dir}">
+			<classpath refid="compile.classpath" />
+		</javac>
+	</target>
+
+	<!-- package the SLCS-client in ${dist.dir} -->
+	<target name="package" depends="compile">
+		<!-- create glite directories layout -->
+        <property name="glite.dist.bin.dir" location="${dist.dir}/bin" />
+        <property name="glite.dist.etc.dir" location="${dist.dir}/etc/glite-slcs-ui" />
+        <property name="glite.dist.log.dir" location="${dist.dir}/log" />
+        <property name="glite.dist.lib.dir" location="${dist.dir}/share/java" />
+        <property name="glite.dist.external.lib.dir" location="${dist.dir}/externals/share/java" />
+        <mkdir dir="${glite.dist.bin.dir}" />
+        <mkdir dir="${glite.dist.etc.dir}" />
+        <mkdir dir="${glite.dist.log.dir}" />
+        <mkdir dir="${glite.dist.lib.dir}" />
+        <mkdir dir="${glite.dist.external.lib.dir}" />
+		<!-- copy bash script and set permission -->
+		<copy todir="${glite.dist.bin.dir}">
+			<fileset dir="${bin.dir}">
+				<include name="slcs-*" />
+			</fileset>
+		</copy>
+		<chmod dir="${glite.dist.bin.dir}" perm="755">
+			<include name="slcs-*" />
+		</chmod>
+		<!-- copy config and etc -->
+		<copy todir="${glite.dist.etc.dir}">
+			<fileset dir="${etc.dir}" />
+		</copy>
+		<!-- jar SLCS ui classes -->
+        <property name="slcs.ui.jar.file" location="${glite.dist.lib.dir}/${slcs.ui.jarfile}" />
+        <jar destfile="${slcs.ui.jar.file}" basedir="${build.dir}" />
+
+		<!-- copy all external third party libs (slcs ui) -->
+		<copy todir="${glite.dist.external.lib.dir}" flatten="true">
+			<fileset refid="slcs.lib.jar.set"/>
+			<fileset refid="external.lib.jar.set"/>
+		</copy>
+		<!-- copy SLCS common libs -->
+		<copy todir="${dist.dir}">
+			<fileset refid="slcs.common.lib.jar.set" />
+		</copy>
+        <!-- create an empty log file -->
+        <touch file="${glite.dist.log.dir}/slcs-init.log" />
+	</target>
+
+    <!-- create a tar.gz archive -->
+    <target name="tar" depends="package">
+        <property name="slcs.ui.tar.file" location="${dist.dir}/glite-slcs-ui-${slcs.ui.version}-${DSTAMP}.tar" />
+        <tar destfile="${slcs.ui.tar.file}">
+            <tarfileset dir="${dist.dir}" mode="755" username="root" group="root">
+                <include name="bin/slcs-*" />
+            </tarfileset>
+            <tarfileset dir="${dist.dir}" mode="666" username="root" group="root">
+                <include name="log/slcs-init.log" />
+            </tarfileset>
+            <tarfileset dir="${dist.dir}" username="root" group="root">
+                <exclude name="bin/slcs-*" />
+                <exclude name="log/slcs-init.log" />
+            </tarfileset>
+        </tar>
+        <gzip destfile="${slcs.ui.tar.file}.gz" src="${slcs.ui.tar.file}" />
+        <delete file="${slcs.ui.tar.file}" />
+	</target>
+
+	<!-- delete the ${build.dir} and ${dist.dir} directory trees -->
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
+		<ant dir="${slcs.common.dir}" antfile="build.standalone.xml" target="clean" inheritall="false"/>
+	</target>
+</project>
