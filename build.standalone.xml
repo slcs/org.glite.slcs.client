@@ -1,7 +1,7 @@
 
 <!-- STANDALONE build for org.glite.slcs.ui -->
 <!-- Valery Tschopp <tschopp@switch.ch> -->
-<!-- $Id: build.standalone.xml,v 1.1 2006/10/26 11:47:25 vtschopp Exp $ -->
+<!-- $Id: build.standalone.xml,v 1.2 2006/10/26 14:22:38 vtschopp Exp $ -->
 
 
 <project name="org.glite.slcs.client" default="tar" basedir=".">
@@ -62,7 +62,9 @@
 
 	<target name="compile" depends="package.slcs.common">
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac srcdir="${src.dir}" destdir="${build.dir}">
+        <javac srcdir="${src.dir}"
+               debug="true" 
+               destdir="${build.dir}">
 			<classpath refid="compile.classpath" />
 		</javac>
 	</target>
