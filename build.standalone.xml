@@ -1,7 +1,7 @@
 
 <!-- STANDALONE build for org.glite.slcs.ui -->
 <!-- Valery Tschopp <tschopp@switch.ch> -->
-<!-- $Id: build.standalone.xml,v 1.2 2006/10/26 14:22:38 vtschopp Exp $ -->
+<!-- $Id: build.standalone.xml,v 1.3 2006/10/27 11:05:58 vtschopp Exp $ -->
 
 
 <project name="org.glite.slcs.client" default="tar" basedir=".">
@@ -114,8 +114,8 @@
 
     <!-- create a tar.gz archive -->
     <target name="tar" depends="package">
-        <property name="slcs.ui.tar.file" location="${dist.dir}/glite-slcs-ui-${slcs.ui.version}-${DSTAMP}.tar" />
-        <tar destfile="${slcs.ui.tar.file}">
+        <property name="slcs.ui.tar.file" location="glite-slcs-ui-${slcs.ui.version}-${DSTAMP}.tar.gz" />
+        <tar destfile="${slcs.ui.tar.file}" compression="gzip">
             <tarfileset dir="${dist.dir}" mode="755" username="root" group="root">
                 <include name="bin/slcs-*" />
             </tarfileset>
@@ -127,8 +127,6 @@
                 <exclude name="log/slcs-init.log" />
             </tarfileset>
         </tar>
-        <gzip destfile="${slcs.ui.tar.file}.gz" src="${slcs.ui.tar.file}" />
-        <delete file="${slcs.ui.tar.file}" />
 	</target>
 
 	<!-- delete the ${build.dir} and ${dist.dir} directory trees -->
