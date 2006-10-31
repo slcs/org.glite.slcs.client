@@ -15,13 +15,16 @@
 	Common build properties file for the GLite slcs ui component
 	
 	Authors: Joachim Flammer <Joachim.Flammer@cern.ch>
-	Version info: $Id: properties.xml,v 1.1 2006/09/14 12:33:40 vtschopp Exp $
+	Version info: $Id: properties.xml,v 1.2 2006/10/31 13:39:36 vtschopp Exp $
 	Release: $Name:  $	
 	
 	Revision history:
 	$Log: properties.xml,v $
-	Revision 1.1  2006/09/14 12:33:40  vtschopp
-	Initial revision
+	Revision 1.2  2006/10/31 13:39:36  vtschopp
+	RPM spec summary and description added.
+
+	Revision 1.1.1.1  2006/09/14 12:33:40  vtschopp
+	SWITCHslcs client gLite-UI
 
 	Revision 1.4  2004/07/20 16:08:30  flammer
 	Changed incorrect my_... instead of .._template entries for subsystem and component.
@@ -71,6 +74,8 @@
 	<!-- ======================================================
 	      Define extra properties here ...
 	     ====================================================== -->
-	
+    <!-- RPM spec -->
+    <property name="build.package.summary" value="SLCS client CLI" />       
+    <property name="build.package.description" value="SLCS client for gLite UI: slcs-init and slcs-info commands for the Short-Lived Credential Service" />    	
 		
 </project>
