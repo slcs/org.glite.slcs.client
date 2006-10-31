@@ -15,11 +15,14 @@
 	Build file for the GLite slcs ui component
 	
 	Authors: Joachim Flammer <Joachim.Flammer@Cern.ch>	
-	Version info: $Id: build.xml,v 1.2 2006/10/25 11:19:44 vtschopp Exp $
+	Version info: $Id: build.xml,v 1.3 2006/10/31 09:35:01 vtschopp Exp $
 	Release: $Name:  $
 
 	Revision history:
 	$Log: build.xml,v $
+	Revision 1.3  2006/10/31 09:35:01  vtschopp
+	uses only JRA1MW externals
+
 	Revision 1.2  2006/10/25 11:19:44  vtschopp
 	package etc config and bin scripts
 
@@ -116,11 +119,6 @@
 	<target name="localinit"
 		description="Module specific initialization tasks">
 
-        <echo message="module.build.dir=${module.build.dir}"/>
-
-        <!-- XXX: slcs external libs until added as ext.* -->
-        <mkdir dir="${workspace.dir}/repository-slcs" />
-
         <!-- Set compile classpaths -->
         <path id="compile.classpath">
             <!-- stage classpath -->
@@ -128,7 +126,6 @@
             <!-- module classpath -->
             <path refid="module.classpath"/>
             <!-- org.glite.slcs.common dependencies -->
-            <!-- HOW TO ADD CLASSPATH FROM OTHER COMPONENT ???? -->
             <!-- external dependencies -->
             <!-- log4j classpath -->
             <path refid="ext.log4j.classpath"/>
@@ -136,14 +133,9 @@
             <path refid="ext.commons-logging.classpath"/>
             <!-- commons-cli classpath -->
             <path refid="ext.commons-cli.classpath"/>
-            <!-- jericho-html classpath 
-            <path refid="ext.jericho-html.classpath"/> -->
+            <!-- jericho-html classpath -->
+            <path refid="ext.jericho-html.classpath"/> 
             
-            <!-- XXX: slcs external libs until added as ext.* -->
-            <fileset dir="${workspace.dir}/repository-slcs">
-                <include name="**/*.jar"/>
-            </fileset>
-
         </path>
         <!-- Set test classpaths -->
         <path id="test.classpath">
