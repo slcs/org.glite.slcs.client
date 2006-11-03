@@ -1,7 +1,7 @@
 
 <!-- STANDALONE build for org.glite.slcs.ui -->
 <!-- Valery Tschopp <tschopp@switch.ch> -->
-<!-- $Id: build.standalone.xml,v 1.4 2006/11/01 11:47:34 vtschopp Exp $ -->
+<!-- $Id: build.standalone.xml,v 1.5 2006/11/03 14:20:49 vtschopp Exp $ -->
 
 
 <project name="org.glite.slcs.client" default="tar" basedir=".">
@@ -28,21 +28,21 @@
     <target name="init" depends="javacheck">
 		<tstamp />
 
-        <!-- condition: depends on SLCS-common package -->
+        <!-- condition: depends on org.glite.slcs.common package -->
         <condition property="slcs.common.dist.present">
             <available file="${slcs.common.dist.dir}" type="dir" />
         </condition>
+
+    	<!-- slcs common jar list (JRA1MW only) -->
+        <fileset id="slcs.common.lib.jar.set" dir="${slcs.common.dist.dir}">
+            <include name="share/java/*.jar" />
+            <include name="externals/share/java/*.jar" />
+        </fileset>
 
        <!-- slcs ui jar list (JRA1MW only) -->
         <fileset id="external.lib.jar.set" dir="${external.lib.dir}">
             <include name="commons-cli/1.0/noarch/commons-cli-1.0.jar"/>
             <include name="jericho-html/2.3/noarch/lib/jericho-html-2.3.jar"/>
-        </fileset>
-
-        <!-- slcs common jar list (JRA1MW only) -->
-        <fileset id="slcs.common.lib.jar.set" dir="${slcs.common.dist.dir}">
-            <include name="share/**/*.jar" />
-            <include name="externals/share/**/*.jar" />
         </fileset>
 
         <!-- build classpath -->
