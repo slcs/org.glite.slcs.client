@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSClient.java,v 1.1 2006/10/24 09:24:18 vtschopp Exp $
+ * $Id: SLCSClient.java,v 1.2 2006/11/03 14:08:04 vtschopp Exp $
  * 
  * Created on Aug 8, 2006 by tschopp
  *
@@ -298,8 +298,11 @@ public class SLCSClient {
             error= true;
         }
         
-        // help?
+        // help? or error
         if (error || cmd.hasOption('h')) {
+            System.out.println("slcs-init: " + SLCSClient.class.getName()
+                    + " - " + SLCSClientVersion.COPYRIGHT);
+            System.out.println("Version: " + SLCSClientVersion.VERSION);
             HelpFormatter help= new HelpFormatter();
             help.printHelp("slcs-init --idp <providerId> [options]", options);
             System.exit(1);
@@ -376,11 +379,10 @@ public class SLCSClient {
                 System.exit(1);
             }
         }
-        else if (System.getProperty("slcs.idp.providerId") != null) {
-            idpProviderId= System.getProperty("slcs.idp.providerId");
-        }
         else {
-            System.err.println("ERROR: option --idp <providerId> or java environment -Dslcs.idp.providerId=value is missing");
+            System.err.println("ERROR: option --idp <providerId> is missing");
+            HelpFormatter help= new HelpFormatter();
+            help.printHelp("slcs-init --idp <providerId> [options]", options);
             System.exit(1);
 
         }
