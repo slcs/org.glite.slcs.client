@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSClient.java,v 1.2 2006/11/03 14:08:04 vtschopp Exp $
+ * $Id: SLCSClient.java,v 1.3 2006/11/22 12:04:08 vtschopp Exp $
  * 
  * Created on Aug 8, 2006 by tschopp
  *
@@ -51,7 +51,7 @@ import au.id.jericho.lib.html.Source;
  * SLCSClient
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Version$
+ * @version $Revision: 1.3 $
  */
 public class SLCSClient {
 
@@ -744,7 +744,8 @@ public class SLCSClient {
             throw new SLCSException("Certificate element not found in SLCS response");
         }
         String pemCertificate= certificateElement.getContent().toString();
-        LOG.info("Certificate=" + pemCertificate);
+        LOG.info("Certificate element found");
+        LOG.debug("Certificate=" + pemCertificate);
         StringReader reader= new StringReader(pemCertificate);
         try {
             certificate_= Certificate.readPEM(reader);
