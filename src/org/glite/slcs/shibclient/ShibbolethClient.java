@@ -1,5 +1,5 @@
 /*
- * $Id: ShibbolethClient.java,v 1.2 2006/10/27 09:03:38 vtschopp Exp $
+ * $Id: ShibbolethClient.java,v 1.3 2006/11/22 12:05:39 vtschopp Exp $
  * 
  * Created on Jul 5, 2006 by tschopp
  *
@@ -49,7 +49,7 @@ import au.id.jericho.lib.html.Tag;
  * ShibbolethClient is a SSO login parser and a Shibboleth Profile handler.
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class ShibbolethClient {
 
@@ -242,10 +242,19 @@ public class ShibbolethClient {
 			Source source = new Source(samlResponse);
 			List forms = source.findAllElements(Tag.FORM);
 			if (!forms.isEmpty()) {
+                // check if form contains a valid SAML Browser/POST
 				for (Iterator i = forms.iterator(); i.hasNext();) {
 					Element form = (Element) i.next();
 					String spSAMLURL = form.getAttributeValue("ACTION");
 
+                    LOG.debug("SAML Browser/POST URL=" + spSAMLURL);
+                    if (spSAMLURL == null) {
+                        // no SAML post URL found
+                        LOG.error("No SAML Browser/POST URL found: " + GETIdPBrowserPOSTMethod.getURI());
+                        remoteException= new RemoteException("No SAML Browser/POST URL found: " + GETIdPBrowserPOSTMethod.getURI());                        
+                        break; // exit loop
+                    }
+                    
 					// create POST method
 					PostMethod POSTSPSAMLMethod = new PostMethod(spSAMLURL);
 					// add all HIDDEN fields to POST
@@ -306,9 +315,11 @@ public class ShibbolethClient {
 		} catch (URIException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+            remoteException= new RemoteException(e.getMessage(),e);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+            remoteException= new RemoteException(e.getMessage(),e);
 		}
 
 		if (browserPostResponseURI == null) {
@@ -561,7 +572,7 @@ public class ShibbolethClient {
 					int formLoginResponseStatus = executeMethod(POSTLoginFormMethod);
 					LOG.debug(POSTLoginFormMethod.getStatusLine());
 
-					// XX
+					// XXX
 					// dumpHttpClientCookies();
 
 					// CAS send a 302 + Location header back
