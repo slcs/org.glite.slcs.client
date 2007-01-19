@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSClient.java,v 1.4 2007/01/19 13:16:45 vtschopp Exp $
+ * $Id: SLCSClient.java,v 1.5 2007/01/19 13:41:16 vtschopp Exp $
  * 
  * Created on Aug 8, 2006 by tschopp
  *
@@ -51,7 +51,7 @@ import au.id.jericho.lib.html.Source;
  * SLCSClient
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class SLCSClient {
 
@@ -441,7 +441,7 @@ public class SLCSClient {
             // read from console
             try {
                 keyPassword= PasswordReader.getPassword(System.in,
-                                                        "Key Password: ");
+                                                        "New Key Password: ");
             } catch (IOException e) {
                 // ignored?
                 LOG.error(e);
