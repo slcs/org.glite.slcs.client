@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSClient.java,v 1.3 2006/11/22 12:04:08 vtschopp Exp $
+ * $Id: SLCSClient.java,v 1.4 2007/01/19 13:16:45 vtschopp Exp $
  * 
  * Created on Aug 8, 2006 by tschopp
  *
@@ -51,7 +51,7 @@ import au.id.jericho.lib.html.Source;
  * SLCSClient
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class SLCSClient {
 
@@ -702,9 +702,13 @@ public class SLCSClient {
             throw new SLCSException("CertificateRequest element not found in SLCS response");
         }
         certificateRequestUrl_= certificateRequestElement.getAttributeValue("url");
-        if (certificateRequestUrl_ == null) {
+        if (certificateRequestUrl_ == null ) {
             LOG.error("CertificateRequest url attribute not found");
             throw new SLCSException("CertificateRequest url attribute not found in SLCS response");
+        }
+        else if (!certificateRequestUrl_.startsWith("http")) {
+            LOG.error("CertificateRequest url attribute doesn't starts with http: " + certificateRequestUrl_);
+            throw new SLCSException("CertificateRequest url attribute is not valid: " + certificateRequestUrl_);            
         }
         LOG.info("CertificateRequest url=" + certificateRequestUrl_);
 
