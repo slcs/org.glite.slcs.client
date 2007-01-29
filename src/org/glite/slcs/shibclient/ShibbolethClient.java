@@ -1,5 +1,5 @@
 /*
- * $Id: ShibbolethClient.java,v 1.3 2006/11/22 12:05:39 vtschopp Exp $
+ * $Id: ShibbolethClient.java,v 1.4 2007/01/29 11:08:50 vtschopp Exp $
  * 
  * Created on Jul 5, 2006 by tschopp
  *
@@ -49,7 +49,7 @@ import au.id.jericho.lib.html.Tag;
  * ShibbolethClient is a SSO login parser and a Shibboleth Profile handler.
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class ShibbolethClient {
 
@@ -525,11 +525,32 @@ public class ShibbolethClient {
 			if (formName.equals(idp.getAuthFormName())) {
 				formFound = true;
 				String formLocation = form.getAttributeValue("ACTION");
-				if (formLocation == null || formLocation.equals("")) {
-					// no form location to POST
-					formLocation = ssoLoginURI.getEscapedURI();
-					LOG.debug("Set FORM action=" + formLocation);
-				}
+                if (formLocation == null || formLocation.equals("")) {
+                    // no form location to POST
+                    formLocation = ssoLoginURI.getEscapedURI();
+                    LOG.info("form ACTION URL=" + formLocation);
+                } 
+                else {
+                    // BUG FIX: CAS3 don't use cookie but add a path component ;jsessionid=...
+                    // between the URL and the query parameters (?)
+                    // i.e.: action="login;jsessionid=52E28683EF109486FAB652E3D76EEDDE?param1..."
+                    int jsessionIdPos = formLocation.indexOf(";jsessionid=");
+                    int questionMarkPos = formLocation.indexOf('?');
+                    if (jsessionIdPos != -1 && jsessionIdPos < questionMarkPos) {
+                        LOG.warn("form ACTION URL contains ';jsessionid=...': "
+                                        + formLocation);
+                        // extract the ;jsessionid= from the form action url
+                        String jsessionId = formLocation.substring(
+                                jsessionIdPos, questionMarkPos);
+                        LOG.debug("jsessionId=" + jsessionId);
+                        // and add it to the existing path
+                        String path = ssoLoginURI.getPath();
+                        ssoLoginURI.setPath(path + jsessionId);
+                        formLocation = ssoLoginURI.getEscapedURI();
+                        LOG.info("corrected form ACTION URL=" + formLocation);
+                    }
+                }
+
 				String formMethod = form.getAttributeValue("METHOD");
 				LOG.debug("FORM name=" + formName + " location=" + formLocation
 						+ " method=" + formMethod);
