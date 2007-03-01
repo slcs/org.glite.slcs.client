@@ -1,7 +1,7 @@
 
 <!-- STANDALONE build for org.glite.slcs.ui -->
 <!-- Valery Tschopp <tschopp@switch.ch> -->
-<!-- $Id: build.standalone.xml,v 1.6 2007/03/01 12:52:38 vtschopp Exp $ -->
+<!-- $Id: build.standalone.xml,v 1.7 2007/03/01 14:58:58 vtschopp Exp $ -->
 
 
 <project name="org.glite.slcs.client" default="tar" basedir=".">
@@ -16,7 +16,45 @@
 	<property name="build.dir" location="${basedir}/build" />
 	<property name="dist.dir" location="${basedir}/dist" />
 
-    <target name="javacheck">
+    <!-- BouncyCastle JCE BC Provider library (jdk 1.4 and jdk 1.5) -->
+    <property name="bouncycastle.jdk15.bcprov.jar" value="externals/share/java/bcprov-jdk15-134.jar" />
+    <property name="bouncycastle.jdk14.bcprov.jar" value="externals/share/java/bcprov-jdk14-134.jar" />
+    <target name="checks.bouncycastle" depends="sets.is.jdk,sets.bouncycastle.jdk14.jar,sets.bouncycastle.jdk15.jar,checks.bouncycastle.jar">
+        <echo message="bouncycastle.bcprov.jar=${bouncycastle.bcprov.jar}" />
+    </target>
+    <target name="sets.is.jdk">
+        <echo message="ant.java.version=${ant.java.version}"/>
+        <condition property="is.jdk15">
+            <equals arg1="${ant.java.version}" arg2="1.5" />
+        </condition>
+        <condition property="is.jdk14">
+            <equals arg1="${ant.java.version}" arg2="1.4" />
+        </condition>
+    </target>
+    <target name="sets.bouncycastle.jdk14.jar" if="is.jdk14">
+        <property name="bouncycastle.bcprov.jar" value="${bouncycastle.jdk14.bcprov.jar}"/>
+        <echo message="bouncycastle.bcprov.jar=${bouncycastle.bcprov.jar}"/>
+    </target>
+    <target name="sets.bouncycastle.jdk15.jar" if="is.jdk15">
+        <property name="bouncycastle.bcprov.jar" value="${bouncycastle.jdk15.bcprov.jar}"/>
+        <echo message="bouncycastle.bcprov.jar=${bouncycastle.bcprov.jar}"/>
+    </target>
+    <target name="checks.bouncycastle.jar">
+        <available property="exists.bouncycastle.jar" filepath="${slcs.common.dist.dir}" file="${bouncycastle.bcprov.jar}" />
+        <fail unless="exists.bouncycastle.jar">${slcs.common.dist.dir}/${bouncycastle.bcprov.jar} is not available, do a 'clean' first...</fail>
+    </target>
+    
+    <target name="checks.slcs.common">
+        <!-- condition: depends on org.glite.slcs.common package -->
+        <condition property="slcs.common.is.ok">
+            <and>
+                <available file="${slcs.common.dist.dir}" type="dir" />
+                <istrue value="${exists.bouncycastle.jar}"/>
+            </and>
+        </condition>
+    </target>
+
+    <target name="javacheck" depends="checks.bouncycastle,checks.slcs.common">
         <!-- check JVM version -->
         <condition property="isJavaOk">
             <equals arg1="${ant.java.version}" arg2="${slcs.required.java.version}"/>
@@ -26,13 +64,16 @@
         <fail unless="isJavaOk">Java JRE version must be ${slcs.required.java.version}</fail>
     </target>
 
-    <target name="init" depends="javacheck">
-		<tstamp />
+   	<!-- call SLCS common 'package' task if not yet available -->
+	<target name="package.slcs.common" depends="clean">
+		<ant dir="${slcs.common.dir}" antfile="build.standalone.xml" target="package" inheritall="false">
+            <property name="slcs.required.java.version" value="${slcs.required.java.version}"/>
+        </ant>
 
-        <!-- condition: depends on org.glite.slcs.common package -->
-        <condition property="slcs.common.dist.present">
-            <available file="${slcs.common.dist.dir}" type="dir" />
-        </condition>
+	</target>
+
+    <target name="init" depends="package.slcs.common,javacheck">
+		<tstamp />
 
     	<!-- slcs common jar list (JRA1MW only) -->
         <fileset id="slcs.common.lib.jar.set" dir="${slcs.common.dist.dir}">
@@ -60,15 +101,7 @@
 		<mkdir dir="${build.dir}" />
 	</target>
 
-	<!-- call SLCS common 'package' task if not yet available -->
-	<target name="package.slcs.common" depends="prepare" unless="${slcs.common.dist.present}">
-		<ant dir="${slcs.common.dir}" antfile="build.standalone.xml" target="package" inheritall="false">
-            <property name="slcs.required.java.version" value="${slcs.required.java.version}"/>
-        </ant>
-
-	</target>
-
-	<target name="compile" depends="package.slcs.common">
+	<target name="compile" depends="prepare">
 		<!-- Compile the java code from ${src} into ${build} -->
         <javac srcdir="${src.dir}"
                debug="true" 
