@@ -1,7 +1,7 @@
 
 <!-- STANDALONE build for org.glite.slcs.ui -->
 <!-- Valery Tschopp <tschopp@switch.ch> -->
-<!-- $Id: build.standalone.xml,v 1.5 2006/11/03 14:20:49 vtschopp Exp $ -->
+<!-- $Id: build.standalone.xml,v 1.6 2007/03/01 12:52:38 vtschopp Exp $ -->
 
 
 <project name="org.glite.slcs.client" default="tar" basedir=".">
@@ -19,10 +19,11 @@
     <target name="javacheck">
         <!-- check JVM version -->
         <condition property="isJavaOk">
-            <contains string="${java.version}" substring="${slcs.java.version}"/>
+            <equals arg1="${ant.java.version}" arg2="${slcs.required.java.version}"/>
         </condition>
-        <echo>Java version: ${java.version}</echo>
-        <fail unless="isJavaOk">Java JRE version must be ${slcs.java.version}_XX</fail>
+        <echo>Java version: ${ant.java.version}</echo>
+        <echo>SLCS required version: ${slcs.required.java.version}</echo>
+        <fail unless="isJavaOk">Java JRE version must be ${slcs.required.java.version}</fail>
     </target>
 
     <target name="init" depends="javacheck">
@@ -61,7 +62,10 @@
 
 	<!-- call SLCS common 'package' task if not yet available -->
 	<target name="package.slcs.common" depends="prepare" unless="${slcs.common.dist.present}">
-		<ant dir="${slcs.common.dir}" antfile="build.standalone.xml" target="package" inheritall="false"/>
+		<ant dir="${slcs.common.dir}" antfile="build.standalone.xml" target="package" inheritall="false">
+            <property name="slcs.required.java.version" value="${slcs.required.java.version}"/>
+        </ant>
+
 	</target>
 
 	<target name="compile" depends="package.slcs.common">
@@ -117,7 +121,7 @@
 
     <!-- create a tar.gz archive -->
     <target name="tar" depends="package">
-        <property name="slcs.ui.tar.file" location="glite-slcs-ui-${slcs.ui.version}-${DSTAMP}.tar.gz" />
+        <property name="slcs.ui.tar.file" location="glite-slcs-ui-${slcs.ui.version}-jdk${ant.java.version}-${DSTAMP}.tar.gz" />
         <tar destfile="${slcs.ui.tar.file}" compression="gzip">
             <tarfileset dir="${dist.dir}" mode="755" username="root" group="root">
                 <include name="bin/slcs-*" />
