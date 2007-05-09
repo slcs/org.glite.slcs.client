@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSClient.java,v 1.5 2007/01/19 13:41:16 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.1 2007/05/09 07:11:50 vtschopp Exp $
  * 
  * Created on Aug 8, 2006 by tschopp
  *
@@ -51,12 +51,12 @@ import au.id.jericho.lib.html.Source;
  * SLCSClient
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.1 $
  */
-public class SLCSClient {
+public class SLCSInit {
 
     /** Logging */
-    private static Log LOG= LogFactory.getLog(SLCSClient.class);
+    private static Log LOG= LogFactory.getLog(SLCSInit.class);
 
     /** Default XML config filename in CLASSPATH */
     static private String DEFAULT_CONFIGURATION_FILE= "slcs-init.xml";
@@ -115,7 +115,7 @@ public class SLCSClient {
      * @param credentials
      * @throws SLCSException
      */
-    public SLCSClient(SLCSClientConfiguration configuration,
+    public SLCSInit(SLCSClientConfiguration configuration,
             ShibbolethCredentials credentials) throws SLCSException {
         this.configuration_= configuration;
         
@@ -300,9 +300,9 @@ public class SLCSClient {
         
         // help? or error
         if (error || cmd.hasOption('h')) {
-            System.out.println("slcs-init: " + SLCSClient.class.getName()
+            System.out.println("slcs-init: " + SLCSInit.class.getName()
                     + " - " + SLCSClientVersion.COPYRIGHT);
-            System.out.println("Version: " + SLCSClientVersion.VERSION);
+            System.out.println("Version: " + SLCSClientVersion.getVersion());
             HelpFormatter help= new HelpFormatter();
             help.printHelp("slcs-init --idp <providerId> [options]", options);
             System.exit(1);
@@ -310,9 +310,9 @@ public class SLCSClient {
         
         // version?
         if (cmd.hasOption('V')) {
-            System.out.println("slcs-init: " + SLCSClient.class.getName()
+            System.out.println("slcs-init: " + SLCSInit.class.getName()
                     + " - " + SLCSClientVersion.COPYRIGHT);
-            System.out.println("Version: " + SLCSClientVersion.VERSION);
+            System.out.println("Version: " + SLCSClientVersion.getVersion());
             System.exit(0);
         }
         
@@ -453,7 +453,7 @@ public class SLCSClient {
         }
 
         // create client
-        SLCSClient client= null;
+        SLCSInit client= null;
         try {
             LOG.debug("load SLCS client configuration...");
             SLCSClientConfiguration configuration= SLCSClientConfiguration.getInstance(config);
@@ -461,7 +461,7 @@ public class SLCSClient {
                                                                          password,
                                                                          idpProviderId);
             LOG.debug("create SLCS client...");
-            client= new SLCSClient(configuration, credentials);
+            client= new SLCSInit(configuration, credentials);
             if (storeDirectory != null) {
                 LOG.debug("overwrite store directory: " + storeDirectory);
                 client.setStoreDirectory(storeDirectory);

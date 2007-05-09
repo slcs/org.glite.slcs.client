@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSInfo.java,v 1.1 2006/10/24 09:24:18 vtschopp Exp $
+ * $Id: SLCSInfo.java,v 1.2 2007/05/09 07:11:50 vtschopp Exp $
  * 
  * Created on Oct 20, 2006 by Valery Tschopp <tschopp@switch.ch>
  *
@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 public class SLCSInfo {
 
     /** Logging */
-    private static Log LOG= LogFactory.getLog(SLCSClient.class);
+    private static Log LOG= LogFactory.getLog(SLCSInfo.class);
 
     /** Default XML config filename in CLASSPATH */
     static private String DEFAULT_CONFIGURATION_FILE= "slcs-init.xml";
@@ -61,7 +61,7 @@ public class SLCSInfo {
         if (cmd.hasOption('V')) {
             System.out.println("slcs-info: " + SLCSInfo.class.getName() + " - "
                     + SLCSClientVersion.COPYRIGHT);
-            System.out.println("Version: " + SLCSClientVersion.VERSION);
+            System.out.println("Version: " + SLCSClientVersion.getVersion());
             System.exit(0);
         }
 
