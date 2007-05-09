@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSClientVersion.java,v 1.1 2006/10/24 09:24:18 vtschopp Exp $
+ * $Id: SLCSClientVersion.java,v 1.2 2007/05/09 07:00:44 vtschopp Exp $
  * 
  * Created on Aug 9, 2006 by tschopp
  *
@@ -11,18 +11,33 @@ package org.glite.slcs;
 
 public class SLCSClientVersion {
 
-    /** SLCSClientVersion as String */
-    static public final String VERSION= "1.0.0";
     /** Major version number */
     static public final int MAJOR= 1;
     /** Minor version number */
     static public final int MINOR= 0;
     /** Revision version number */
     static public final int REVISION= 0;
+     /** Build number */
+    static public final int BUILD= 0;
     
     /** Copyright */
     static public final String COPYRIGHT= "Copyright (c) 2004. Members of the EGEE Collaboration";
 
+    /**
+     * Prevents instantiation
+     */
     private SLCSClientVersion() {}
+
+    /**
+     * @return The version number in format MAJOR.MINOR.REVISION.BUILD
+     */
+    static public String getVersion() {
+        StringBuffer sb= new StringBuffer();
+        sb.append(MAJOR).append('.');
+        sb.append(MINOR).append('.');
+        sb.append(REVISION).append('.');
+        sb.append(BUILD);
+        return sb.toString();
+    }
 
 }
