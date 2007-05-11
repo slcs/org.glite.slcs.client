@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSInit.java,v 1.1 2007/05/09 07:11:50 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.2 2007/05/11 11:50:59 vtschopp Exp $
  * 
  * Created on Aug 8, 2006 by tschopp
  *
@@ -14,20 +14,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.glite.slcs.config.SLCSClientConfiguration;
-import org.glite.slcs.httpclient.ssl.ExtendedProtocolSocketFactory;
-import org.glite.slcs.pki.Certificate;
-import org.glite.slcs.pki.CertificateExtension;
-import org.glite.slcs.pki.CertificateExtensionFactory;
-import org.glite.slcs.pki.CertificateKeys;
-import org.glite.slcs.pki.CertificateRequest;
-import org.glite.slcs.shibclient.ShibbolethClient;
-import org.glite.slcs.shibclient.ShibbolethCredentials;
-import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
-import org.glite.slcs.util.PasswordReader;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -42,96 +32,108 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.glite.slcs.config.SLCSClientConfiguration;
+import org.glite.slcs.httpclient.ssl.ExtendedProtocolSocketFactory;
+import org.glite.slcs.pki.Certificate;
+import org.glite.slcs.pki.CertificateExtension;
+import org.glite.slcs.pki.CertificateExtensionFactory;
+import org.glite.slcs.pki.CertificateKeys;
+import org.glite.slcs.pki.CertificateRequest;
+import org.glite.slcs.pki.bouncycastle.Codec;
+import org.glite.slcs.shibclient.ShibbolethClient;
+import org.glite.slcs.shibclient.ShibbolethCredentials;
+import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
+import org.glite.slcs.util.PasswordReader;
 
 import au.id.jericho.lib.html.Element;
 import au.id.jericho.lib.html.Source;
 
 /**
- * 
- * SLCSClient
+ * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class SLCSInit {
 
     /** Logging */
-    private static Log LOG= LogFactory.getLog(SLCSInit.class);
+    private static Log LOG = LogFactory.getLog(SLCSInit.class);
 
     /** Default XML config filename in CLASSPATH */
-    static private String DEFAULT_CONFIGURATION_FILE= "slcs-init.xml";
+    static private String DEFAULT_CONFIGURATION_FILE = "slcs-init.xml";
 
     /** Configuration */
-    private SLCSClientConfiguration configuration_= null;
+    private SLCSClientConfiguration configuration_ = null;
 
     /** Shibboleth client */
-    private ShibbolethClient shibClient_= null;
+    private ShibbolethClient shibClient_ = null;
 
     /** Shibboleth credentials */
-    private ShibbolethCredentials shibCredentials_= null;
+    private ShibbolethCredentials shibCredentials_ = null;
 
     /** Shibboleth client metadata */
-    private ShibbolethClientMetadata shibMetadata_= null;
+    private ShibbolethClientMetadata shibMetadata_ = null;
 
     /** Absolute pathname of directory to store user key and cert */
-    private String storeDirectory_= null;
+    private String storeDirectory_ = null;
 
     /** Filename for the user cert */
-    private String userCertFilename_= null;
+    private String userCertFilename_ = null;
 
     /** Filename for the user key */
-    private String userKeyFilename_= null;
-    
+    private String userKeyFilename_ = null;
+
+    /** Filename for the PKCS12 file */
+    private String userPKCS12Filename_ = null;
+
     /** Private key size */
-    private int keySize_= -1;
+    private int keySize_ = -1;
 
     /** optional user file prefix for cert and key files */
-    private String userPrefix_= null;
+    private String userPrefix_ = null;
 
     /** Authorization Token */
-    private String authorizationToken_= null;
+    private String authorizationToken_ = null;
 
     /** URL to post certificate requests */
-    private String certificateRequestUrl_= null;
+    private String certificateRequestUrl_ = null;
 
     /** Certificate subject */
-    private String certificateSubject_= null;
+    private String certificateSubject_ = null;
 
     /** List of required certificate extensions */
-    private List certificateExtensions_= null;
+    private List certificateExtensions_ = null;
 
     /** Private and public keys */
-    private CertificateKeys certificateKeys_= null;
+    private CertificateKeys certificateKeys_ = null;
 
     /** Certificate request */
-    private CertificateRequest certificateRequest_= null;
+    private CertificateRequest certificateRequest_ = null;
 
     /** X.509 certificate */
-    private Certificate certificate_= null;
+    private Certificate certificate_ = null;
 
     /**
-     * 
      * @param configuration
      * @param credentials
      * @throws SLCSException
      */
     public SLCSInit(SLCSClientConfiguration configuration,
             ShibbolethCredentials credentials) throws SLCSException {
-        this.configuration_= configuration;
-        
+        this.configuration_ = configuration;
+
         // read default params from config
-        this.storeDirectory_= createDefaultStoreDirectory(configuration_);
-        this.userCertFilename_= getDefaultUserCertFile(configuration_);
-        this.userKeyFilename_= getDefaultUserKeyFile(configuration_);
-        this.keySize_= getDefaultUserKeySize(configuration_);
-        
+        this.storeDirectory_ = createDefaultStoreDirectory(configuration_);
+        this.userCertFilename_ = getDefaultUserCertFile(configuration_);
+        this.userKeyFilename_ = getDefaultUserKeyFile(configuration_);
+        this.keySize_ = getDefaultUserKeySize(configuration_);
+        this.userPKCS12Filename_ = getDefaultUserPKCS12File(configuration_);
+
         // create the embedded HTTP Shibboleth agent
-        HttpClient httpClient= createHttpClient(configuration_);
-        this.shibMetadata_= new ShibbolethClientMetadata(configuration_);
-        this.shibCredentials_= credentials;
-        this.shibClient_= new ShibbolethClient(httpClient,
-                                               shibMetadata_,
-                                               shibCredentials_);
+        HttpClient httpClient = createHttpClient(configuration_);
+        this.shibMetadata_ = new ShibbolethClientMetadata(configuration_);
+        this.shibCredentials_ = credentials;
+        this.shibClient_ = new ShibbolethClient(httpClient, shibMetadata_, shibCredentials_);
 
     }
 
@@ -147,22 +149,20 @@ public class SLCSInit {
     static private HttpClient createHttpClient(
             SLCSClientConfiguration configuration)
             throws SLCSConfigurationException, SLCSException {
-        String truststore= configuration.getString("HttpClient.TrustStoreFile");
+        String truststore = configuration.getString("HttpClient.TrustStoreFile");
         LOG.info("TrustStoreFile=" + truststore);
         try {
-            ExtendedProtocolSocketFactory protocolSocketFactory= new ExtendedProtocolSocketFactory(truststore);
-            Protocol https= new Protocol("https", protocolSocketFactory, 443);
+            ExtendedProtocolSocketFactory protocolSocketFactory = new ExtendedProtocolSocketFactory(truststore);
+            Protocol https = new Protocol("https", protocolSocketFactory, 443);
             Protocol.registerProtocol("https", https);
         } catch (IOException e) {
             LOG.error(e);
-            throw new SLCSException("Failed to create ExtendedProtocolSocketFactory",
-                                    e);
+            throw new SLCSException("Failed to create ExtendedProtocolSocketFactory", e);
         }
         return new HttpClient();
     }
 
     /**
-     * 
      * @param configuration
      *            SLCS client configuration.
      * @return
@@ -171,21 +171,20 @@ public class SLCSInit {
     static private String createDefaultStoreDirectory(
             SLCSClientConfiguration configuration)
             throws SLCSConfigurationException {
-        String storeDirectory= configuration.getString("StoreDirectory");
+        String storeDirectory = configuration.getString("StoreDirectory");
         LOG.debug("StoreDirectory=" + storeDirectory);
         // check java properties variable and expand
-        int start= storeDirectory.indexOf("${");
+        int start = storeDirectory.indexOf("${");
         if (0 <= start) {
-            int stop= storeDirectory.indexOf("}");
+            int stop = storeDirectory.indexOf("}");
             if (start <= stop) {
-                String propertyName= storeDirectory.substring(start + 2, stop);
-                String propertyValue= System.getProperty(propertyName);
+                String propertyName = storeDirectory.substring(start + 2, stop);
+                String propertyValue = System.getProperty(propertyName);
                 if (propertyValue != null) {
                     LOG.debug("replace ${" + propertyName + "} with: "
                             + propertyValue);
-                    String replace= "\\$\\{" + propertyName + "\\}";
-                    storeDirectory= storeDirectory.replaceAll(replace,
-                                                              propertyValue);
+                    String replace = "\\$\\{" + propertyName + "\\}";
+                    storeDirectory = storeDirectory.replaceAll(replace, propertyValue);
                 }
                 else {
                     LOG.error("StoreDirectory contains invalid ${"
@@ -202,7 +201,7 @@ public class SLCSInit {
         }
         LOG.info("StoreDirectory=" + storeDirectory);
         // create directory
-        File directory= new File(storeDirectory);
+        File directory = new File(storeDirectory);
         if (!directory.exists()) {
             LOG.debug("create directory: " + storeDirectory);
             directory.mkdirs();
@@ -225,7 +224,7 @@ public class SLCSInit {
     static private String getDefaultUserCertFile(
             SLCSClientConfiguration configuration)
             throws SLCSConfigurationException {
-        String userCertFile= configuration.getString("UserCertFile");
+        String userCertFile = configuration.getString("UserCertFile");
         LOG.info("UserCertFile=" + userCertFile);
         return userCertFile;
     }
@@ -241,12 +240,19 @@ public class SLCSInit {
     static private String getDefaultUserKeyFile(
             SLCSClientConfiguration configuration)
             throws SLCSConfigurationException {
-        String userKeyFile= configuration.getString("UserKeyFile");
+        String userKeyFile = configuration.getString("UserKeyFile");
         LOG.info("UserKeyFile=" + userKeyFile);
         return userKeyFile;
     }
 
-    
+    static private String getDefaultUserPKCS12File(
+            SLCSClientConfiguration configuration)
+            throws SLCSConfigurationException {
+        String userPKCS12File = configuration.getString("UserPKCS12File");
+        LOG.info("UserPKCS12File=" + userPKCS12File);
+        return userPKCS12File;
+    }
+
     /**
      * Returns the default private KeySize from the config.
      * 
@@ -258,79 +264,82 @@ public class SLCSInit {
     static private int getDefaultUserKeySize(
             SLCSClientConfiguration configuration)
             throws SLCSConfigurationException {
-        int keySize= configuration.getInt("UserKeySize");
+        int keySize = configuration.getInt("UserKeySize");
         // check valid key size
         if (!validKeySize(keySize)) {
             LOG.error("Invalid UserKeySize: " + keySize);
-            throw new SLCSConfigurationException("Invalid UserKeySize: " + keySize);
+            throw new SLCSConfigurationException("Invalid UserKeySize: "
+                    + keySize);
         }
         LOG.info("KeySize=" + keySize);
         return keySize;
     }
-    
+
     /**
      * Checks that the size is 512, 1024 or 2048
-     * @param size the key size
+     * 
+     * @param size
+     *            the key size
      * @return <code>true</code> if the size valid.
      */
     static private boolean validKeySize(int size) {
-        boolean valid= false;
+        boolean valid = false;
         if (size == 1024 || size == 2048 || size == 512) {
-            valid= true;
+            valid = true;
         }
         return valid;
     }
-    
+
     /**
      * @param args
      */
     public static void main(String[] args) {
         LOG.info("Start...");
         // parse command line
-        CommandLineParser parser= new PosixParser();
-        CommandLine cmd= null;
-        boolean error= false;
-        Options options= createCommandLineOptions();
+        CommandLineParser parser = new PosixParser();
+        CommandLine cmd = null;
+        boolean error = false;
+        Options options = createCommandLineOptions();
         try {
-            cmd= parser.parse(options, args);
+            cmd = parser.parse(options, args);
         } catch (ParseException e) {
             System.err.println("ERROR: " + e.getMessage());
-            error= true;
+            error = true;
         }
-        
+
         // help? or error
         if (error || cmd.hasOption('h')) {
-            System.out.println("slcs-init: " + SLCSInit.class.getName()
-                    + " - " + SLCSClientVersion.COPYRIGHT);
+            System.out.println("slcs-init: " + SLCSInit.class.getName() + " - "
+                    + SLCSClientVersion.COPYRIGHT);
             System.out.println("Version: " + SLCSClientVersion.getVersion());
-            HelpFormatter help= new HelpFormatter();
+            HelpFormatter help = new HelpFormatter();
             help.printHelp("slcs-init --idp <providerId> [options]", options);
             System.exit(1);
         }
-        
+
         // version?
         if (cmd.hasOption('V')) {
-            System.out.println("slcs-init: " + SLCSInit.class.getName()
-                    + " - " + SLCSClientVersion.COPYRIGHT);
+            System.out.println("slcs-init: " + SLCSInit.class.getName() + " - "
+                    + SLCSClientVersion.COPYRIGHT);
             System.out.println("Version: " + SLCSClientVersion.getVersion());
             System.exit(0);
         }
-        
+
         // verbose?
-        boolean verbose= false;
+        boolean verbose = false;
         if (cmd.hasOption('v')) {
-            verbose= true;
+            verbose = true;
         }
-        
+
         // config
-        String config= null;
+        String config = null;
         if (cmd.hasOption('c')) {
-            config= cmd.getOptionValue('c');
+            config = cmd.getOptionValue('c');
             if (config == null) {
                 System.err.println("ERROR: --config: empty config filename");
                 System.exit(1);
             }
-            File configFile= new File(config);
+            File configFile = new File(config);
             if (!configFile.exists()) {
                 System.err.println("ERROR: config file: " + config
                         + " doesn't exist");
@@ -338,16 +347,16 @@ public class SLCSInit {
             }
         }
         else {
-            config= DEFAULT_CONFIGURATION_FILE;
+            config = DEFAULT_CONFIGURATION_FILE;
         }
         if (verbose) {
             System.out.println("Config: " + config);
         }
-        
+
         // store directory
-        String storeDirectory= null;
+        String storeDirectory = null;
         if (cmd.hasOption('D')) {
-            storeDirectory= cmd.getOptionValue('D');
+            storeDirectory = cmd.getOptionValue('D');
             if (storeDirectory == null) {
                 System.err.println("ERROR: --storedir: empty store dirname");
                 System.exit(1);
@@ -358,12 +367,12 @@ public class SLCSInit {
         }
 
         // user prefix
-        String userPrefix= null;
+        String userPrefix = null;
         if (cmd.hasOption('P')) {
-            userPrefix= cmd.getOptionValue('P');
+            userPrefix = cmd.getOptionValue('P');
             if (userPrefix == null) {
                 System.err.println("ERROR: --prefix: empty prefix");
-                System.exit(1);                
+                System.exit(1);
             }
             if (verbose) {
                 System.out.println("Prefix: " + userPrefix);
@@ -371,9 +380,9 @@ public class SLCSInit {
         }
 
         // IdP providerId
-        String idpProviderId= null;
+        String idpProviderId = null;
         if (cmd.hasOption('i')) {
-            idpProviderId= cmd.getOptionValue('i');
+            idpProviderId = cmd.getOptionValue('i');
             if (idpProviderId == null) {
                 System.err.println("ERROR: --idp: empty IdP ProviderId");
                 System.exit(1);
@@ -381,7 +390,7 @@ public class SLCSInit {
         }
         else {
             System.err.println("ERROR: option --idp <providerId> is missing");
-            HelpFormatter help= new HelpFormatter();
+            HelpFormatter help = new HelpFormatter();
             help.printHelp("slcs-init --idp <providerId> [options]", options);
             System.exit(1);
 
@@ -390,11 +399,11 @@ public class SLCSInit {
         if (verbose) {
             System.out.println("IdentityProvider: " + idpProviderId);
         }
-        
+
         // username
-        String username= null;
+        String username = null;
         if (cmd.hasOption('u')) {
-            username= cmd.getOptionValue('u');
+            username = cmd.getOptionValue('u');
             if (username == null) {
                 System.err.println("ERROR: --user: empty username");
                 System.exit(1);
@@ -402,23 +411,22 @@ public class SLCSInit {
         }
         else {
             // get current username
-            username= System.getProperty("user.name");
+            username = System.getProperty("user.name");
         }
         LOG.info("Username: " + username);
         if (verbose) {
             System.out.println("Username: " + username);
         }
-        
+
         // password
-        char[] password= null;
+        char[] password = null;
         if (cmd.hasOption('p')) {
-            password= cmd.getOptionValue('p').toCharArray();
+            password = cmd.getOptionValue('p').toCharArray();
         }
         else {
             // read from console
             try {
-                password= PasswordReader.getPassword(System.in,
-                                                     "Shibboleth Password: ");
+                password = PasswordReader.getPassword(System.in, "Shibboleth Password: ");
             } catch (IOException e) {
                 // ignored?
                 LOG.error(e);
@@ -429,19 +437,18 @@ public class SLCSInit {
             System.exit(1);
         }
         // private key size and password
-        int keySize= -1;
+        int keySize = -1;
         if (cmd.hasOption('s')) {
-            keySize= Integer.parseInt(cmd.getOptionValue('s'));
+            keySize = Integer.parseInt(cmd.getOptionValue('s'));
         }
-        char[] keyPassword= null;
+        char[] keyPassword = null;
         if (cmd.hasOption('k')) {
-            keyPassword= cmd.getOptionValue('k').toCharArray();
+            keyPassword = cmd.getOptionValue('k').toCharArray();
         }
         else {
             // read from console
             try {
-                keyPassword= PasswordReader.getPassword(System.in,
-                                                        "New Key Password: ");
+                keyPassword = PasswordReader.getPassword(System.in, "New Key Password: ");
             } catch (IOException e) {
                 // ignored?
                 LOG.error(e);
@@ -449,19 +456,23 @@ public class SLCSInit {
         }
         if (keyPassword == null) {
             System.out.println("Key password is empty, using Shibboleth password.");
-            keyPassword= password;
+            keyPassword = password;
+        }
+
+        // p12 output
+        boolean storeP12 = false;
+        if (cmd.hasOption('x')) {
+            storeP12 = true;
         }
 
         // create client
-        SLCSInit client= null;
+        SLCSInit client = null;
         try {
             LOG.debug("load SLCS client configuration...");
-            SLCSClientConfiguration configuration= SLCSClientConfiguration.getInstance(config);
-            ShibbolethCredentials credentials= new ShibbolethCredentials(username,
-                                                                         password,
-                                                                         idpProviderId);
+            SLCSClientConfiguration configuration = SLCSClientConfiguration.getInstance(config);
+            ShibbolethCredentials credentials = new ShibbolethCredentials(username, password, idpProviderId);
             LOG.debug("create SLCS client...");
-            client= new SLCSInit(configuration, credentials);
+            client = new SLCSInit(configuration, credentials);
             if (storeDirectory != null) {
                 LOG.debug("overwrite store directory: " + storeDirectory);
                 client.setStoreDirectory(storeDirectory);
@@ -507,7 +518,7 @@ public class SLCSInit {
             if (keySize != -1) {
                 client.setKeySize(keySize);
             }
-            keySize= client.getKeySize();
+            keySize = client.getKeySize();
             LOG.info("Generate keys and certificate request...");
             if (verbose) {
                 System.out.println("Generate private key (" + keySize
@@ -519,8 +530,7 @@ public class SLCSInit {
             }
             client.generateCertificateRequest();
         } catch (GeneralSecurityException e) {
-            LOG.fatal("SLCSClient failed to generate key and certificate request",
-                      e);
+            LOG.fatal("SLCSClient failed to generate key and certificate request", e);
             System.err.println("ERROR: " + e);
             System.exit(1);
         }
@@ -541,18 +551,27 @@ public class SLCSInit {
         // store key + cert
         try {
             if (verbose) {
-                String userkey= client.getStoreDirectory() + File.separator
+                String userkey = client.getStoreDirectory() + File.separator
                         + client.getUserKeyFilename();
                 System.out.println("Store private key [" + userkey + "]...");
             }
             client.storePrivateKey();
             if (verbose) {
-                String usercert= client.getStoreDirectory() + File.separator
+                String usercert = client.getStoreDirectory() + File.separator
                         + client.getUserCertFilename();
                 System.out.println("Store SLCS certificate [" + usercert
                         + "]...");
             }
             client.storeCertificate();
+            if (storeP12) {
+                if (verbose) {
+                    String userp12 = client.getStoreDirectory()
+                            + File.separator + client.getUserPKCS12Filename();
+                    System.out.println("Store PKCS12 [" + userp12 + "]...");
+                }
+                client.storePKCS12();
+            }
+
         } catch (IOException e) {
             LOG.fatal("SLCS failed to store key or certificate", e);
             System.err.println("ERROR: " + e);
@@ -572,7 +591,7 @@ public class SLCSInit {
      */
     private void shibbolethLogin() throws SLCSException {
         LOG.debug("Shibboleth authentication...");
-        boolean authenticated= shibClient_.authenticate();
+        boolean authenticated = shibClient_.authenticate();
         if (!authenticated) {
             LOG.error("Shibboleth authentication failed");
             throw new AuthException("Shibboleth authentication failed");
@@ -580,11 +599,11 @@ public class SLCSInit {
     }
 
     private void slcsLogin() throws SLCSException {
-        String slcsLoginURL= shibMetadata_.getSLCS().getUrl();
-        GetMethod getLoginMethod= new GetMethod(slcsLoginURL);
+        String slcsLoginURL = shibMetadata_.getSLCS().getUrl();
+        GetMethod getLoginMethod = new GetMethod(slcsLoginURL);
         try {
             LOG.info("GET login: " + slcsLoginURL);
-            int status= shibClient_.executeMethod(getLoginMethod);
+            int status = shibClient_.executeMethod(getLoginMethod);
             LOG.debug(getLoginMethod.getStatusLine());
             // check status: 401
             if (status != 200) {
@@ -595,27 +614,26 @@ public class SLCSInit {
             }
 
             // read response
-            InputStream is= getLoginMethod.getResponseBodyAsStream();
-            Source source= new Source(is);
+            InputStream is = getLoginMethod.getResponseBodyAsStream();
+            Source source = new Source(is);
             checkSLCSResponse(source, "SLCSLoginResponse");
             parseSLCSLoginResponse(source);
         } catch (IOException e) {
             LOG.error("Failed to request DN", e);
             throw new SLCSException("Failed to request DN", e);
-        } finally {
+        }
+        finally {
             getLoginMethod.releaseConnection();
         }
     }
 
     private void slcsCertificateRequest() throws SLCSException {
-        PostMethod postCertificateRequestMethod= new PostMethod(certificateRequestUrl_);
-        postCertificateRequestMethod.addParameter("AuthorizationToken",
-                                                  authorizationToken_);
-        postCertificateRequestMethod.addParameter("CertificateSigningRequest",
-                                                  certificateRequest_.getPEMEncoded());
+        PostMethod postCertificateRequestMethod = new PostMethod(certificateRequestUrl_);
+        postCertificateRequestMethod.addParameter("AuthorizationToken", authorizationToken_);
+        postCertificateRequestMethod.addParameter("CertificateSigningRequest", certificateRequest_.getPEMEncoded());
         try {
             LOG.info("POST CSR: " + certificateRequestUrl_);
-            int status= shibClient_.executeMethod(postCertificateRequestMethod);
+            int status = shibClient_.executeMethod(postCertificateRequestMethod);
             LOG.debug(postCertificateRequestMethod.getStatusLine());
             // check status
             if (status != 200) {
@@ -625,15 +643,16 @@ public class SLCSInit {
                         + postCertificateRequestMethod.getStatusLine());
             }
             // read response
-            InputStream is= postCertificateRequestMethod.getResponseBodyAsStream();
-            Source source= new Source(is);
+            InputStream is = postCertificateRequestMethod.getResponseBodyAsStream();
+            Source source = new Source(is);
             checkSLCSResponse(source, "SLCSCertificateResponse");
             parseSLCSCertificateResponse(source);
 
         } catch (IOException e) {
             LOG.error("Failed to request the certificate", e);
             throw new SLCSException("Failed to request the certificate", e);
-        } finally {
+        }
+        finally {
             postCertificateRequestMethod.releaseConnection();
         }
     }
@@ -643,34 +662,34 @@ public class SLCSInit {
         // optimization !?!
         source.fullSequentialParse();
 
-        int pos= 0;
-        Element reponseElement= source.findNextElement(pos, name);
+        int pos = 0;
+        Element reponseElement = source.findNextElement(pos, name);
         if (reponseElement == null || reponseElement.isEmpty()) {
             LOG.error(name + " element not found");
             throw new ServiceException(name
                     + " element not found in SLCS response");
         }
         // read status
-        Element statusElement= source.findNextElement(pos, "status");
+        Element statusElement = source.findNextElement(pos, "status");
         if (statusElement == null || statusElement.isEmpty()) {
             LOG.error("Status element not found");
             throw new ServiceException("Status element not found in SLCS response");
         }
-        String status= statusElement.getContent().toString();
+        String status = statusElement.getContent().toString();
         LOG.info("Status=" + status);
         if (status != null && status.equalsIgnoreCase("Error")) {
-            pos= statusElement.getEnd();
-            Element errorElement= source.findNextElement(pos, "error");
+            pos = statusElement.getEnd();
+            Element errorElement = source.findNextElement(pos, "error");
             if (errorElement == null || errorElement.isEmpty()) {
                 LOG.error("Error element not found");
                 throw new SLCSException("Error element not found in SLCS error response");
             }
-            String error= errorElement.getContent().toString();
+            String error = errorElement.getContent().toString();
             // is there a stack trace?
-            pos= errorElement.getEnd();
-            Element traceElement= source.findNextElement(pos, "stacktrace");
+            pos = errorElement.getEnd();
+            Element traceElement = source.findNextElement(pos, "stacktrace");
             if (traceElement != null && !traceElement.isEmpty()) {
-                String stackTrace= traceElement.getContent().toString();
+                String stackTrace = traceElement.getContent().toString();
                 throw new ServiceException(error + "\nRemote error:\n"
                         + stackTrace);
             }
@@ -684,55 +703,54 @@ public class SLCSInit {
 
     private void parseSLCSLoginResponse(Source source) throws SLCSException {
         // get AuthorizationToken
-        int pos= 0;
-        Element tokenElement= source.findNextElement(pos, "AuthorizationToken");
+        int pos = 0;
+        Element tokenElement = source.findNextElement(pos, "AuthorizationToken");
         if (tokenElement == null || tokenElement.isEmpty()) {
             LOG.error("AuthorizationToken element not found");
             throw new SLCSException("AuthorizationToken element not found in SLCS response");
         }
-        authorizationToken_= tokenElement.getContent().toString();
+        authorizationToken_ = tokenElement.getContent().toString();
         LOG.info("AuthorizationToken=" + authorizationToken_);
         // get the certificate request URL
-        pos= tokenElement.getEnd();
-        Element certificateRequestElement= source.findNextElement(pos,
-                                                                  "CertificateRequest");
+        pos = tokenElement.getEnd();
+        Element certificateRequestElement = source.findNextElement(pos, "CertificateRequest");
         if (certificateRequestElement == null
                 || certificateRequestElement.isEmpty()) {
             LOG.error("CertificateRequest element not found");
             throw new SLCSException("CertificateRequest element not found in SLCS response");
         }
-        certificateRequestUrl_= certificateRequestElement.getAttributeValue("url");
-        if (certificateRequestUrl_ == null ) {
+        certificateRequestUrl_ = certificateRequestElement.getAttributeValue("url");
+        if (certificateRequestUrl_ == null) {
             LOG.error("CertificateRequest url attribute not found");
             throw new SLCSException("CertificateRequest url attribute not found in SLCS response");
         }
         else if (!certificateRequestUrl_.startsWith("http")) {
-            LOG.error("CertificateRequest url attribute doesn't starts with http: " + certificateRequestUrl_);
-            throw new SLCSException("CertificateRequest url attribute is not valid: " + certificateRequestUrl_);            
+            LOG.error("CertificateRequest url attribute doesn't starts with http: "
+                    + certificateRequestUrl_);
+            throw new SLCSException("CertificateRequest url attribute is not valid: "
+                    + certificateRequestUrl_);
         }
         LOG.info("CertificateRequest url=" + certificateRequestUrl_);
 
         // get certificate subject
-        Element subjectElement= source.findNextElement(pos, "Subject");
+        Element subjectElement = source.findNextElement(pos, "Subject");
         if (subjectElement == null || subjectElement.isEmpty()) {
             LOG.error("Subject element not found");
             throw new SLCSException("Subject element not found in SLCS response");
         }
-        certificateSubject_= subjectElement.getContent().toString();
+        certificateSubject_ = subjectElement.getContent().toString();
         LOG.info("CertificateRequest.Subject=" + certificateSubject_);
         // any certificate extensions?
-        certificateExtensions_= new ArrayList();
-        pos= subjectElement.getEnd();
-        Element extensionElement= null;
-        while ((extensionElement= source.findNextElement(pos,
-                                                         "certificateextension")) != null) {
-            pos= extensionElement.getEnd();
-            String extensionName= extensionElement.getAttributeValue("name");
-            String extensionValues= extensionElement.getContent().toString();
+        certificateExtensions_ = new ArrayList();
+        pos = subjectElement.getEnd();
+        Element extensionElement = null;
+        while ((extensionElement = source.findNextElement(pos, "certificateextension")) != null) {
+            pos = extensionElement.getEnd();
+            String extensionName = extensionElement.getAttributeValue("name");
+            String extensionValues = extensionElement.getContent().toString();
             LOG.info("CertificateRequest.CertificateExtension: "
                     + extensionName + "=" + extensionValues);
-            CertificateExtension extension= CertificateExtensionFactory.createCertificateExtension(extensionName,
-                                                                                                   extensionValues);
+            CertificateExtension extension = CertificateExtensionFactory.createCertificateExtension(extensionName, extensionValues);
             if (extension != null) {
                 certificateExtensions_.add(extension);
             }
@@ -741,18 +759,18 @@ public class SLCSInit {
 
     private void parseSLCSCertificateResponse(Source source)
             throws SLCSException, IOException {
-        int pos= 0;
-        Element certificateElement= source.findNextElement(pos, "Certificate");
+        int pos = 0;
+        Element certificateElement = source.findNextElement(pos, "Certificate");
         if (certificateElement == null || certificateElement.isEmpty()) {
             LOG.error("Certificate element not found");
             throw new SLCSException("Certificate element not found in SLCS response");
         }
-        String pemCertificate= certificateElement.getContent().toString();
+        String pemCertificate = certificateElement.getContent().toString();
         LOG.info("Certificate element found");
         LOG.debug("Certificate=" + pemCertificate);
-        StringReader reader= new StringReader(pemCertificate);
+        StringReader reader = new StringReader(pemCertificate);
         try {
-            certificate_= Certificate.readPEM(reader);
+            certificate_ = Certificate.readPEM(reader);
         } catch (GeneralSecurityException e) {
             LOG.error("Failed to reconstitute the certificate: " + e);
             throw new SLCSException("Failed to reconstitute the certificate", e);
@@ -765,46 +783,29 @@ public class SLCSInit {
      * @return The CLI Options
      */
     private static Options createCommandLineOptions() {
-        Option help= new Option("h", "help", false, "this help");
-        Option username= new Option("u", "user", true, "Shibboleth username");
+        Option help = new Option("h", "help", false, "this help");
+        Option username = new Option("u", "user", true, "Shibboleth username");
         username.setArgName("username");
-        Option idp= new Option("i", "idp", true, "Shibboleth IdP providerId");
+        Option idp = new Option("i", "idp", true, "Shibboleth IdP providerId");
         idp.setArgName("providerId");
-        Option config= new Option("c",
-                                  "conf",
-                                  true,
-                                  "SLCS client XML configuration file");
+        Option config = new Option("c", "conf", true, "SLCS client XML configuration file");
         config.setArgName("filename");
-        Option verbose= new Option("v", "verbose", false, "verbose");
-        Option version= new Option("V", "version", false, "shows the version");
-        Option password= new Option("p",
-                                    "password",
-                                    true,
-                                    "Shibboleth password");
+        Option verbose = new Option("v", "verbose", false, "verbose");
+        Option version = new Option("V", "version", false, "shows the version");
+        Option password = new Option("p", "password", true, "Shibboleth password");
         password.setArgName("password");
-        Option keysize= new Option("s",
-                                   "keysize",
-                                   true,
-                                   "private key size (default: 1024)");
+        Option keysize = new Option("s", "keysize", true, "private key size (default: 1024)");
         keysize.setArgName("size");
-        Option keypassword= new Option("k",
-                                       "keypass",
-                                       true,
-                                       "private key password (default: same as Shibboleth password)");
+        Option keypassword = new Option("k", "keypass", true, "private key password (default: same as Shibboleth password)");
         keypassword.setArgName("password");
-        Option prefix= new Option("P",
-                                  "prefix",
-                                  true,
-                                  "optional usercert.pem and userkey.pem filename prefix");
+        Option prefix = new Option("P", "prefix", true, "optional usercert.pem and userkey.pem filename prefix");
         prefix.setArgName("prefix");
-        Option storedir= new Option("D",
-                                    "storedir",
-                                    true,
-                                    "absolute pathname to the store directory (default: $HOME/.globus)");
+        Option storedir = new Option("D", "storedir", true, "absolute pathname to the store directory (default: $HOME/.globus)");
         storedir.setArgName("directory");
+        Option p12 = new Option("x", "p12", false, "store additional PKCS12 user.p12 file");
         // Option list= OptionBuilder.withLongOpt("list").withDescription("list
         // the known Shibboleth IdP").create("l");
-        Options options= new Options();
+        Options options = new Options();
         options.addOption(help);
         options.addOption(username);
         options.addOption(password);
@@ -816,6 +817,7 @@ public class SLCSInit {
         options.addOption(keypassword);
         options.addOption(prefix);
         options.addOption(storedir);
+        options.addOption(p12);
         return options;
     }
 
@@ -832,7 +834,7 @@ public class SLCSInit {
     private void generateCertificateKeys(int size, char[] password)
             throws GeneralSecurityException {
         LOG.debug("generate keys...");
-        certificateKeys_= new CertificateKeys(size, password);
+        certificateKeys_ = new CertificateKeys(size, password);
     }
 
     /**
@@ -842,10 +844,10 @@ public class SLCSInit {
      *             If an error occurs while writing the userkey.pem file.
      */
     private void storePrivateKey() throws IOException {
-        String filename= getStoreDirectory() + File.separator
+        String filename = getStoreDirectory() + File.separator
                 + getUserKeyFilename();
         LOG.info("Store private key: " + filename);
-        File file= new File(filename);
+        File file = new File(filename);
         certificateKeys_.storePEMPrivate(file);
     }
 
@@ -857,10 +859,10 @@ public class SLCSInit {
      *             If an error occurs while writing the usercert.pem file.
      */
     private void storeCertificate() throws IOException {
-        String filename= getStoreDirectory() + File.separator
+        String filename = getStoreDirectory() + File.separator
                 + getUserCertFilename();
         LOG.info("Store certificate: " + filename);
-        File file= new File(filename);
+        File file = new File(filename);
         certificate_.storePEM(file);
     }
 
@@ -872,9 +874,7 @@ public class SLCSInit {
      */
     private void generateCertificateRequest() throws GeneralSecurityException {
         LOG.debug("generate CSR: " + certificateSubject_);
-        certificateRequest_= new CertificateRequest(certificateKeys_,
-                                                    certificateSubject_,
-                                                    certificateExtensions_);
+        certificateRequest_ = new CertificateRequest(certificateKeys_, certificateSubject_, certificateExtensions_);
     }
 
     /**
@@ -890,17 +890,18 @@ public class SLCSInit {
      * 
      * @param directory
      *            The absolute pathname of the store directory.
-     * @return <code>true</code> iff the absolute dirname is an existing writable directory
+     * @return <code>true</code> iff the absolute dirname is an existing
+     *         writable directory
      */
     private boolean setStoreDirectory(String directory) {
-        boolean valid= false;
-        if (directory== null) {
+        boolean valid = false;
+        if (directory == null) {
             return false;
         }
-        File dir= new File(directory);
+        File dir = new File(directory);
         if (dir.isDirectory() && dir.canWrite()) {
-            storeDirectory_= dir.getAbsolutePath();
-            valid= true;
+            storeDirectory_ = dir.getAbsolutePath();
+            valid = true;
         }
         else {
             LOG.warn("Not a valid store directory: " + directory);
@@ -914,19 +915,19 @@ public class SLCSInit {
      * @param prefix
      */
     private void setUserPrefix(String prefix) {
-        userPrefix_= prefix;
+        userPrefix_ = prefix;
     }
 
     /**
      * @return The prefixed (if any) usercert filename.
      */
     private String getUserCertFilename() {
-        String usercert= null;
+        String usercert = null;
         if (userPrefix_ == null) {
-            usercert= userCertFilename_;
+            usercert = userCertFilename_;
         }
         else {
-            usercert= userPrefix_ + userCertFilename_;
+            usercert = userPrefix_ + userCertFilename_;
         }
         return usercert;
     }
@@ -935,23 +936,60 @@ public class SLCSInit {
      * @return The prefixed (if any) userkey filename.
      */
     private String getUserKeyFilename() {
-        String userkey= null;
+        String userkey = null;
         if (userPrefix_ == null) {
-            userkey= userKeyFilename_;
+            userkey = userKeyFilename_;
         }
         else {
-            userkey= userPrefix_ + userKeyFilename_;
+            userkey = userPrefix_ + userKeyFilename_;
         }
         return userkey;
     }
-    
+
+    /**
+     * @return The prefixed (if any) userp12 filename.
+     */
+    private String getUserPKCS12Filename() {
+        String userp12 = null;
+        if (userPrefix_ == null) {
+            userp12 = userPKCS12Filename_;
+        }
+        else {
+            userp12 = userPrefix_ + userPKCS12Filename_;
+        }
+        return userp12;
+    }
+
     private int getKeySize() {
         return keySize_;
     }
-    
+
     private void setKeySize(int size) {
-        //TODO check valid size
-        keySize_= size;
+        // TODO check valid size
+        keySize_ = size;
     }
 
+    /**
+     * Stores the private key and certificate in a PKCS12 file.
+     * 
+     * @throws IOException
+     *             If an IO error occurs.
+     */
+    private void storePKCS12() throws IOException {
+        PrivateKey privateKey = certificateKeys_.getPrivate();
+        X509Certificate certificate = certificate_.getCertificate();
+        X509Certificate chain[] = certificate_.getCertificateChain();
+        char password[] = certificateKeys_.getPassword();
+        try {
+            String filename = getStoreDirectory() + File.separator
+                    + getUserPKCS12Filename();
+            LOG.info("Store PKCS12: " + filename);
+            File file = new File(filename);
+            Codec.storePKCS12(privateKey, certificate, chain, file, password);
+        } catch (GeneralSecurityException e) {
+            // TODO Auto-generated catch block
+            LOG.error(e);
+            throw new IOException("Failed to store PKCS12: " + e);
+        }
+    }
 }
