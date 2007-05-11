@@ -1,0 +1,10 @@
+VERSION 1.1.0
+-------------
+* slcs-init --p12 option added to store PKCS12 file
+
+VERSION 1.0.0
+-------------
+* slcs-init command initial version
+* slcs-info command initial version
+--
+$Id: CHANGELOG,v 1.1 2007/05/11 14:37:45 vtschopp Exp $
