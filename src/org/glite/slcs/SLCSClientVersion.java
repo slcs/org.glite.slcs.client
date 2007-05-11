@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSClientVersion.java,v 1.3 2007/05/09 07:11:50 vtschopp Exp $
+ * $Id: SLCSClientVersion.java,v 1.4 2007/05/11 11:49:31 vtschopp Exp $
  * 
  * Created on Aug 9, 2006 by tschopp
  *
@@ -14,9 +14,9 @@ public class SLCSClientVersion {
     /** Major version number */
     static public final int MAJOR= 1;
     /** Minor version number */
-    static public final int MINOR= 0;
+    static public final int MINOR= 1;
     /** Revision version number */
-    static public final int REVISION= 1;
+    static public final int REVISION= 0;
      /** Build number */
     static public final int BUILD= 0;
     
