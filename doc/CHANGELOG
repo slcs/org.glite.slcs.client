@@ -1,0 +1,16 @@
+Version 1.1.1
+-------------
+* Bug fix: create store directory specified with option -D if it does not exist.
+* Bug fix: handle Shibboleth login with CAS SSO unamed form.
+
+
+Version 1.1.0
+-------------
+* CLI: add the --p12, -x option to store an optional user.p12 in PKCS12 format.
+
+
+Version 1.0.0
+-------------
+* initial version
+--
+$Id: CHANGELOG,v 1.1 2007/07/02 14:29:57 vtschopp Exp $
