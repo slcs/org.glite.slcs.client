@@ -1,7 +1,7 @@
 
 <!-- STANDALONE build for org.glite.slcs.ui -->
 <!-- Valery Tschopp <tschopp@switch.ch> -->
-<!-- $Id: build.standalone.xml,v 1.7 2007/03/01 14:58:58 vtschopp Exp $ -->
+<!-- $Id: build.standalone.xml,v 1.8 2007/07/03 15:07:59 vtschopp Exp $ -->
 
 
 <project name="org.glite.slcs.client" default="tar" basedir=".">
@@ -13,6 +13,7 @@
     <property name="external.lib.dir" location="${basedir}/../repository/externals" />
 	<property name="bin.dir" location="${basedir}/scripts" />
 	<property name="etc.dir" location="${basedir}/etc" />
+	<property name="doc.dir" location="${basedir}/doc" />
 	<property name="build.dir" location="${basedir}/build" />
 	<property name="dist.dir" location="${basedir}/dist" />
 
@@ -115,11 +116,13 @@
 		<!-- create glite directories layout -->
         <property name="glite.dist.bin.dir" location="${dist.dir}/bin" />
         <property name="glite.dist.etc.dir" location="${dist.dir}/etc/glite-slcs-ui" />
+        <property name="glite.dist.doc.dir" location="${dist.dir}/share/doc/glite-slcs-ui" />
         <property name="glite.dist.log.dir" location="${dist.dir}/log" />
         <property name="glite.dist.lib.dir" location="${dist.dir}/share/java" />
         <property name="glite.dist.external.lib.dir" location="${dist.dir}/externals/share/java" />
         <mkdir dir="${glite.dist.bin.dir}" />
         <mkdir dir="${glite.dist.etc.dir}" />
+        <mkdir dir="${glite.dist.doc.dir}" />
         <mkdir dir="${glite.dist.log.dir}" />
         <mkdir dir="${glite.dist.lib.dir}" />
         <mkdir dir="${glite.dist.external.lib.dir}" />
@@ -135,6 +138,10 @@
 		<!-- copy config and etc -->
 		<copy todir="${glite.dist.etc.dir}">
 			<fileset dir="${etc.dir}" />
+		</copy>
+		<!-- copy doc -->
+		<copy todir="${glite.dist.doc.dir}">
+			<fileset dir="${doc.dir}" />
 		</copy>
 		<!-- jar SLCS ui classes -->
         <property name="slcs.ui.jar.file" location="${glite.dist.lib.dir}/${slcs.ui.jarfile}" />
