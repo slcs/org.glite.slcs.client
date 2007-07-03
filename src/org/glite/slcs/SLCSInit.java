@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSInit.java,v 1.2 2007/05/11 11:50:59 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.3 2007/07/03 14:05:08 vtschopp Exp $
  * 
  * Created on Aug 8, 2006 by tschopp
  *
@@ -29,6 +29,7 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,7 +53,7 @@ import au.id.jericho.lib.html.Source;
  * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class SLCSInit {
 
@@ -61,6 +62,9 @@ public class SLCSInit {
 
     /** Default XML config filename in CLASSPATH */
     static private String DEFAULT_CONFIGURATION_FILE = "slcs-init.xml";
+
+    /** Default number of backup file to keep */
+    static private int MAX_BACKUP = 3;
 
     /** Configuration */
     private SLCSClientConfiguration configuration_ = null;
@@ -159,7 +163,24 @@ public class SLCSInit {
             LOG.error(e);
             throw new SLCSException("Failed to create ExtendedProtocolSocketFactory", e);
         }
-        return new HttpClient();
+        HttpClient httpClient = new HttpClient();
+        setHttpClientUserAgent(httpClient);
+        return httpClient;
+    }
+
+    /**
+     * Sets the User-Agent request header as
+     * <code>Mozilla/5.0 (Jakarata Commons-HttpClient/3.0.1; slcs-init/VERSION)</code>
+     * to prevent PubCookie from denying access (bug fix)
+     */
+    private static void setHttpClientUserAgent(HttpClient httpClient) {
+        String userAgent = (String) httpClient.getParams().getParameter(HttpClientParams.USER_AGENT);
+        String newUserAgent = "Mozilla/5.0 (" + userAgent + "; slcs-init/" + SLCSClientVersion.getVersion() + ")";
+        httpClient.getParams().setParameter(HttpClientParams.USER_AGENT, newUserAgent);
+        if (LOG.isDebugEnabled()) {
+            userAgent = (String) httpClient.getParams().getParameter(HttpClientParams.USER_AGENT);
+            LOG.debug("User-Agent=" + userAgent);
+        }
     }
 
     /**
@@ -803,8 +824,6 @@ public class SLCSInit {
         Option storedir = new Option("D", "storedir", true, "absolute pathname to the store directory (default: $HOME/.globus)");
         storedir.setArgName("directory");
         Option p12 = new Option("x", "p12", false, "store additional PKCS12 user.p12 file");
-        // Option list= OptionBuilder.withLongOpt("list").withDescription("list
-        // the known Shibboleth IdP").create("l");
         Options options = new Options();
         options.addOption(help);
         options.addOption(username);
@@ -848,6 +867,7 @@ public class SLCSInit {
                 + getUserKeyFilename();
         LOG.info("Store private key: " + filename);
         File file = new File(filename);
+        backupFile(file);
         certificateKeys_.storePEMPrivate(file);
     }
 
@@ -863,7 +883,44 @@ public class SLCSInit {
                 + getUserCertFilename();
         LOG.info("Store certificate: " + filename);
         File file = new File(filename);
+        backupFile(file);
         certificate_.storePEM(file);
+    }
+
+    /**
+     * Backup the given file using a rotating backup scheme: filename.1 ..
+     * filename.2 ...
+     * 
+     * @param file
+     *            The file to rotate
+     */
+    private void backupFile(File file) {
+        if (file.exists() && file.isFile()) {
+            String filename = file.getAbsolutePath();
+            // delete the oldest file, for Windows
+            String backupFilename = filename + "." + MAX_BACKUP;
+            File backupFile = new File(backupFilename);
+            if (backupFile.exists() && backupFile.isFile()) {
+                LOG.debug("delete old " + backupFile);
+                backupFile.delete();
+            }
+            // rotate backup files:[MAX_BACKUP-1..1]
+            for (int i = MAX_BACKUP - 1; i >= 1; i--) {
+                backupFilename = filename + "." + i;
+                backupFile = new File(backupFilename);
+                if (backupFile.exists() && backupFile.isFile()) {
+                    String targetFilename = filename + "." + (i + 1);
+                    File targetFile = new File(targetFilename);
+                    LOG.debug("rotating " + backupFile + " -> " + targetFile);
+                    backupFile.renameTo(targetFile);
+                }
+            }
+
+            // backup filename to filename.1
+            LOG.debug("backup " + file + " -> " + backupFile);
+            file.renameTo(backupFile);
+
+        }
     }
 
     /**
@@ -899,6 +956,11 @@ public class SLCSInit {
             return false;
         }
         File dir = new File(directory);
+        // BUG FIX: create dir if not exist
+        if (!dir.exists()) {
+            LOG.info("create store directory: " + dir.getAbsolutePath());
+            dir.mkdirs();
+        }
         if (dir.isDirectory() && dir.canWrite()) {
             storeDirectory_ = dir.getAbsolutePath();
             valid = true;
@@ -970,7 +1032,8 @@ public class SLCSInit {
     }
 
     /**
-     * Stores the private key and certificate in a PKCS12 file.
+     * Stores the private key and certificate in an encrypted PKCS12 file. The
+     * password is the same as the private key password.
      * 
      * @throws IOException
      *             If an IO error occurs.
@@ -985,9 +1048,9 @@ public class SLCSInit {
                     + getUserPKCS12Filename();
             LOG.info("Store PKCS12: " + filename);
             File file = new File(filename);
+            backupFile(file);
             Codec.storePKCS12(privateKey, certificate, chain, file, password);
         } catch (GeneralSecurityException e) {
-            // TODO Auto-generated catch block
             LOG.error(e);
             throw new IOException("Failed to store PKCS12: " + e);
         }
