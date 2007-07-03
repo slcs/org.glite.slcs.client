@@ -3,7 +3,7 @@
 <!-- 
 SLCS Client configuration 
 
-$Id: slcs-init.xml,v 1.4 2007/05/11 13:32:15 vtschopp Exp $
+$Id: slcs-init.xml,v 1.5 2007/07/03 14:43:50 vtschopp Exp $
 
 Copyright (c) 2004. Members of the EGEE Collaboration. 
 http://www.eu-egee.org
@@ -145,12 +145,12 @@ http://www.eu-egee.org
             <!-- Université de Lausanne -->
             <IdentityProvider id="unil.ch">
                 <name>Universite de Lausanne</name>
-                <url>https://aai1.unil.ch/shibboleth-idp/SSO</url>
-                <authentication type="PUBCOOKIE">
-                    <url>https://aai1.unil.ch/</url>
-                    <form name="query">
-                        <username>user</username>
-                        <password>pass</password>                   
+                <url>https://aai.unil.ch/shibboleth-idp/SSO</url>
+                <authentication type="CAS">
+                    <url>https://aai.unil.ch/cas/login</url>
+                    <form name="casloginform">
+                        <username>username</username>
+                        <password>password</password>                   
                     </form>
                 </authentication>
             </IdentityProvider>
