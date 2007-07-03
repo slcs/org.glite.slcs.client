@@ -1,7 +1,8 @@
 Version 1.1.1
 -------------
+* userkey.pem, usercert.pem and optional user.p12 files are backuped (3 backups keep)
 * Bug fix: create store directory specified with option -D if it does not exist.
-* Bug fix: handle Shibboleth login with CAS SSO unamed form.
+* Bug fix: handle Shibboleth SSO login with CAS unamed form.
 
 
 Version 1.1.0
@@ -12,5 +13,6 @@ Version 1.1.0
 Version 1.0.0
 -------------
 * initial version
+
 --
-$Id: CHANGELOG,v 1.1 2007/07/02 14:29:57 vtschopp Exp $
+$Id: CHANGELOG,v 1.2 2007/07/03 14:56:32 vtschopp Exp $
