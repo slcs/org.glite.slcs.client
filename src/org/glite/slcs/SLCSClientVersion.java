@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSClientVersion.java,v 1.4 2007/05/11 11:49:31 vtschopp Exp $
+ * $Id: SLCSClientVersion.java,v 1.5 2007/07/03 14:41:41 vtschopp Exp $
  * 
  * Created on Aug 9, 2006 by tschopp
  *
@@ -16,7 +16,7 @@ public class SLCSClientVersion {
     /** Minor version number */
     static public final int MINOR= 1;
     /** Revision version number */
-    static public final int REVISION= 0;
+    static public final int REVISION= 1;
      /** Build number */
     static public final int BUILD= 0;
     
@@ -29,13 +29,13 @@ public class SLCSClientVersion {
     private SLCSClientVersion() {}
 
     /**
-     * @return The version number in format MAJOR.MINOR.REVISION.BUILD
+     * @return The version number in format MAJOR.MINOR.REVISION-BUILD
      */
     static public String getVersion() {
         StringBuffer sb= new StringBuffer();
         sb.append(MAJOR).append('.');
         sb.append(MINOR).append('.');
-        sb.append(REVISION).append('.');
+        sb.append(REVISION).append('-');
         sb.append(BUILD);
         return sb.toString();
     }
