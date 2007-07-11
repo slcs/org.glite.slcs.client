@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSInit.java,v 1.3 2007/07/03 14:05:08 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.4 2007/07/11 16:03:06 vtschopp Exp $
  * 
  * Created on Aug 8, 2006 by tschopp
  *
@@ -53,7 +53,7 @@ import au.id.jericho.lib.html.Source;
  * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class SLCSInit {
 
@@ -911,13 +911,13 @@ public class SLCSInit {
                 if (backupFile.exists() && backupFile.isFile()) {
                     String targetFilename = filename + "." + (i + 1);
                     File targetFile = new File(targetFilename);
-                    LOG.debug("rotating " + backupFile + " -> " + targetFile);
+                    LOG.info("Rotate backup file: " + backupFile + " -> " + targetFile);
                     backupFile.renameTo(targetFile);
                 }
             }
 
             // backup filename to filename.1
-            LOG.debug("backup " + file + " -> " + backupFile);
+            LOG.info("Backup file: " + file + " -> " + backupFile);
             file.renameTo(backupFile);
 
         }
