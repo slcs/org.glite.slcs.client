@@ -7,7 +7,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.etics.xml,v 1.5 2007/07/18 15:18:23 vtschopp Exp $
+    Version: $Id: build.etics.xml,v 1.6 2007/07/18 15:45:54 vtschopp Exp $
 -->
 <project name="org.glite.slcs.common" default="dist" basedir=".">
 
@@ -20,6 +20,7 @@
     <!-- ETICS directories -->
     <property name="workspace.dir" location=".."/>
     <property name="stage.dir" location="${workspace.dir}/stage"/>
+    <property name="stage.lib.dir" location="${stage.dir}/share/java"/>
 
     <!-- module directories -->
     <property name="src.dir" location="${basedir}/src" />
@@ -34,7 +35,6 @@
     <property name="test.classes.dir" location="${build.dir}/test/classes" />
     
     <!-- install dirs -->
-    <property name="dist.dir" location="${basedir}/dist" />
     <property name="install.dir" location="${basedir}/glite" />
     
     <!-- init -->
@@ -43,7 +43,7 @@
         <!-- classpath with libraries from ETICS repository -->
         <path id="compile.classpath">
             <pathelement path="${classes.dir}"/>
-            <pathelement location="${stage.dir}/share/java/glite-slcs-common.jar"/>
+            <pathelement location="${stage.lib.dir}/glite-slcs-common.jar"/>
             <path refid="ext.bouncycastle.bcprov.classpath"/>
             <path refid="ext.commons-cli.classpath"/>
             <path refid="ext.commons-codec.classpath"/>
@@ -161,11 +161,11 @@
         <property name="install.externals.dir" location="${install.dir}/external/share/java" />
         <mkdir dir="${install.externals.dir}" />
         <!-- copy glite-slcs-common lib -->
-        <property name="slcs.common.jar" location="${workspace.dir}/org.glite.slcs.common/build/glite-slcs.common.jar" />
+        <property name="slcs.common.jar" location="${stage.lib.dir}/glite-slcs.common.jar" />
         <available property="slcs.common.jar.exists" file="${slcs.common.jar}"/>
         <fail unless="slcs.common.jar.exists" message="${slcs.common.jar} is missing. please build org.glite.slcs.common first..."/>
         <copy todir="${install.lib.dir}">
-            <fileset dir="${workspace.dir}/org.glite.slcs.common/build">
+            <fileset dir="${stage.lib.dir}">
                 <include name="glite-slcs.common.jar"/>
             </fileset>
         </copy>
@@ -206,7 +206,6 @@
     <target name="clean">
         <!-- Delete the ${build} and ${dist} directory trees -->
         <delete dir="${build.dir}" failonerror="false"/>
-        <delete dir="${dist.dir}" failonerror="false"/>
         <delete dir="${install.dir}" failonerror="false"/>
         <!-- etics build system clean up -->
         <delete dir="RPMS" failonerror="false"/>
