@@ -7,7 +7,7 @@
     ETICS externals dependencies definition
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: etics-externals.xml,v 1.1 2007/07/18 13:05:14 vtschopp Exp $
+    Version: $Id: etics-externals.xml,v 1.2 2007/07/18 15:01:13 vtschopp Exp $
 -->
 <project name="ETICS externals dependencies definition">
 
@@ -139,7 +139,7 @@
     </path>
 
     <!-- jericho-html -->
-    <property name="ext.jericho-html.version" value="2.3"/>
+    <property name="ext.jericho-html.version" value="2.3.0"/>
     <property name="ext.jericho-html.dir" location="${externals.dir}/jericho-html/${ext.jericho-html.version}/noarch"/>
     <fileset id="ext.jericho-html.fileset" dir="${ext.jericho-html.dir}">
         <include name="lib/jericho-html-*.jar"/>
