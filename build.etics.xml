@@ -7,7 +7,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.etics.xml,v 1.1 2007/07/18 13:04:51 vtschopp Exp $
+    Version: $Id: build.etics.xml,v 1.2 2007/07/18 14:21:48 vtschopp Exp $
 -->
 <project name="org.glite.slcs.common" default="dist" basedir=".">
 
@@ -17,28 +17,33 @@
     <!-- local properties -->
     <property file="build.etics.properties" />
 
-    <!-- directories -->
+    <!-- ETICS directories -->
     <property name="workspace.dir" location=".."/>
     <property name="stage.dir" location="${workspace.dir}/stage"/>
-    
+
+    <!-- module directories -->
     <property name="src.dir" location="${basedir}/src" />
+    <property name="test.src.dir" location="${basedir}/test" />
     <property name="bin.dir" location="${basedir}/scripts" />
     <property name="etc.dir" location="${basedir}/etc" />
     <property name="doc.dir" location="${basedir}/doc" />
     
+    <!-- build dirs -->
     <property name="build.dir" location="${basedir}/build" />
     <property name="classes.dir" location="${build.dir}/classes" />
     <property name="test.classes.dir" location="${build.dir}/test/classes" />
     
+    <!-- install dirs -->
     <property name="dist.dir" location="${basedir}/dist" />
-    <property name="install.dir" location="${dir.dir}" />
+    <property name="install.dir" location="${basedir}/glite" />
     
     <!-- init -->
     <target name="init" depends="">
         <tstamp />
-        <!-- libraries from ETICS repository -->
+        <!-- classpath with libraries from ETICS repository -->
         <path id="compile.classpath">
             <pathelement path="${classes.dir}"/>
+            <pathelement location="${stage.dir}/share/java/glite-slcs-common.jar"/>
             <path refid="ext.bouncycastle.bcprov.classpath"/>
             <path refid="ext.commons-cli.classpath"/>
             <path refid="ext.commons-codec.classpath"/>
@@ -72,9 +77,19 @@
         </javac>
     </target>
 
+    <!-- test.compile -->
+    <target name="test.compile" depends="compile">
+        <echo message="test.compile..."/>
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${test.src.dir}" debug="true" destdir="${test.classes.dir}">
+            <classpath refid="test.classpath" />
+        </javac>
+    </target>
+
     <!-- test -->
-    <target name="test" depends="compile">
+    <target name="test" depends="test.compile">
         <echo message="test..."/>
+        <!-- TODO: use junit... -->
     </target>
 
     <!-- jar -->
@@ -83,17 +98,8 @@
         <jar jarfile="${build.dir}/${module.name}.jar" basedir="${classes.dir}" />
     </target>
     
-    <!-- install in stage dir
-    <target name="stage" depends="jar">
-        <property name="stage.share.java.dir" location="${stage.dir}/share/java"/>
-        <echo message="stage in ${stage.share.java.dir}"/>
-        <mkdir dir="${stage.share.java.dir}"/>
-        <copy file="${build.dir}/${module.name}.jar" todir="${stage.share.java.dir}"/>
-    </target>
-    -->
-    
-    <!-- install in ${prefix} dir -->
-    <target name="install" depends="jar">
+    <!-- prepare installation layout in ${install.dir} -->
+    <target name="pre-install" depends="jar">
         <echo message="prepare install in ${install.dir}"/>
         <property name="install.bin.dir" location="${install.dir}/bin"/>
         <property name="install.etc.dir" location="${install.dir}/etc/${module.name}"/>
@@ -132,34 +138,53 @@
         <!-- application jar -->
         <copy todir="${install.lib.dir}" file="${build.dir}/${module.name}.jar"/>
         
+   </target>
+   
+   <!-- install used by ETICS packager: ant -Dprefix=${prefix} install -->
+   <target name="install" depends="pre-install">
         <!-- copy everything in $prefix -->
         <echo message="install in ${prefix}"/>
         <copy todir="${prefix}">
-            <fileset dir="${dist.dir}"/>
+            <fileset dir="${install.dir}"/>
         </copy>
     </target>
 
     <!-- package standalone lib with full dependencies -->
-    <target name="dist" depends="clean,install">
-        <echo message="dist-standalone..."/>
-        <!-- distribution directory -->        
-        <property name="dist.share.java.dir" location="${dist.dir}/share/java" />
-        <property name="dist.externals.java.dir" location="${dist.dir}/externals/share/java" />
-        <mkdir dir="${dist.share.java.dir}" />
-        <mkdir dir="${dist.externals.java.dir}" />
-        <!-- copy jar file -->
-        <copy file="${build.dir}/${module.name}.jar" todir="${dist.share.java.dir}"/>
+    <target name="package" depends="pre-install">
+        <echo message="package..."/>
+        <!-- install directory -->        
+        <property name="install.externals.dir" location="${install.dir}/external/share/java" />
+        <mkdir dir="${install.externals.dir}" />
         <!-- copy all third party libs in externals/share/java -->
-        <copy todir="${dist.externals.java.dir}" flatten="true">
+        <copy todir="${install.externals.dir}" flatten="true">
             <fileset refid="ext.bouncycastle.bcprov.fileset"/>
+            <fileset refid="ext.commons-cli.fileset"/>
             <fileset refid="ext.commons-codec.fileset"/>
             <fileset refid="ext.commons-collections.fileset"/>
             <fileset refid="ext.commons-configuration.fileset"/>
             <fileset refid="ext.commons-httpclient.fileset"/>
             <fileset refid="ext.commons-lang.fileset"/>
             <fileset refid="ext.commons-logging.fileset"/>
+            <fileset refid="ext.jericho-html.fileset"/>
             <fileset refid="ext.log4j.fileset"/>
         </copy>
+    </target>
+    
+    <!-- create standalone distribution -->
+    <target name="dist" depends="clean,package">
+        <property name="dist.file" location="${module.name}-${slcs.ui.version}-jdk${ant.java.version}-${DSTAMP}.tar.gz" />
+        <tar destfile="${dist.file}" compression="gzip">
+            <tarfileset dir="${install.dir}" mode="755" username="root" group="root">
+                <include name="bin/slcs-*" />
+            </tarfileset>
+            <tarfileset dir="${install.dir}" mode="666" username="root" group="root">
+                <include name="log/slcs-init.log" />
+            </tarfileset>
+            <tarfileset dir="${install.dir}" username="root" group="root">
+                <exclude name="bin/slcs-*" />
+                <exclude name="log/slcs-init.log" />
+            </tarfileset>
+        </tar>
     </target>
     
     <!-- clean -->
@@ -167,6 +192,7 @@
         <!-- Delete the ${build} and ${dist} directory trees -->
         <delete dir="${build.dir}" failonerror="false"/>
         <delete dir="${dist.dir}" failonerror="false"/>
+        <delete dir="${install.dir}" failonerror="false"/>
         <!-- etics build system clean up -->
         <delete dir="RPMS" failonerror="false"/>
         <delete dir="tgz" failonerror="false"/>
