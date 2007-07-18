@@ -7,7 +7,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.etics.xml,v 1.2 2007/07/18 14:21:48 vtschopp Exp $
+    Version: $Id: build.etics.xml,v 1.3 2007/07/18 15:00:33 vtschopp Exp $
 -->
 <project name="org.glite.slcs.common" default="dist" basedir=".">
 
@@ -99,7 +99,7 @@
     </target>
     
     <!-- prepare installation layout in ${install.dir} -->
-    <target name="pre-install" depends="jar">
+    <target name="install-layout" depends="jar">
         <echo message="prepare install in ${install.dir}"/>
         <property name="install.bin.dir" location="${install.dir}/bin"/>
         <property name="install.etc.dir" location="${install.dir}/etc/${module.name}"/>
@@ -141,21 +141,39 @@
    </target>
    
    <!-- install used by ETICS packager: ant -Dprefix=${prefix} install -->
-   <target name="install" depends="pre-install">
+   <target name="install" depends="install-layout">
         <!-- copy everything in $prefix -->
         <echo message="install in ${prefix}"/>
         <copy todir="${prefix}">
             <fileset dir="${install.dir}"/>
         </copy>
+        <!-- fix permission ?!? -->
+        <chmod dir="${prefix}/bin" perm="755">
+            <include name="slcs-*" />
+        </chmod>
+    </target>
+
+    <target name="slcs-common-jar">
+        <ant 
+            dir="${workspace.dir}/org.glite.slcs.common" 
+            antfile="build.etics.xml" 
+            target="jar" inheritall="false" />
     </target>
 
     <!-- package standalone lib with full dependencies -->
-    <target name="package" depends="pre-install">
+    <target name="package" depends="install-layout,slcs-common-jar">
         <echo message="package..."/>
         <!-- install directory -->        
+        <property name="install.lib.dir" location="${install.dir}/share/java" />
         <property name="install.externals.dir" location="${install.dir}/external/share/java" />
         <mkdir dir="${install.externals.dir}" />
-        <!-- copy all third party libs in externals/share/java -->
+        <!-- copy glite-slcs-common lib -->
+        <copy todir="${install.lib.dir}">
+            <fileset dir="${workspace.dir}/org.glite.slcs.common/build">
+                <include name="glite-slcs.common.jar">
+            </fileset>
+        </copy>
+        <!-- copy all others third party libs in externals/share/java -->
         <copy todir="${install.externals.dir}" flatten="true">
             <fileset refid="ext.bouncycastle.bcprov.fileset"/>
             <fileset refid="ext.commons-cli.fileset"/>
@@ -170,9 +188,10 @@
         </copy>
     </target>
     
-    <!-- create standalone distribution -->
+    <!-- create standalone tar.gz distribution  -->
     <target name="dist" depends="clean,package">
-        <property name="dist.file" location="${module.name}-${slcs.ui.version}-jdk${ant.java.version}-${DSTAMP}.tar.gz" />
+        <property name="dist.file"
+            value="${module.name}-${module.version}-jdk${ant.java.version}-${DSTAMP}.tar.gz" />
         <tar destfile="${dist.file}" compression="gzip">
             <tarfileset dir="${install.dir}" mode="755" username="root" group="root">
                 <include name="bin/slcs-*" />
