@@ -7,7 +7,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.etics.xml,v 1.3 2007/07/18 15:00:33 vtschopp Exp $
+    Version: $Id: build.etics.xml,v 1.4 2007/07/18 15:01:58 vtschopp Exp $
 -->
 <project name="org.glite.slcs.common" default="dist" basedir=".">
 
@@ -170,7 +170,7 @@
         <!-- copy glite-slcs-common lib -->
         <copy todir="${install.lib.dir}">
             <fileset dir="${workspace.dir}/org.glite.slcs.common/build">
-                <include name="glite-slcs.common.jar">
+                <include name="glite-slcs.common.jar"/>
             </fileset>
         </copy>
         <!-- copy all others third party libs in externals/share/java -->
