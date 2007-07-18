@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) Members of the EGEE Collaboration. 2004 
+    See http://eu-egee.org/partners/ for details on the copyright holders
+    For license conditions see the license file or http://eu-egee.org/license.html
+
+    ETICS externals dependencies definition
+
+    Author: Valery Tschopp <tschopp@switch.ch>
+    Version: $Id: etics-externals.xml,v 1.1 2007/07/18 13:05:14 vtschopp Exp $
+-->
+<project name="ETICS externals dependencies definition">
+
+    <property name="repository.dir" location="../repository" />
+    <property name="externals.dir" location="${repository.dir}/externals" />
+    
+    <!-- apache-struts -->
+    <property name="ext.apache-struts.version" value="1.3.5"/>
+    <property name="ext.apache-struts.dir" location="${externals.dir}/apache-struts/${ext.apache-struts.version}/noarch"/>
+    <fileset id="ext.apache-struts.fileset" dir="${ext.apache-struts.dir}">
+        <!-- SUN taglib -->
+        <include name="lib/jstl-*.jar"/>
+        <include name="lib/standard-*.jar"/>
+        <!-- jakarta commons -->
+        <include name="lib/commons-beanutils-*.jar"/>
+        <include name="lib/commons-chain-*.jar"/>
+        <include name="lib/commons-digester-*.jar"/>
+        <!-- Struts -->
+        <include name="lib/struts-core-*.jar"/>
+        <include name="lib/struts-taglib-*.jar"/>
+        <include name="lib/struts-tiles-*.jar"/>
+    </fileset>
+    <path id="ext.apache-struts.classpath">
+        <fileset refid="ext.apache-struts.fileset"/>
+    </path>
+
+    <!-- axis -->
+    <property name="ext.axis.version" value="1.2.1"/>
+    <property name="ext.axis.dir" location="${externals.dir}/axis/${ext.axis.version}/noarch"/>
+    <fileset id="ext.axis.fileset" dir="${ext.axis.dir}">
+        <include name="lib/axis.jar"/>
+        <include name="lib/commons-discovery-*.jar"/>
+        <include name="lib/jaxrpc.jar"/>
+        <include name="lib/saaj.jar"/>
+    </fileset>
+    <path id="ext.axis.classpath">
+        <fileset refid="ext.axis.fileset"/>
+    </path>
+    
+    <!-- bouncycastle jdk 1.5 -->
+    <property name="ext.bouncycastle.version" value="1.34"/>
+    <property name="ext.bouncycastle.dir" location="${externals.dir}/bouncycastle/${ext.bouncycastle.version}/noarch"/>
+    <fileset id="ext.bouncycastle.bcprov.fileset" dir="${ext.bouncycastle.dir}">
+        <include name="jars/bcprov-jdk15-*.jar"/>
+    </fileset>
+    <fileset id="ext.bouncycastle.bcmail.fileset" dir="${ext.bouncycastle.dir}">
+        <include name="jars/bcmail-jdk15-*.jar"/>
+    </fileset>
+    <path id="ext.bouncycastle.bcprov.classpath">
+        <fileset refid="ext.bouncycastle.bcprov.fileset"/>
+    </path>
+    <path id="ext.bouncycastle.bcmail.classpath">
+        <fileset refid="ext.bouncycastle.bcmail.fileset"/>
+    </path>
+    <path id="ext.bouncycastle.classpath">
+        <path refid="ext.bouncycastle.bcprov.classpath"/>
+        <path refid="ext.bouncycastle.bcmail.classpath"/>
+    </path>
+
+    <!-- commons-cli -->
+    <property name="ext.commons-cli.version" value="1.0.0"/>
+    <property name="ext.commons-cli.dir" location="${externals.dir}/commons-cli/${ext.commons-cli.version}/noarch"/>
+    <fileset id="ext.commons-cli.fileset" dir="${ext.commons-cli.dir}">
+        <include name="commons-cli-*.jar"/>
+    </fileset>
+    <path id="ext.commons-cli.classpath">
+        <fileset refid="ext.commons-cli.fileset"/>
+    </path>
+    
+    <!-- commons-codec -->
+    <property name="ext.commons-codec.version" value="1.3.0"/>
+    <property name="ext.commons-codec.dir" location="${externals.dir}/commons-codec/${ext.commons-codec.version}/noarch"/>
+    <fileset id="ext.commons-codec.fileset" dir="${ext.commons-codec.dir}">
+        <include name="commons-codec-*.jar"/>
+    </fileset>
+    <path id="ext.commons-codec.classpath">
+        <fileset refid="ext.commons-codec.fileset"/>
+    </path>
+
+    <!-- commons-collections -->
+    <property name="ext.commons-collections.version" value="3.2.0"/>
+    <property name="ext.commons-collections.dir" location="${externals.dir}/commons-collections/${ext.commons-collections.version}/noarch"/>
+    <fileset id="ext.commons-collections.fileset" dir="${ext.commons-collections.dir}">
+        <include name="commons-collections-*.jar"/>
+        <exclude name="commons-collections-testframework-*.jar"/>
+    </fileset>
+    <path id="ext.commons-collections.classpath">
+        <fileset refid="ext.commons-collections.fileset"/>
+    </path>
+
+    <!-- commons-configuration -->
+    <property name="ext.commons-configuration.version" value="1.2.0"/>
+    <property name="ext.commons-configuration.dir" location="${externals.dir}/commons-configuration/${ext.commons-configuration.version}/noarch"/>
+    <fileset id="ext.commons-configuration.fileset" dir="${ext.commons-configuration.dir}">
+        <include name="commons-configuration-*.jar"/>
+    </fileset>
+    <path id="ext.commons-configuration.classpath">
+        <fileset refid="ext.commons-configuration.fileset"/>
+    </path>
+
+    <!-- commons-httpclient -->
+    <property name="ext.commons-httpclient.version" value="3.0.1"/>
+    <property name="ext.commons-httpclient.dir" location="${externals.dir}/commons-httpclient/${ext.commons-httpclient.version}/noarch"/>
+    <fileset id="ext.commons-httpclient.fileset" dir="${ext.commons-httpclient.dir}">
+        <include name="commons-httpclient-*.jar"/>
+    </fileset>
+    <path id="ext.commons-httpclient.classpath">
+        <fileset refid="ext.commons-httpclient.fileset"/>
+    </path>
+
+    <!-- commons-lang -->
+    <property name="ext.commons-lang.version" value="2.1.0"/>
+    <property name="ext.commons-lang.dir" location="${externals.dir}/commons-lang/${ext.commons-lang.version}/noarch"/>
+    <fileset id="ext.commons-lang.fileset" dir="${ext.commons-lang.dir}">
+        <include name="commons-lang-*.jar"/>
+    </fileset>
+    <path id="ext.commons-lang.classpath">
+        <fileset refid="ext.commons-lang.fileset"/>
+    </path>
+
+    <!-- commons-logging -->
+    <property name="ext.commons-logging.version" value="1.0.4"/>
+    <property name="ext.commons-logging.dir" location="${externals.dir}/commons-logging/${ext.commons-logging.version}/noarch"/>
+    <fileset id="ext.commons-logging.fileset" dir="${ext.commons-logging.dir}">
+        <include name="commons-logging.jar"/>
+    </fileset>
+    <path id="ext.commons-logging.classpath">
+        <fileset refid="ext.commons-logging.fileset"/>
+    </path>
+
+    <!-- jericho-html -->
+    <property name="ext.jericho-html.version" value="2.3"/>
+    <property name="ext.jericho-html.dir" location="${externals.dir}/jericho-html/${ext.jericho-html.version}/noarch"/>
+    <fileset id="ext.jericho-html.fileset" dir="${ext.jericho-html.dir}">
+        <include name="lib/jericho-html-*.jar"/>
+    </fileset>
+    <path id="ext.jericho-html.classpath">
+        <fileset refid="ext.jericho-html.fileset"/>
+    </path>
+
+    <!-- junit -->
+    <property name="ext.junit.version" value="3.8.1"/>
+    <property name="ext.junit.dir" location="${externals.dir}/junit/${ext.junit.version}/noarch"/>
+    <fileset id="ext.junit.fileset" dir="${ext.junit.dir}">
+        <include name="junit.jar"/>
+    </fileset>
+    <path id="ext.junit.classpath">
+        <fileset refid="ext.junit.fileset"/>
+    </path>
+
+    <!-- log4j -->
+    <property name="ext.log4j.version" value="1.2.8"/>
+    <property name="ext.log4j.dir" location="${externals.dir}/log4j/${ext.log4j.version}/noarch"/>
+    <fileset id="ext.log4j.fileset" dir="${ext.log4j.dir}">
+        <include name="dist/lib/log4j-*.jar"/>
+    </fileset>
+    <path id="ext.log4j.classpath">
+        <fileset refid="ext.log4j.fileset"/>
+    </path>
+
+    <!-- mm-mysql: MySQL JDBC -->
+    <property name="ext.mm-mysql.version" value="3.1.8"/>
+    <property name="ext.mm-mysql.dir" location="${externals.dir}/mm-mysql/${ext.mm-mysql.version}/noarch"/>
+    <fileset id="ext.mm-mysql.fileset" dir="${ext.mm-mysql.dir}">
+        <include name="mysql-connector-java-*.jar"/>
+    </fileset>
+    <path id="ext.mm-mysql.classpath">
+        <fileset refid="ext.mm-mysql.fileset"/>
+    </path>
+
+    <!-- tomcat -->
+    <property name="ext.tomcat.version" value="5.0.28"/>
+    <property name="ext.tomcat.dir" location="${externals.dir}/tomcat/${ext.tomcat.version}/noarch"/>
+    <fileset id="ext.tomcat.fileset" dir="${ext.tomcat.dir}">
+        <include name="common/lib/servlet-api.jar"/>
+    </fileset>
+    <path id="ext.tomcat.classpath">
+        <fileset refid="tomcat.fileset"/>
+    </path>
+    
+</project>
+
