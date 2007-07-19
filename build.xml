@@ -1,202 +1,215 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!--
-	Copyright (c) 2004 on behalf of the EU EGEE Project: 
-	The European Organization for Nuclear Research (CERN), 
-	Istituto Nazionale di Fisica Nucleare (INFN), Italy
-	Datamat Spa, Italy
-	Centre National de la Recherche Scientifique (CNRS), France
-	CS Systeme d'Information (CSSI), France
-	Royal Institute of Technology, Center for Parallel Computers (KTH-PDC), Sweden
-	Universiteit van Amsterdam (UvA), Netherlands
-	University of Helsinki (UH.HIP), Finland
-	University of Bergen (UiB), Norway
-	Council for the Central Laboratory of the Research Councils (CCLRC), United Kingdom
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    Copyright (c) Members of the EGEE Collaboration. 2007 
+    See http://eu-egee.org/partners/ for details on the copyright holders
+    For license conditions see the license file or http://eu-egee.org/license.html
 
-	Build file for the GLite slcs ui component
-	
-	Authors: Joachim Flammer <Joachim.Flammer@Cern.ch>	
-	Version info: $Id: build.xml,v 1.4 2006/10/31 11:58:42 vtschopp Exp $
-	Release: $Name:  $
+    ETICS build for org.glite.slcs.ui
 
-	Revision history:
-	$Log: build.xml,v $
-	Revision 1.4  2006/10/31 11:58:42  vtschopp
-	updated compile classpath with externals
-
-	Revision 1.3  2006/10/31 09:35:01  vtschopp
-	uses only JRA1MW externals
-
-	Revision 1.2  2006/10/25 11:19:44  vtschopp
-	package etc config and bin scripts
-
-	Revision 1.1.1.1  2006/09/14 12:33:40  vtschopp
-	SWITCHslcs client gLite-UI
-
-	Revision 1.7  2006/04/26 11:39:55  flammer
-	Corrected wrong template syntax.
-
-	Revision 1.6  2005/04/17 10:29:35  dimeglio
-	Split module.build from version.properties
-
-	Revision 1.5  2004/07/20 16:08:30  flammer
-	Changed incorrect my_... instead of .._template entries for subsystem and component.
-	
-	Revision 1.4  2004/07/16 16:32:53  flammer
-	Added comment where to add language target.
-	
-	Revision 1.3  2004/07/16 14:56:55  flammer
-	Corrected input path of build.properties.
-	
-	Revision 1.2  2004/07/06 20:43:19  flammer
-	Update of configure & targets.
-	
-	Revision 1.1.1.1  2004/06/18 12:40:17  flammer
-	Added general component template.
-	
-	
+    Author: Valery Tschopp <tschopp@switch.ch>
+    Version: $Id: build.xml,v 1.5 2007/07/19 12:45:28 vtschopp Exp $
 -->
+<project name="org.glite.slcs.common" default="dist" basedir=".">
 
-<project name="ui" default="dist">
+    <!-- ETICS externals defs -->
+    <import file="project/etics-externals.xml"/>
 
-	<!-- ==============================================
-	      Builds the GLite slcs ui component
-	     ============================================== -->
-	
-	<!-- =========================================
-	      Import properties (order is important)
-	     ========================================= -->
-	
-	<!-- Import baseline properties & user properties -->
-	<import file="../org.glite/project/baseline.properties.xml" />
+    <!-- local properties -->
+    <property file="build.properties" />
 
-	<!-- import component build properties,
-		        component properties &
-		        component common properties -->
-	<import file="./project/properties.xml"/>
-	
-	<!-- import subsystem build properties,
-		        subsystem properties &
-		        subsystem common properties -->
-	<import file="${subsystem.properties.file}"/>
+    <!-- ETICS directories -->
+    <property name="workspace.dir" location=".."/>
+    <property name="stage.dir" location="${workspace.dir}/stage"/>
+    <property name="stage.lib.dir" location="${stage.dir}/share/java"/>
 
-	<!-- import global build properties &
-		        global properties -->
-	<import file="${global.properties.file}" />
-		
-	<!-- =========================================
- 	      Load dependency property files (order is important)
-	     ========================================= -->
-	<property file="${user.dependencies.file}"/>
-	<property file="${component.dependencies.file}" />
-	<property file="${subsystem.dependencies.file}" />
-	<property file="${global.dependencies.file}"/>
-
-	<!-- =========================================
-                 Load configuration definitions (order is important)
-             ========================================= -->
-        <import file="${global.configure.options.file}"/>
-        <import file="${component.configure.options.file}"/>
-	
-	<!-- =========================================
-      	      Import task definitions (order is important)
-	     ========================================= -->
-	<import file="${subsystem.taskdefs.file}" />
-	<import file="${global.taskdefs.file}" />
-	
-	<!-- =========================================
-		 Load common targets
-	     ========================================= -->
-	<!-- Put your language target (java/c++-ant/c++-autotool/perl) here -->
-	<import file="${global.targets-java.file}" />
-		
-	<!-- =========================================
-		 Load version file 
-	     ========================================= -->
-	<property file="${module.version.file}"/>
-	<property file="${module.build.file}"/>
-	
-	<!-- ==============================================
-		 Local private targets
-	     ============================================== -->
-	
-	<target name="localinit"
-		description="Module specific initialization tasks">
-
-        <!-- Set compile classpaths -->
+    <!-- module directories -->
+    <property name="src.dir" location="${basedir}/src" />
+    <property name="test.src.dir" location="${basedir}/test" />
+    <property name="bin.dir" location="${basedir}/scripts" />
+    <property name="etc.dir" location="${basedir}/etc" />
+    <property name="doc.dir" location="${basedir}/doc" />
+    
+    <!-- build dirs -->
+    <property name="build.dir" location="${basedir}/build" />
+    <property name="classes.dir" location="${build.dir}/classes" />
+    <property name="test.classes.dir" location="${build.dir}/test/classes" />
+    
+    <!-- install dirs -->
+    <property name="install.dir" location="${basedir}/glite" />
+    
+    <!-- init -->
+    <target name="init" depends="">
+        <tstamp />
+        <!-- classpath with libraries from ETICS repository -->
         <path id="compile.classpath">
-            <!-- stage classpath -->
-            <path refid="stage.classpath"/>
-            <!-- module classpath -->
-            <path refid="module.classpath"/>
-            <!-- org.glite.slcs.common dependencies -->
-            <!-- external dependencies -->
-            <!-- log4j classpath -->
-            <path refid="ext.log4j.classpath"/>
-            <!-- commons-logging classpath -->
-            <path refid="ext.commons-logging.classpath"/>
-            <!-- commons-configuration classpath  -->
-            <path refid="ext.commons-configuration.classpath"/>
-            <!-- commons-collections classpath -->
-            <path refid="ext.commons-collections.classpath"/> 
-            <!-- commons-lang classpath -->
-            <path refid="ext.commons-lang.classpath"/> 
-            <!-- commons-httpclient classpath -->
-            <path refid="ext.commons-httpclient.classpath"/> 
-            <!-- commons-codec classpath -->
-            <path refid="ext.commons-codec.classpath"/> 
-            <!-- commons-cli classpath -->
+            <pathelement path="${classes.dir}"/>
+            <pathelement location="${stage.lib.dir}/glite-slcs-common.jar"/>
+            <path refid="ext.bouncycastle.bcprov.classpath"/>
             <path refid="ext.commons-cli.classpath"/>
-            <!-- jericho-html classpath -->
-            <path refid="ext.jericho-html.classpath"/> 
-            
+            <path refid="ext.commons-codec.classpath"/>
+            <path refid="ext.commons-collections.classpath"/>
+            <path refid="ext.commons-configuration.classpath"/>
+            <path refid="ext.commons-httpclient.classpath"/>
+            <path refid="ext.commons-lang.classpath"/>
+            <path refid="ext.commons-logging.classpath"/>
+            <path refid="ext.jericho-html.classpath"/>
+            <path refid="ext.log4j.classpath"/>
         </path>
-        <!-- Set test classpaths -->
         <path id="test.classpath">
-            <!-- compile classpath -->
             <path refid="compile.classpath"/>
-            <!-- module test classpath -->
-            <path refid="module.test.classpath"/>
-            <!-- external dependencies -->
-            <!-- junit classpath -->
-            <path refid="ext.junit.classpath"/>
+            <pathelement path="${test.classes.dir}"/>
+            <path refid="ext.junit.fileset"/>
         </path>
+    </target>
 
-	</target>
-	
-	<target name="localcompile"
-		description="Module specific compile tasks">
-	</target>
+    <!-- prepare -->
+    <target name="prepare" depends="init">
+        <mkdir dir="${classes.dir}" />
+        <mkdir dir="${test.classes.dir}" />
+    </target>
 
-	<target name="localclean"
-		description="Module specific cleaning tasks">
-	</target>
+    <!-- compile -->
+    <target name="compile" depends="prepare">
+        <echo message="compile..."/>
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${src.dir}" debug="true" destdir="${classes.dir}">
+            <classpath refid="compile.classpath" />
+        </javac>
+    </target>
 
+    <!-- test.compile -->
+    <target name="test.compile" depends="compile">
+        <echo message="test.compile..."/>
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${test.src.dir}" debug="true" destdir="${test.classes.dir}">
+            <classpath refid="test.classpath" />
+        </javac>
+    </target>
 
-    <target name="localdistbin"
-        description="Custom actions to be done before creating the tarball">
+    <!-- test -->
+    <target name="test" depends="test.compile">
+        <echo message="test..."/>
+        <!-- TODO: use junit... -->
+    </target>
 
-        <!-- define if not set -->
-        <property name="prefix" value="/opt/glite"/>
+    <!-- jar -->
+    <target name="jar" depends="compile">
+        <!-- jar org.glite.slcs.ui classes -->
+        <jar jarfile="${build.dir}/${module.name}.jar" basedir="${classes.dir}" />
+    </target>
+    
+    <!-- prepare installation layout in ${install.dir} -->
+    <target name="install-layout" depends="jar">
+        <echo message="prepare install in ${install.dir}"/>
+        <property name="install.bin.dir" location="${install.dir}/bin"/>
+        <property name="install.etc.dir" location="${install.dir}/etc/${module.name}"/>
+        <property name="install.doc.dir" location="${install.dir}/share/doc/${module.name}"/>
+        <property name="install.log.dir" location="${install.dir}/log"/>
+        <property name="install.lib.dir" location="${install.dir}/share/java"/>
 
-        <!-- /opt/glite/etc/glite-slcs-ui content -->
-        <echo message="copy ${prefix}/etc/${module.package.name} content..."/>
-        <mkdir dir="${prefix}/etc/${module.package.name}"/>
-        <copy toDir="${prefix}/etc/${module.package.name}">
-            <fileset dir="${module.dir}/etc">
-                <include name="*" />
-            </fileset>
-        </copy>
-
-        <!-- copy and fix /opt/glite/bin/slcs-* scripts permission -->
-        <echo message="copy and fix permission in ${prefix}/bin"/>
-        <mkdir dir="${prefix}/bin"/>
-        <copy toDir="${prefix}/bin">
-            <fileset dir="${module.dir}/scripts">
+        <!-- create install dir -->
+        <mkdir dir="${install.bin.dir}"/>
+        <mkdir dir="${install.etc.dir}"/>
+        <mkdir dir="${install.doc.dir}"/>
+        <mkdir dir="${install.log.dir}"/>
+        <mkdir dir="${install.lib.dir}"/>
+        <!-- bin scripts -->
+        <copy todir="${install.bin.dir}">
+            <fileset dir="${bin.dir}">
                 <include name="slcs-*" />
             </fileset>
         </copy>
-        <chmod dir="${prefix}/bin" perm="ugo+rx" includes="slcs-*"/>
+        <chmod dir="${install.bin.dir}" perm="755">
+            <include name="slcs-*" />
+        </chmod>
+        <!-- etc config -->
+        <copy todir="${install.etc.dir}">
+            <fileset dir="${etc.dir}">
+                <include name="*.xml" />
+                <include name="*.jks" />
+            </fileset>
+        </copy>
+        <!-- doc -->
+        <copy todir="${install.doc.dir}">
+            <fileset dir="${doc.dir}" />
+        </copy>
+        <!-- empty log file -->
+        <touch file="${install.log.dir}/slcs-init.log" />
+        <!-- application jar -->
+        <copy todir="${install.lib.dir}" file="${build.dir}/${module.name}.jar"/>
         
-	</target>
-	
-</project>		
+   </target>
+   
+   <!-- install used by ETICS packager: ant -Dprefix=${prefix} install -->
+   <target name="install" depends="install-layout">
+        <!-- copy everything in $prefix -->
+        <echo message="install in ${prefix}"/>
+        <copy todir="${prefix}">
+            <fileset dir="${install.dir}"/>
+        </copy>
+        <!-- fix permission ?!? -->
+        <chmod dir="${prefix}/bin" perm="755">
+            <include name="slcs-*" />
+        </chmod>
+    </target>
+
+    <!-- package standalone lib with full dependencies -->
+    <target name="package" depends="install-layout">
+        <echo message="package..."/>
+        <!-- install directory -->        
+        <property name="install.lib.dir" location="${install.dir}/share/java" />
+        <property name="install.externals.dir" location="${install.dir}/external/share/java" />
+        <mkdir dir="${install.externals.dir}" />
+        <!-- copy glite-slcs-common lib -->
+        <property name="slcs.common.jar" location="${stage.lib.dir}/glite-slcs.common.jar" />
+        <available property="slcs.common.jar.exists" file="${slcs.common.jar}"/>
+        <fail unless="slcs.common.jar.exists" message="${slcs.common.jar} is missing. please build org.glite.slcs.common first..."/>
+        <copy todir="${install.lib.dir}">
+            <fileset dir="${stage.lib.dir}">
+                <include name="glite-slcs.common.jar"/>
+            </fileset>
+        </copy>
+        <!-- copy all others third party libs in externals/share/java -->
+        <copy todir="${install.externals.dir}" flatten="true">
+            <fileset refid="ext.bouncycastle.bcprov.fileset"/>
+            <fileset refid="ext.commons-cli.fileset"/>
+            <fileset refid="ext.commons-codec.fileset"/>
+            <fileset refid="ext.commons-collections.fileset"/>
+            <fileset refid="ext.commons-configuration.fileset"/>
+            <fileset refid="ext.commons-httpclient.fileset"/>
+            <fileset refid="ext.commons-lang.fileset"/>
+            <fileset refid="ext.commons-logging.fileset"/>
+            <fileset refid="ext.jericho-html.fileset"/>
+            <fileset refid="ext.log4j.fileset"/>
+        </copy>
+    </target>
+    
+    <!-- create standalone tar.gz distribution  -->
+    <target name="dist" depends="clean,package">
+        <property name="dist.file"
+            value="${module.name}-${module.version}-jdk${ant.java.version}-${DSTAMP}.tar.gz" />
+        <tar destfile="${dist.file}" compression="gzip">
+            <tarfileset dir="${install.dir}" mode="755" username="root" group="root">
+                <include name="bin/slcs-*" />
+            </tarfileset>
+            <tarfileset dir="${install.dir}" mode="666" username="root" group="root">
+                <include name="log/slcs-init.log" />
+            </tarfileset>
+            <tarfileset dir="${install.dir}" username="root" group="root">
+                <exclude name="bin/slcs-*" />
+                <exclude name="log/slcs-init.log" />
+            </tarfileset>
+        </tar>
+    </target>
+    
+    <!-- clean -->
+    <target name="clean">
+        <!-- Delete the ${build} and ${dist} directory trees -->
+        <delete dir="${build.dir}" failonerror="false"/>
+        <delete dir="${install.dir}" failonerror="false"/>
+        <!-- etics build system clean up -->
+        <delete dir="RPMS" failonerror="false"/>
+        <delete dir="tgz" failonerror="false"/>
+        <delete dir="rpmbuild" failonerror="false"/>
+    </target>
+</project>
