@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry output="bin/classes" kind="src" path="src"/>
-	<classpathentry output="bin/test/classes" kind="src" path="test"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.4.2"/>
+	<classpathentry kind="src" output="bin/classes" path="src"/>
+	<classpathentry kind="src" output="bin/test/classes" path="test"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.glite.slcs.common"/>
 	<classpathentry kind="lib" path="/repository/externals/commons-cli/1.0/noarch/commons-cli-1.0.jar"/>
 	<classpathentry kind="lib" path="/repository/externals/jericho-html/2.3/noarch/lib/jericho-html-2.3.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.5"/>
 	<classpathentry kind="output" path=""/>
 </classpath>
