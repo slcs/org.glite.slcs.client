@@ -7,7 +7,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.7 2007/07/19 13:05:01 vtschopp Exp $
+    Version: $Id: build.xml,v 1.8 2007/07/19 13:48:36 vtschopp Exp $
 -->
 <project name="org.glite.slcs.common" default="dist" basedir=".">
 
@@ -107,6 +107,9 @@
         <property name="install.log.dir" location="${install.dir}/log"/>
         <property name="install.lib.dir" location="${install.dir}/share/java"/>
 
+        <!-- first clean up -->
+        <delete dir="${install.dir}"/>
+
         <!-- create install dir -->
         <mkdir dir="${install.bin.dir}"/>
         <mkdir dir="${install.etc.dir}"/>
@@ -158,18 +161,14 @@
         <echo message="package..."/>
         <!-- install directory -->        
         <property name="install.lib.dir" location="${install.dir}/share/java" />
-        <property name="install.externals.dir" location="${install.dir}/externals/share/java" />
-        <mkdir dir="${install.externals.dir}" />
         <!-- copy glite-slcs-common lib -->
         <property name="slcs.common.jar" location="${stage.lib.dir}/glite-slcs-common.jar" />
         <available property="slcs.common.jar.exists" file="${slcs.common.jar}"/>
         <fail unless="slcs.common.jar.exists" message="${slcs.common.jar} is missing. please build org.glite.slcs.common first..."/>
-        <copy todir="${install.lib.dir}">
-            <fileset dir="${stage.lib.dir}">
-                <include name="glite-slcs.common.jar"/>
-            </fileset>
-        </copy>
+        <copy todir="${install.lib.dir}" file="${slcs.common.jar}"/>
         <!-- copy all others third party libs in externals/share/java -->
+        <property name="install.externals.dir" location="${install.dir}/externals/share/java" />
+        <mkdir dir="${install.externals.dir}" />
         <copy todir="${install.externals.dir}" flatten="true">
             <fileset refid="ext.bouncycastle.bcprov.fileset"/>
             <fileset refid="ext.commons-cli.fileset"/>
