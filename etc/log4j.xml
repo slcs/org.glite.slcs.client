@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <!-- 
-$Id: log4j.xml,v 1.1 2007/06/19 08:58:02 vtschopp Exp $
+$Id: log4j.xml,v 1.2 2007/07/19 07:45:00 vtschopp Exp $
 
 Copyright (c) 2004. Members of the EGEE Collaboration. http://www.eu-egee.org
 
@@ -14,7 +14,8 @@ Notice: log4j.xml file must be in classpath
     
     <!-- log file appender -->
     <appender name="logfile" class="org.apache.log4j.FileAppender"> 
-        <param name="File" value="/opt/glite/log/slcs-init.log"/> 
+        <!-- <param name="File" value="/opt/glite/log/slcs-init.log"/> -->
+        <param name="File" value="slcs-init.log"/> 
         <layout class="org.apache.log4j.PatternLayout"> 
             <param name="ConversionPattern" value="%d{ISO8601} %-5p %C{1}.%M: %m%n"/> 
         </layout> 
