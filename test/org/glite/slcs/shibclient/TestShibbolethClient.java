@@ -1,5 +1,5 @@
 /*
- * $Id: TestShibbolethClient.java,v 1.1 2006/10/24 09:24:19 vtschopp Exp $
+ * $Id: TestShibbolethClient.java,v 1.2 2007/07/19 07:48:48 vtschopp Exp $
  * 
  * Created on May 24, 2006 by tschopp
  *
@@ -39,31 +39,30 @@ public class TestShibbolethClient {
 
         // create credentials
         // XXX WARNING PASSWORD IN SOURCE CODE
-        // final String username= "test-tschopp";
-        final String username= "vlry";
-        final String password= "1lapin";
-        final String idpProviderID= "urn:mace:switch.ch:aaitest:dukono.switch.ch";
+        final String username= "test-tschopp";
+        final String password= "XXXXXXXXXXXXX";
+        final String idpProviderID= "vho-switchaai.ch";
         ShibbolethCredentials credentials= new ShibbolethCredentials(username,
                                                                      password,
                                                                      idpProviderID);
         // create metadata
-        final String filename= "/Users/tschopp/projects/Java/SLCS-client/etc/slcs-client.xml";
+        final String filename= "slcs-init.xml";
         ShibbolethClientMetadata metadata= new ShibbolethClientMetadata(filename);
 
         // create httpclient
-        String truststore= "/Users/tschopp/projects/Java/SLCS-client/etc/truststore.switchaai.jks";
+        String truststore= "truststore.switchaai.jks";
         ExtendedProtocolSocketFactory protocolSocketFactory= new ExtendedProtocolSocketFactory(truststore);
         Protocol https= new Protocol("https", protocolSocketFactory, 443);
         Protocol.registerProtocol("https", https);
         HttpClient httpClient= new HttpClient();
-
+        
         // create shib client
         ShibbolethClient client= new ShibbolethClient(httpClient,
                                                       metadata,
                                                       credentials);
 
         // SLCS login and certificate URLs
-        String slcsHost= "https://macvt.switch.ch";
+        String slcsHost= "https://hestia.switch.ch";
         String slcsLoginURL= slcsHost + "/SLCS/login";
         String slcsCertificateURL= slcsHost + "/SLCS/certificate";
 
@@ -84,6 +83,9 @@ public class TestShibbolethClient {
         GETLogin.releaseConnection();
 
         System.out.println(loginResponse);
+        
+        System.exit(1);
+        
         // parse response
         String dn= getDN(loginResponse);
 //        System.out.println("DN=" + dn);
