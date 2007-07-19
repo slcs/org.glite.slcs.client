@@ -1,7 +1,7 @@
 
 <!-- STANDALONE build for org.glite.slcs.ui -->
 <!-- Valery Tschopp <tschopp@switch.ch> -->
-<!-- $Id: build.standalone.xml,v 1.8 2007/07/03 15:07:59 vtschopp Exp $ -->
+<!-- $Id: build.standalone.xml,v 1.9 2007/07/19 07:44:22 vtschopp Exp $ -->
 
 
 <project name="org.glite.slcs.client" default="tar" basedir=".">
@@ -137,7 +137,10 @@
 		</chmod>
 		<!-- copy config and etc -->
 		<copy todir="${glite.dist.etc.dir}">
-			<fileset dir="${etc.dir}" />
+			<fileset dir="${etc.dir}">
+                <include name="*.xml" />
+                <include name="*.jks" />
+			</fileset>
 		</copy>
 		<!-- copy doc -->
 		<copy todir="${glite.dist.doc.dir}">
