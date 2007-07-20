@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" output="bin/classes" path="src"/>
-	<classpathentry kind="src" output="bin/test/classes" path="test"/>
+	<classpathentry kind="src" output="build/classes" path="src"/>
+	<classpathentry kind="src" output="build/test/classes" path="test"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.glite.slcs.common"/>
 	<classpathentry kind="lib" path="/repository/externals/commons-cli/1.0.0/noarch/commons-cli-1.0.jar"/>
 	<classpathentry kind="lib" path="/repository/externals/jericho-html/2.3.0/noarch/lib/jericho-html-2.3.jar"/>
