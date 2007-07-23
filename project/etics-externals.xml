@@ -1,187 +1,241 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) Members of the EGEE Collaboration. 2004 
-    See http://eu-egee.org/partners/ for details on the copyright holders
-    For license conditions see the license file or http://eu-egee.org/license.html
+   Copyright (c) Members of the EGEE Collaboration. 2007.
+    See http://www.eu-egee.org/partners/ for details on the copyright
+    holders.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 
     ETICS externals dependencies definition
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: etics-externals.xml,v 1.3 2007/07/20 12:50:10 vtschopp Exp $
+    Version: $Id: etics-externals.xml,v 1.4 2007/07/23 09:00:57 vtschopp Exp $
 -->
-<project name="ETICS externals dependencies definition">
+<project name="etics-externals">
 
-    <!-- local externals repository location -->
-    <property name="repository.dir" location="../repository" />
-    <property name="externals.dir" location="${repository.dir}/externals" />
-    
+    <!-- ========================================================
+         MACRODEF
+         ======================================================== -->
 
-    <!-- define the properties <ext-name>.bundle and <ext-name>.dir for externals
-         required <ext-name>.name, <ext-name>.version and <ext-name>.platform
+    <!-- define the properties <external>.bundle and <external>.dir for externals
+         required <external>.name, <external>.version and <external>.platform
          properties to be defined -->
     <macrodef name="define-ext-dir">
-        <attribute name="name"/>
+        <attribute name="external" />
         <sequential>
-            <fail unless="externals.dir" 
-                message="ERROR: define-ext-dir: property externals.dir is not set"/>
-            <fail unless="@{name}.name"
-                message="ERROR: define-ext-dir: property @{name}.name doesn't exist"/>
-            <fail unless="@{name}.version"
-                message="ERROR: define-ext-dir: property @{name}.version doesn't exist"/>
-            <fail unless="@{name}.platform"
-                message="ERROR: define-ext-dir: property @{name}.platform doesn't exist"/>
-            <property 
-                name="_@{name}.bundle.value"
-                value="${@{name}.name}/${@{name}.version}/${@{name}.platform}"/>
-            <property name="@{name}.bundle" value="${_@{name}.bundle.value}" /> 
-            <property name="_@{name}.dir.value"
-                value="${externals.dir}/${@{name}.bundle}"/>
-            <property name="@{name}.dir" value="${_@{name}.dir.value}" /> 
-            <echo message="define-ext-dir: @{name}.dir=${_@{name}.dir.value}"/>
+            <!-- fail on missing properties -->
+            <fail unless="@{external}.name" message="ERROR: define-ext-dir: property @{external}.name doesn't exist" />
+            <fail unless="@{external}.version" message="ERROR: define-ext-dir: property @{external}.version doesn't exist" />
+            <fail unless="@{external}.platform" message="ERROR: define-ext-dir: property @{external}.platform doesn't exist" />
+            <!-- create new properties -->
+            <property name="_@{external}.bundle.value" value="${@{external}.name}/${@{external}.version}/${@{external}.platform}" />
+            <property name="@{external}.bundle" value="${_@{external}.bundle.value}" />
+            <property name="_@{external}.dir.value" value="${externals.dir}/${@{external}.bundle}" />
+            <property name="@{external}.dir" location="${_@{external}.dir.value}" />
+            <!-- <echo message="XXX: define-ext-dir: @{external}.dir=${_@{external}.dir.value}" /> -->
         </sequential>
     </macrodef>
-    
-    <!-- define path <name>.classpath referencing <name>.fileset -->
-    <macrodef name="define-fileset-classpath">
-        <attribute name="name"/>
+
+    <!-- define fileset <external>.fileset and path <external>.path -->
+    <macrodef name="define-ext-path">
+        <attribute name="external" />
+        <attribute name="dir" default="${@{external}.dir}" />
+        <element name="includes-excludes" implicit="true" />
         <sequential>
-            <path id="@{name}.classpath">
-                <fileset refid="@{name}.fileset"/>
-            </path> 
+            <!-- create fileset and then path -->
+            <fileset id="@{external}.fileset" dir="@{dir}">
+                <includes-excludes />
+            </fileset>
+            <path id="@{external}.path">
+                <fileset refid="@{external}.fileset" />
+            </path>
         </sequential>
     </macrodef>
+
+    <!-- download and expand externals in the local repository -->
+    <macrodef name="download-ext">
+        <attribute name="external" />
+        <sequential>
+            <!-- fail on missing properties -->
+            <fail unless="@{external}.bundle" message="ERROR: download-ext: property @{external}.bundle not defined, call define-ext-dir first." />
+            <fail unless="@{external}.distfile" message="ERROR: download-ext: property @{external}.distfile doesn't exist." />
+            <!-- create some properties -->
+            <property name="_@{external}.url.value" value="${externals.url}/${@{external}.bundle}/${@{external}.distfile}" />
+            <property name="_@{external}.dest.dir.value" location="${externals.dir}/${@{external}.bundle}" />
+            <property name="_@{external}.dest.value" location="${_@{external}.dest.dir.value}/${@{external}.distfile}" />
+            <!-- create repository location, download and expand -->
+            <mkdir dir="${_@{external}.dest.dir.value}" />
+            <get src="${_@{external}.url.value}" dest="${_@{external}.dest.value}" usetimestamp="true" />
+            <untar compression="gzip" src="${_@{external}.dest.value}" dest="${_@{external}.dest.dir.value}" overwrite="false" />
+            <property name="@{external}.downloaded" value="true" />
+        </sequential>
+    </macrodef>
+
+    <!-- ========================================================
+         BOOTSTRAP
+         ======================================================== -->
+
+    <!-- determine current script directory -->
+    <dirname property="etics-externals.basedir" file="${ant.file.etics-externals}" />
 
     <!-- get all externals ext.NAME.version, ext.NAME.name and ext.NAME.platform definitions -->
-    <property file="project/etics-externals.properties"/>
+    <echo message="load properties: ${etics-externals.basedir}/etics-externals.properties" />
+    <property file="${etics-externals.basedir}/etics-externals.properties" />
+
+    <!-- remote externals repository url -->
+    <property name="externals.url" value="${repository.url}/externals" />
+
+    <!-- local externals repository location -->
+    <property name="repository.dir" location="${etics-externals.basedir}/../../repository" />
+    <property name="externals.dir" location="${repository.dir}/externals" />
+    <mkdir dir="${externals.dir}" />
+
+    <!-- ========================================================
+         EXTERNALS DEFINITIONS
+         ======================================================== -->
 
     <!-- apache-struts -->
-    <define-ext-dir name="ext.apache-struts" />
-    <fileset id="ext.apache-struts.fileset" dir="${ext.apache-struts.dir}">
+    <define-ext-dir external="ext.apache-struts" />
+    <define-ext-path external="ext.apache-struts">
         <!-- SUN taglib -->
-        <include name="**/jstl-*.jar"/>
-        <include name="**/standard-*.jar"/>
+        <include name="**/jstl-*.jar" />
+        <include name="**/standard-*.jar" />
         <!-- jakarta commons -->
-        <include name="**/commons-beanutils-*.jar"/>
-        <include name="**/commons-chain-*.jar"/>
-        <include name="**/commons-digester-*.jar"/>
+        <include name="**/commons-beanutils-*.jar" />
+        <include name="**/commons-chain-*.jar" />
+        <include name="**/commons-digester-*.jar" />
         <!-- Struts -->
-        <include name="**/struts-core-*.jar"/>
-        <include name="**/struts-taglib-*.jar"/>
-        <include name="**/struts-tiles-*.jar"/>
-    </fileset>
-    <define-fileset-classpath name="ext.apache-struts"/>
+        <include name="**/struts-core-*.jar" />
+        <include name="**/struts-taglib-*.jar" />
+        <include name="**/struts-tiles-*.jar" />
+    </define-ext-path>
 
     <!-- axis -->
-    <define-ext-dir name="ext.axis"/>
-    <fileset id="ext.axis.fileset" dir="${ext.axis.dir}">
-        <include name="**/axis.jar"/>
-        <include name="**/commons-discovery-*.jar"/>
-        <include name="**/jaxrpc.jar"/>
-        <include name="**/saaj.jar"/>
-    </fileset>
-    <define-fileset-classpath name="ext.axis"/>
-    
+    <define-ext-dir external="ext.axis" />
+    <define-ext-path external="ext.axis">
+        <include name="**/axis.jar" />
+        <include name="**/commons-discovery-*.jar" />
+        <include name="**/jaxrpc.jar" />
+        <include name="**/saaj.jar" />
+    </define-ext-path>
+
     <!-- bouncycastle jdk 1.5 -->
-    <define-ext-dir name="ext.bouncycastle"/>
-    <fileset id="ext.bouncycastle.bcprov.fileset" dir="${ext.bouncycastle.dir}">
-        <include name="**/bcprov-jdk15-*.jar"/>
-    </fileset>
-    <fileset id="ext.bouncycastle.bcmail.fileset" dir="${ext.bouncycastle.dir}">
-        <include name="**/bcmail-jdk15-*.jar"/>
-    </fileset>
-    <fileset id="ext.bouncycastle.fileset" dir="${ext.bouncycastle.dir}">
-        <include name="**/bcprov-jdk15-*.jar"/>
-        <include name="**/bcmail-jdk15-*.jar"/>
-    </fileset>
-    <define-fileset-classpath name="ext.bouncycastle.bcprov"/>
-    <define-fileset-classpath name="ext.bouncycastle.bcmail"/>
-    <define-fileset-classpath name="ext.bouncycastle"/>
+    <define-ext-dir external="ext.bouncycastle" />
+    <define-ext-path external="ext.bouncycastle.bcprov" dir="${ext.bouncycastle.dir}">
+        <include name="**/bcprov-jdk15-*.jar" />
+    </define-ext-path>
+    <define-ext-path external="ext.bouncycastle.bcmail" dir="${ext.bouncycastle.dir}">
+        <include name="**/bcmail-jdk15-*.jar" />
+    </define-ext-path>
+    <define-ext-path external="ext.bouncycastle">
+        <include name="**/bcprov-jdk15-*.jar" />
+        <include name="**/bcmail-jdk15-*.jar" />
+    </define-ext-path>
 
     <!-- commons-cli -->
-    <define-ext-dir name="ext.commons-cli"/>
-    <fileset id="ext.commons-cli.fileset" dir="${ext.commons-cli.dir}">
-        <include name="commons-cli-*.jar"/>
-    </fileset>
-    <define-fileset-classpath name="ext.commons-cli"/>
-    
+    <define-ext-dir external="ext.commons-cli" />
+    <define-ext-path external="ext.commons-cli">
+        <include name="commons-cli-*.jar" />
+    </define-ext-path>
+
     <!-- commons-codec -->
-    <define-ext-dir name="ext.commons-codec"/>
-    <fileset id="ext.commons-codec.fileset" dir="${ext.commons-codec.dir}">
-        <include name="commons-codec-*.jar"/>
-    </fileset>
-    <define-fileset-classpath name="ext.commons-codec"/>
+    <define-ext-dir external="ext.commons-codec" />
+    <define-ext-path external="ext.commons-codec">
+        <include name="commons-codec-*.jar" />
+    </define-ext-path>
 
     <!-- commons-collections -->
-    <define-ext-dir name="ext.commons-collections"/>
-    <fileset id="ext.commons-collections.fileset" dir="${ext.commons-collections.dir}">
-        <include name="commons-collections-*.jar"/>
-        <exclude name="commons-collections-testframework-*.jar"/>
-    </fileset>
-    <define-fileset-classpath name="ext.commons-collections"/>
+    <define-ext-dir external="ext.commons-collections" />
+    <define-ext-path external="ext.commons-collections">
+        <include name="commons-collections-*.jar" />
+        <exclude name="commons-collections-testframework-*.jar" />
+    </define-ext-path>
 
     <!-- commons-configuration -->
-    <define-ext-dir name="ext.commons-configuration"/>
-    <fileset id="ext.commons-configuration.fileset" dir="${ext.commons-configuration.dir}">
-        <include name="commons-configuration-*.jar"/>
-    </fileset>
-    <define-fileset-classpath name="ext.commons-configuration"/>
+    <define-ext-dir external="ext.commons-configuration" />
+    <define-ext-path external="ext.commons-configuration">
+        <include name="commons-configuration-*.jar" />
+    </define-ext-path>
 
     <!-- commons-httpclient -->
-    <define-ext-dir name="ext.commons-httpclient"/>
-    <fileset id="ext.commons-httpclient.fileset" dir="${ext.commons-httpclient.dir}">
-        <include name="commons-httpclient-*.jar"/>
-    </fileset>
-    <define-fileset-classpath name="ext.commons-httpclient"/>
+    <define-ext-dir external="ext.commons-httpclient" />
+    <define-ext-path external="ext.commons-httpclient">
+        <include name="commons-httpclient-*.jar" />
+    </define-ext-path>
 
     <!-- commons-lang -->
-    <define-ext-dir name="ext.commons-lang"/>
-    <fileset id="ext.commons-lang.fileset" dir="${ext.commons-lang.dir}">
-        <include name="commons-lang-*.jar"/>
-    </fileset>
-    <define-fileset-classpath name="ext.commons-lang"/>
+    <define-ext-dir external="ext.commons-lang" />
+    <define-ext-path external="ext.commons-lang">
+        <include name="commons-lang-*.jar" />
+    </define-ext-path>
 
     <!-- commons-logging -->
-    <define-ext-dir name="ext.commons-logging"/>
-    <fileset id="ext.commons-logging.fileset" dir="${ext.commons-logging.dir}">
-        <include name="commons-logging.jar"/>
-    </fileset>
-    <define-fileset-classpath name="ext.commons-logging"/>
+    <define-ext-dir external="ext.commons-logging" />
+    <define-ext-path external="ext.commons-logging">
+        <include name="commons-logging.jar" />
+    </define-ext-path>
 
     <!-- jericho-html -->
-    <define-ext-dir name="ext.jericho-html"/>
-    <fileset id="ext.jericho-html.fileset" dir="${ext.jericho-html.dir}">
-        <include name="**/jericho-html-*.jar"/>
-    </fileset>
-    <define-fileset-classpath name="ext.jericho-html"/>
+    <define-ext-dir external="ext.jericho-html" />
+    <define-ext-path external="ext.jericho-html">
+        <include name="**/jericho-html-*.jar" />
+    </define-ext-path>
 
     <!-- junit -->
-    <define-ext-dir name="ext.junit"/>
-    <fileset id="ext.junit.fileset" dir="${ext.junit.dir}">
-        <include name="junit.jar"/>
-    </fileset>
-    <define-fileset-classpath name="ext.junit"/>
+    <define-ext-dir external="ext.junit" />
+    <define-ext-path external="ext.junit">
+        <include name="junit.jar" />
+    </define-ext-path>
 
     <!-- log4j -->
-    <define-ext-dir name="ext.log4j"/>
-    <fileset id="ext.log4j.fileset" dir="${ext.log4j.dir}">
-        <include name="**/log4j-*.jar"/>
-    </fileset>
-    <define-fileset-classpath name="ext.log4j"/>
+    <define-ext-dir external="ext.log4j" />
+    <define-ext-path external="ext.log4j">
+        <include name="**/log4j-*.jar" />
+    </define-ext-path>
 
     <!-- mysql-jdbc -->
-    <define-ext-dir name="ext.mysql-jdbc"/>
-    <fileset id="ext.mysql-jdbc.fileset" dir="${ext.mysql-jdbc.dir}">
-        <include name="mysql-connector-java-*-bin.jar"/>
-    </fileset>
-    <define-fileset-classpath name="ext.mysql-jdbc"/>
+    <define-ext-dir external="ext.mysql-jdbc" />
+    <define-ext-path external="ext.mysql-jdbc">
+        <include name="mysql-connector-java-*-bin.jar" />
+    </define-ext-path>
 
     <!-- tomcat -->
-    <define-ext-dir name="ext.tomcat"/>
-    <fileset id="ext.tomcat.fileset" dir="${ext.tomcat.dir}">
-        <include name="**/servlet-api.jar"/>
-    </fileset>
-    <define-fileset-classpath name="ext.tomcat"/>
-    
+    <define-ext-dir external="ext.tomcat" />
+    <define-ext-path external="ext.tomcat">
+        <include name="**/servlet-api.jar" />
+    </define-ext-path>
+
+    <!-- ========================================================
+         TARGET
+         ======================================================== -->
+
+    <!-- download the ETICS dependencies in local repository -->
+    <target name="etics-externals.download">
+        <download-ext external="ext.apache-struts" />
+        <download-ext external="ext.bouncycastle" />
+        <download-ext external="ext.commons-cli" />
+        <download-ext external="ext.commons-codec" />
+        <download-ext external="ext.commons-collections" />
+        <download-ext external="ext.commons-configuration" />
+        <download-ext external="ext.commons-httpclient" />
+        <download-ext external="ext.commons-lang" />
+        <download-ext external="ext.commons-logging" />
+        <download-ext external="ext.jericho-html" />
+        <download-ext external="ext.junit" />
+        <download-ext external="ext.log4j" />
+        <download-ext external="ext.mysql-jdbc" />
+        <download-ext external="ext.tomcat" />
+    </target>
 
 </project>
 
