@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.9 2007/07/23 08:59:46 vtschopp Exp $
+    Version: $Id: build.xml,v 1.10 2007/07/23 14:43:52 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -107,15 +107,15 @@
     <!-- jar -->
     <target name="jar" depends="compile">
         <!-- jar org.glite.slcs.ui classes -->
-        <jar jarfile="${build.dir}/${module.name}.jar" basedir="${classes.dir}" />
+        <jar jarfile="${build.dir}/${package.name}.jar" basedir="${classes.dir}" />
     </target>
     
     <!-- prepare installation layout in ${install.dir} -->
     <target name="install-layout" depends="jar">
         <echo message="prepare install in ${install.dir}"/>
         <property name="install.bin.dir" location="${install.dir}/bin"/>
-        <property name="install.etc.dir" location="${install.dir}/etc/${module.name}"/>
-        <property name="install.doc.dir" location="${install.dir}/share/doc/${module.name}"/>
+        <property name="install.etc.dir" location="${install.dir}/etc/${package.name}"/>
+        <property name="install.doc.dir" location="${install.dir}/share/doc/${package.name}"/>
         <property name="install.log.dir" location="${install.dir}/log"/>
         <property name="install.lib.dir" location="${install.dir}/share/java"/>
 
@@ -151,7 +151,7 @@
         <!-- empty log file -->
         <touch file="${install.log.dir}/slcs-init.log" />
         <!-- application jar -->
-        <copy todir="${install.lib.dir}" file="${build.dir}/${module.name}.jar"/>
+        <copy todir="${install.lib.dir}" file="${build.dir}/${package.name}.jar"/>
         
    </target>
    
@@ -198,7 +198,7 @@
     <!-- create standalone tar.gz distribution  -->
     <target name="local-dist" depends="clean,full-package">
         <property name="dist.file"
-            value="${module.name}-${module.version}-jdk${ant.java.version}-${DSTAMP}.tar.gz" />
+            value="${package.name}-${package.version}-jdk${ant.java.version}-${DSTAMP}.tar.gz" />
         <tar destfile="${dist.file}" compression="gzip">
             <tarfileset dir="${install.dir}" mode="755" username="root" group="root">
                 <include name="bin/slcs-*" />
