@@ -1,11 +1,21 @@
 /*
- * $Id: ShibbolethClientMetadata.java,v 1.1 2006/10/24 09:24:19 vtschopp Exp $
- * 
- * Created on Jul 6, 2006 by tschopp
+ * Copyright (c) Members of the EGEE Collaboration. 2007.
+ * See http://www.eu-egee.org/partners/ for details on the copyright
+ * holders.
  *
- * Copyright (c) Members of the EGEE Collaboration. 2004.
- * See http://eu-egee.org/partners/ for details on the copyright holders.
- * For license conditions see the license file or http://eu-egee.org/license.html
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Version: $Id: ShibbolethClientMetadata.java,v 1.2 2007/07/25 15:38:51 vtschopp Exp $
  */
 package org.glite.slcs.shibclient.metadata;
 
@@ -18,21 +28,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import org.glite.slcs.SLCSConfigurationException;
-import org.glite.slcs.config.SLCSClientConfiguration;
-import org.glite.slcs.config.SLCSConfiguration;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.glite.slcs.SLCSConfigurationException;
+import org.glite.slcs.config.SLCSClientConfiguration;
+import org.glite.slcs.config.SLCSConfiguration;
 
 /**
  * ShibbolethClientMetadata is the description of all Shibboleth
  * providers
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class ShibbolethClientMetadata extends SLCSConfiguration {
 
@@ -106,8 +115,18 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
         Map entities= new HashMap();
         LOG.debug("get configuration subset: ShibbolethClientMetadata");
         Configuration metadata= getConfiguration().subset("ShibbolethClientMetadata");
-        if (metadata.isEmpty()) {
-            throw new SLCSConfigurationException("ShibbolethClientMetadata element not found in configuration");
+        // external metadata defined with filename= attribute?
+        String metadataFilename= metadata.getString("[@filename]");
+        if (metadataFilename != null) {
+        	// load external metadata file       
+        	try {
+        		LOG.info("load external metadata: " + metadataFilename);
+        		metadata = loadConfiguration(metadataFilename);
+        	} catch (SLCSConfigurationException e) {
+        		LOG.error("Failed to load external ShibbolethClientMetadata: " + metadataFilename, e);
+        		throw e;
+        	}
+
         }
         String name= null;
         String url= null;
