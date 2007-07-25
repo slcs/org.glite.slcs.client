@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSInit.java,v 1.4 2007/07/11 16:03:06 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.5 2007/07/25 07:22:00 vtschopp Exp $
  * 
  * Created on Aug 8, 2006 by tschopp
  *
@@ -53,7 +53,7 @@ import au.id.jericho.lib.html.Source;
  * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 public class SLCSInit {
 
@@ -159,7 +159,7 @@ public class SLCSInit {
             ExtendedProtocolSocketFactory protocolSocketFactory = new ExtendedProtocolSocketFactory(truststore);
             Protocol https = new Protocol("https", protocolSocketFactory, 443);
             Protocol.registerProtocol("https", https);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.error(e);
             throw new SLCSException("Failed to create ExtendedProtocolSocketFactory", e);
         }
