@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.10 2007/07/23 14:43:52 vtschopp Exp $
+    Version: $Id: build.xml,v 1.11 2007/09/26 10:24:51 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -137,7 +137,7 @@
         <chmod dir="${install.bin.dir}" perm="755">
             <include name="slcs-*" />
         </chmod>
-        <!-- etc config -->
+        <!-- etc config and keystore -->
         <copy todir="${install.etc.dir}">
             <fileset dir="${etc.dir}">
                 <include name="*.xml" />
