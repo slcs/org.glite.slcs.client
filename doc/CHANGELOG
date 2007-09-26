@@ -1,6 +1,7 @@
-Version 1.1.2 (glite-slcs-ui_R_1_1_2_1)
+Version 1.1.2 (glite-slcs-ui_R_1_1_2_2)
 -------------
-* Metadata: Shibboleth client metadata as external file <ShibboelthClientMetadata filename=""/> added.
+* Metadata: Shibboleth client metadata as external file <ShibboelthClientMetadata filename="slcs-metadata.switchaai.xml"/> added.
+* Metadata: UniGE CAS login form name corrected.
 * TODO: add slcs-info option to show cert subject, issuer, and TTL...
 
 Version 1.1.1  (glite-slcs-ui_R_1_1_1_1)
@@ -21,4 +22,4 @@ Version 1.0.0
 * initial version
 
 --
-$Id: CHANGELOG,v 1.5 2007/09/07 14:12:40 vtschopp Exp $
+$Id: CHANGELOG,v 1.6 2007/09/26 10:35:11 vtschopp Exp $
