@@ -3,7 +3,7 @@
 <!-- 
 SLCS Client configuration 
 
-$Id: slcs-init.xml,v 1.5 2007/07/03 14:43:50 vtschopp Exp $
+$Id: slcs-init.xml,v 1.6 2007/09/26 09:18:48 vtschopp Exp $
 
 Copyright (c) 2004. Members of the EGEE Collaboration. 
 http://www.eu-egee.org
@@ -66,7 +66,7 @@ http://www.eu-egee.org
                 </authentication>
             </IdentityProvider>
 
-            <!-- Ecole Polytechnique Fédérale de Lausanne -->
+            <!-- Ecole Polytechnique Federale de Lausanne -->
             <IdentityProvider id="epfl.ch">
                 <name>EPFL</name>
                 <url>https://shibb-idp.epfl.ch/shibboleth-idp/SSO</url>
@@ -76,7 +76,7 @@ http://www.eu-egee.org
                 </authentication>
             </IdentityProvider>
 
-            <!-- ETH Zürich -->
+            <!-- ETH Zuerich -->
             <IdentityProvider id="ethz.ch">
                 <name>ETH Zuerich</name>
                 <url>https://aai-login.ethz.ch/shibboleth-idp/SSO</url>
@@ -89,7 +89,7 @@ http://www.eu-egee.org
                 </authentication>
             </IdentityProvider>
 
-            <!-- Universität Basel -->
+            <!-- Universitaet Basel -->
             <IdentityProvider id="unibas.ch">
                 <name>Universitaet Basel</name>
                 <url>https://aai-idp.unibas.ch/shibboleth-idp/SSO</url>
@@ -102,7 +102,7 @@ http://www.eu-egee.org
                 </authentication>
             </IdentityProvider>
 
-            <!-- Universität Bern -->
+            <!-- Universitaet Bern -->
             <IdentityProvider id="unibe.ch">
                 <name>Universitaet Bern</name>
                 <url>https://aai-homeorg.unibe.ch/shibboleth-idp/SSO</url>
@@ -115,7 +115,7 @@ http://www.eu-egee.org
                 </authentication>
             </IdentityProvider>
 
-            <!-- Université de Fribourg - Universität Freiburg -->
+            <!-- Universite de Fribourg - Universitaet Freiburg -->
             <IdentityProvider id="unifr.ch">
                 <name>Universite de Fribourg</name>
                 <url>https://switchaai.unifr.ch/shibboleth-idp/SSO</url>
@@ -129,20 +129,20 @@ http://www.eu-egee.org
                 </authentication>
             </IdentityProvider>
 
-            <!-- Université de Genève -->
+            <!-- Universite de Geneve -->
             <IdentityProvider id="unige.ch">
                 <name>Universite de Geneve</name>
                 <url>https://auth.unige.ch/shibboleth-idp/SSO</url>
                 <authentication type="CAS">
                     <url>https://auth.unige.ch/cas/login</url>
-                    <form name="login_form">
+                    <form name="loginForm">
                         <username>username</username>
                         <password>password</password>
                     </form>
                 </authentication>
             </IdentityProvider>
 
-            <!-- Université de Lausanne -->
+            <!-- Universite de Lausanne -->
             <IdentityProvider id="unil.ch">
                 <name>Universite de Lausanne</name>
                 <url>https://aai.unil.ch/shibboleth-idp/SSO</url>
@@ -155,7 +155,7 @@ http://www.eu-egee.org
                 </authentication>
             </IdentityProvider>
 
-            <!-- Universität Luzern -->
+            <!-- Universitaet Luzern -->
             <IdentityProvider id="unilu.ch">
                 <name>Universitaet Luzern</name>
                 <url>https://aai-login.unilu.ch/shibboleth-idp/SSO</url>
@@ -168,7 +168,7 @@ http://www.eu-egee.org
                 </authentication>
             </IdentityProvider>
 
-            <!-- Université de Neuchâtel -->
+            <!-- Universite de Neuchatel -->
             <IdentityProvider id="unine.ch">
                 <name>Universite de Neuchatel</name>
                 <url>https://aai-login.unine.ch/shibboleth-idp/SSO</url>
@@ -181,7 +181,7 @@ http://www.eu-egee.org
                 </authentication>
             </IdentityProvider>
 
-            <!-- Universität St. Gallen -->
+            <!-- Universitaet St. Gallen -->
             <IdentityProvider id="unisg.ch">
                 <name>Universitaet St. Gallen</name>
                 <url>https://aai-login.unisg.ch/shibboleth-idp/SSO</url>
@@ -207,7 +207,7 @@ http://www.eu-egee.org
                 </authentication>
             </IdentityProvider>
 
-            <!-- Universität Zürich -->
+            <!-- Universitaet Zuerich -->
             <IdentityProvider id="unizh.ch">
                 <name>Universitaet Zuerich</name>
                 <url>https://idp.unizh.ch/shibboleth-idp/SSO</url>
