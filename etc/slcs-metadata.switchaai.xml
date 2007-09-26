@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!-- 
+SLCS Shibboleth Metadata
+
+$Id: slcs-metadata.switchaai.xml,v 1.1 2007/09/26 10:22:46 vtschopp Exp $
+
+Copyright (c) 2004. Members of the EGEE Collaboration. 
+http://www.eu-egee.org
+-->
+
+<!-- Pseudo Metadata for the Shibboleth federation description -->
+<!-- This file is referenced from the SLCS configuration file
+     slcs-init.xml in the element <ShibbolethClientMetadata> as
+     attribute filename. The file must be define as an absolute
+     filename or a filename in the CLASSPATH.
+     Example: 
+     <ShibbolethClientMetadata filename="slcs-metadata.switchaai.xml"/> 
+-->
+<ShibbolethClientMetadata>
+
+    <!-- The SLCS server (Shibboleth SP) -->
+    <ServiceProvider id="slcs">
+        <name>SLCS Server</name>
+        <url>https://slcs.switch.ch/SLCS/login</url>
+    </ServiceProvider>
+    
+    <!-- Shibboleth IdP definitions -->
+    <IdentityProviders> 
+
+        <!-- SWITCH - The Education and Research Network -->
+        <IdentityProvider id="switch.ch">
+            <name>SWITCH</name>
+            <url>https://aai-logon.switch.ch/shibboleth-idp/SSO</url>
+            <authentication type="CAS">
+                <url>https://aai-logon.switch.ch/cas/login</url>
+                <form name="login_form">
+                    <username>username</username>
+                    <password>password</password>
+                </form>
+            </authentication>
+        </IdentityProvider>
+
+        <!-- Virtual Home Organization @SWITCHaai -->
+        <IdentityProvider id="vho-switchaai.ch">
+            <name>Virtual Home Organization</name>
+            <url>https://aai.vho-switchaai.ch/shibboleth-idp/SSO</url>
+            <authentication type="CAS">
+                <url>https://aai.vho-switchaai.ch/cas/login</url>
+                <form name="login_form">
+                    <username>username</username>
+                    <password>password</password>
+                </form>
+            </authentication>
+        </IdentityProvider>
+
+        <!-- Ecole Polytechnique Federale de Lausanne -->
+        <IdentityProvider id="epfl.ch">
+            <name>EPFL</name>
+            <url>https://shibb-idp.epfl.ch/shibboleth-idp/SSO</url>
+            <authentication type="BASIC">
+                <url>https://shibb-idp.epfl.ch/shibboleth-idp/SSO</url>
+                <realm>SSO</realm>
+            </authentication>
+        </IdentityProvider>
+
+        <!-- ETH Zuerich -->
+        <IdentityProvider id="ethz.ch">
+            <name>ETH Zuerich</name>
+            <url>https://aai-login.ethz.ch/shibboleth-idp/SSO</url>
+            <authentication type="PUBCOOKIE">
+                <url>https://cipher.ethz.ch/login/</url>
+                <form name="query">
+                    <username>user</username>
+                    <password>pass</password>                   
+                </form>
+            </authentication>
+        </IdentityProvider>
+
+        <!-- Universitaet Basel -->
+        <IdentityProvider id="unibas.ch">
+            <name>Universitaet Basel</name>
+            <url>https://aai-idp.unibas.ch/shibboleth-idp/SSO</url>
+            <authentication type="CAS">
+                <url>https://aai-idp.unibas.ch/cas/login</url>
+                <form name="login_form">
+                    <username>username</username>
+                    <password>password</password>
+                </form>
+            </authentication>
+        </IdentityProvider>
+
+        <!-- Universitaet Bern -->
+        <IdentityProvider id="unibe.ch">
+            <name>Universitaet Bern</name>
+            <url>https://aai-homeorg.unibe.ch/shibboleth-idp/SSO</url>
+            <authentication type="CAS">
+                <url>https://aai-homeorg.unibe.ch/cas/login</url>
+                <form name="login_form">
+                    <username>username</username>
+                    <password>password</password>
+                </form>
+            </authentication>
+        </IdentityProvider>
+
+        <!-- Universite de Fribourg - Universitaet Freiburg -->
+        <IdentityProvider id="unifr.ch">
+            <name>Universite de Fribourg</name>
+            <url>https://switchaai.unifr.ch/shibboleth-idp/SSO</url>
+            <!--
+            WARNING: NTLM authentication is not very well tested !!! 
+            -->
+            <authentication type="NTLM">
+                <url>https://switchaai.unifr.ch/shibboleth-idp/SSO</url>
+                <realm>switchaai.unifr.ch</realm>
+                <domain>unifr.ch</domain>
+            </authentication>
+        </IdentityProvider>
+
+        <!-- Universite de Geneve -->
+        <IdentityProvider id="unige.ch">
+            <name>Universite de Geneve</name>
+            <url>https://auth.unige.ch/shibboleth-idp/SSO</url>
+            <authentication type="CAS">
+                <url>https://auth.unige.ch/cas/login</url>
+                <form name="loginForm">
+                    <username>username</username>
+                    <password>password</password>
+                </form>
+            </authentication>
+        </IdentityProvider>
+
+        <!-- Universite de Lausanne -->
+        <IdentityProvider id="unil.ch">
+            <name>Universite de Lausanne</name>
+            <url>https://aai.unil.ch/shibboleth-idp/SSO</url>
+            <authentication type="CAS">
+                <url>https://aai.unil.ch/cas/login</url>
+                <form name="casloginform">
+                    <username>username</username>
+                    <password>password</password>                   
+                </form>
+            </authentication>
+        </IdentityProvider>
+
+        <!-- Universitaet Luzern -->
+        <IdentityProvider id="unilu.ch">
+            <name>Universitaet Luzern</name>
+            <url>https://aai-login.unilu.ch/shibboleth-idp/SSO</url>
+            <authentication type="CAS">
+                <url>https://aai-login.unilu.ch/cas/login</url>
+                <form name="login_form">
+                    <username>username</username>
+                    <password>password</password>
+                </form>
+            </authentication>
+        </IdentityProvider>
+
+        <!-- Universite de Neuchatel -->
+        <IdentityProvider id="unine.ch">
+            <name>Universite de Neuchatel</name>
+            <url>https://aai-login.unine.ch/shibboleth-idp/SSO</url>
+            <authentication type="CAS">
+                <url>https://aai-login.unine.ch/cas/login</url>
+                <form name="login_form">
+                    <username>username</username>
+                    <password>password</password>
+                </form>
+            </authentication>
+        </IdentityProvider>
+
+        <!-- Universitaet St. Gallen -->
+        <IdentityProvider id="unisg.ch">
+            <name>Universitaet St. Gallen</name>
+            <url>https://aai-login.unisg.ch/shibboleth-idp/SSO</url>
+            <authentication type="CAS">
+                <url>https://aai-login.unisg.ch/cas/login</url>
+                <form name="login_form">
+                    <username>username</username>
+                    <password>password</password>
+                </form>
+            </authentication>
+        </IdentityProvider>
+
+        <!-- Universita della Svizzera Italiana -->
+        <IdentityProvider id="unisi.ch">
+            <name>Universita della Svizzera Italiana</name>
+            <url>https://login.unisi.ch/shibboleth-idp/SSO</url>
+            <authentication type="CAS">
+                <url>https://login.unisi.ch/cas/login</url>
+                <form name="login_form">
+                    <username>username</username>
+                    <password>password</password>
+                </form>
+            </authentication>
+        </IdentityProvider>
+
+        <!-- Universitaet Zuerich -->
+        <IdentityProvider id="unizh.ch">
+            <name>Universitaet Zuerich</name>
+            <url>https://idp.unizh.ch/shibboleth-idp/SSO</url>
+            <authentication type="CAS">
+                <url>https://idp.unizh.ch/cas/login</url>
+                <form name="login_form">
+                    <username>username</username>
+                    <password>password</password>
+                </form>
+            </authentication>
+        </IdentityProvider>
+        
+    </IdentityProviders>
+    
+</ShibbolethClientMetadata>
+
