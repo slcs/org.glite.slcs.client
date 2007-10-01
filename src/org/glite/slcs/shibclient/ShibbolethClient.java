@@ -1,5 +1,5 @@
 /*
- * $Id: ShibbolethClient.java,v 1.5 2007/07/03 14:00:20 vtschopp Exp $
+ * $Id: ShibbolethClient.java,v 1.6 2007/10/01 11:00:13 vtschopp Exp $
  * 
  * Created on Jul 5, 2006 by tschopp
  *
@@ -11,6 +11,7 @@ package org.glite.slcs.shibclient;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +26,7 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.auth.AuthScheme;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.auth.AuthState;
+import org.apache.commons.httpclient.cookie.CookieSpecBase;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.logging.Log;
@@ -48,7 +50,7 @@ import au.id.jericho.lib.html.Tag;
  * handler.
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class ShibbolethClient {
 
@@ -158,8 +160,9 @@ public class ShibbolethClient {
             // checks if URL contains the shire= parameter (WAYF of IdP)
             if (spLoginResponseURL.indexOf("shire=") == -1) {
                 LOG.error("Unexpected spLoginResponseURL=" + spLoginResponseURL);
-                throw new ServiceException("SP response URL doesn't contain the 'shire=' parameter: "
-                        + spLoginResponseURL);
+                throw new ServiceException(
+                        "SP response URL doesn't contain the 'shire=' parameter: "
+                                + spLoginResponseURL);
             }
             else {
                 LOG.debug("IdP SSO: " + idpURL);
@@ -168,7 +171,8 @@ public class ShibbolethClient {
             }
 
             // 3. process the Browser/POST profile
-            URI browserPostResponseURI = processIdPBrowserPOST(idp, idpSSOResponseURI);
+            URI browserPostResponseURI = processIdPBrowserPOST(idp,
+                    idpSSOResponseURI);
             String url = browserPostResponseURI.getURI();
             if (url.equals(spEntryURL)) {
                 this.isAuthenticated_ = true;
@@ -206,13 +210,14 @@ public class ShibbolethClient {
             String idpSSOResponseURL = idpSSOResponseURI.getURI();
             GetMethod GETIdPBrowserPOSTMethod = new GetMethod(idpSSOResponseURL);
 
-            // set Pubcookie cookies
+            // set Pubcookie cookie request header: Cookie: <pubcookie_pre_s>;
+            // <pubcookie_g>
             if (idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_PUBCOOKIE) {
-                LOG.debug("Set Pubcookie Cookies: pubcookie_pre_s; pubcookie_g");
                 Cookie pubcookie_pre_s = getCookie("pubcookie_pre_s");
                 Cookie pubcookie_g = getCookie("pubcookie_g");
                 String pubcookies = pubcookie_pre_s.toString() + "; "
                         + pubcookie_g.toString();
+                LOG.debug("setting PubCookie request Cookie: " + pubcookies);
                 GETIdPBrowserPOSTMethod.addRequestHeader("Cookie", pubcookies);
             }
 
@@ -236,8 +241,9 @@ public class ShibbolethClient {
                         // no SAML post URL found
                         LOG.error("No SAML Browser/POST URL found: "
                                 + GETIdPBrowserPOSTMethod.getURI());
-                        remoteException = new RemoteException("No SAML Browser/POST URL found: "
-                                + GETIdPBrowserPOSTMethod.getURI());
+                        remoteException = new RemoteException(
+                                "No SAML Browser/POST URL found: "
+                                        + GETIdPBrowserPOSTMethod.getURI());
                         break; // exit loop
                     }
 
@@ -279,10 +285,10 @@ public class ShibbolethClient {
                         LOG.error("Unexpected SP response: Status="
                                 + spSAMLResponseStatus + " Location="
                                 + location);
-                        remoteException = new RemoteException("Unexpected SP response: Status="
-                                + spSAMLResponseStatus
-                                + " Location="
-                                + location);
+                        remoteException = new RemoteException(
+                                "Unexpected SP response: Status="
+                                        + spSAMLResponseStatus + " Location="
+                                        + location);
                     }
 
                     LOG.trace("POSTSPSAMLMethod.releaseConnection()");
@@ -294,8 +300,9 @@ public class ShibbolethClient {
                 // no SAML post found
                 LOG.error("No SAML Browser/POST profile found: "
                         + GETIdPBrowserPOSTMethod.getURI());
-                remoteException = new RemoteException("No SAML Browser/POST profile found: "
-                        + GETIdPBrowserPOSTMethod.getURI());
+                remoteException = new RemoteException(
+                        "No SAML Browser/POST profile found: "
+                                + GETIdPBrowserPOSTMethod.getURI());
             }
 
             LOG.trace("GETIdPBrowserPOSTMethod.releaseConnection()");
@@ -378,7 +385,8 @@ public class ShibbolethClient {
             LOG.info("Enable " + idp.getAuthTypeName() + " authentication: "
                     + credentials_);
             URI idpSSOURI = GETIdpSSOMethod.getURI();
-            AuthScope scope = new AuthScope(idpSSOURI.getHost(), 443, idp.getAuthRealm());
+            AuthScope scope = new AuthScope(idpSSOURI.getHost(), 443,
+                    idp.getAuthRealm());
             LOG.debug("AuthScope=" + scope);
             httpClient_.getState().setCredentials(scope, credentials_);
             GETIdpSSOMethod.setDoAuthentication(true);
@@ -395,7 +403,7 @@ public class ShibbolethClient {
         LOG.debug("idpSSOResponseQuery=" + idpSSOResponseQuery);
 
         // XXX
-        // dumpHttpClientCookies();
+        dumpHttpClientCookies();
 
         LOG.debug("idpSSOResponseStatus=" + idpSSOResponseStatus);
         // if BASIC or NTLM failed
@@ -423,11 +431,12 @@ public class ShibbolethClient {
             LOG.debug("Process CAS login form...");
             // process CAS login form
             InputStream idpLoginForm = GETIdpSSOMethod.getResponseBodyAsStream();
-            idpSSOResponseURI = processIdPLoginForm(idp, idpSSOResponseURI, idpLoginForm);
+            idpSSOResponseURI = processIdPLoginForm(idp, idpSSOResponseURI,
+                    idpLoginForm);
             LOG.debug("CAS idpSSOResponseURI=" + idpSSOResponseURI);
         }
-        // PUBCOOKIE sends 200 + Cookies and a HTML page #!@! <meta
-        // http-equiv="Refresh"
+        // PUBCOOKIE sends 200 + Cookies and a HTML page #!@! 
+        // <meta http-equiv="Refresh"
         // content="0;URL=https://aai1.unil.ch/"> back
         else if (idpSSOResponseStatus == 200
                 && idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_PUBCOOKIE) {
@@ -437,10 +446,12 @@ public class ShibbolethClient {
 
             LOG.debug("Get Pubcookie login form...");
 
-            GetMethod GETPubcookieLoginFormMethod = new GetMethod(idp.getAuthUrl());
+            GetMethod GETPubcookieLoginFormMethod = new GetMethod(
+                    idp.getAuthUrl());
             // set Cookie 'pubcookie_g_req'
             Cookie pubcookie_r_req = getCookie("pubcookie_g_req");
-            GETPubcookieLoginFormMethod.setRequestHeader("Cookie", pubcookie_r_req.toString());
+            GETPubcookieLoginFormMethod.setRequestHeader("Cookie",
+                    pubcookie_r_req.toString());
             LOG.info("GETPubcookieLoginFormMethod: "
                     + GETPubcookieLoginFormMethod.getURI());
             int pubcookieLoginFormStatus = executeMethod(GETPubcookieLoginFormMethod);
@@ -452,7 +463,8 @@ public class ShibbolethClient {
 
             // process pubcookie login form
             InputStream loginFormStream = GETPubcookieLoginFormMethod.getResponseBodyAsStream();
-            idpSSOResponseURI = processIdPLoginForm(idp, idpSSOResponseURI, loginFormStream);
+            idpSSOResponseURI = processIdPLoginForm(idp, idpSSOResponseURI,
+                    loginFormStream);
             LOG.debug("Pubcookie idpSSOResponseURI=" + idpSSOResponseURI);
 
             LOG.debug("GETPubcookieLoginFormMethod.releaseConnection()");
@@ -525,10 +537,9 @@ public class ShibbolethClient {
                     LOG.info("form ACTION URL=" + formLocation);
                 }
                 else {
-                    // BUG FIX: CAS3 don't use cookie but add a path component
-                    // ;jsessionid=...
-                    // between the URL and the query parameters (?)
-                    // i.e.:
+                    // BUG FIX: if CAS3 doesn't use cookie, then it adds a path
+                    // component ;jsessionid=... between the URL and the query
+                    // parameters (?) i.e.:
                     // action="login;jsessionid=52E28683EF109486FAB652E3D76EEDDE?param1..."
                     int jsessionIdPos = formLocation.indexOf(";jsessionid=");
                     int questionMarkPos = formLocation.indexOf('?');
@@ -536,7 +547,8 @@ public class ShibbolethClient {
                         LOG.warn("form ACTION URL contains ';jsessionid=...': "
                                 + formLocation);
                         // extract the ;jsessionid= from the form action url
-                        String jsessionId = formLocation.substring(jsessionIdPos, questionMarkPos);
+                        String jsessionId = formLocation.substring(
+                                jsessionIdPos, questionMarkPos);
                         LOG.debug("jsessionId=" + jsessionId);
                         // and add it to the existing path
                         String path = ssoLoginURI.getPath();
@@ -553,7 +565,8 @@ public class ShibbolethClient {
                 if (!formLocation.equals("")
                         && formMethod.equalsIgnoreCase("POST")) {
 
-                    PostMethod POSTLoginFormMethod = new PostMethod(formLocation);
+                    PostMethod POSTLoginFormMethod = new PostMethod(
+                            formLocation);
 
                     // add all HIDDEN fields to POST
                     List formControls = form.findFormControls();
@@ -574,13 +587,41 @@ public class ShibbolethClient {
                         }
                     }
                     // add username field
-                    POSTLoginFormMethod.addParameter(idp.getAuthFormUsername(), this.credentials_.getUserName());
+                    POSTLoginFormMethod.addParameter(idp.getAuthFormUsername(),
+                            this.credentials_.getUserName());
                     // add the PASSWORD field
-                    POSTLoginFormMethod.addParameter(idp.getAuthFormPassword(), this.credentials_.getPassword());
+                    POSTLoginFormMethod.addParameter(idp.getAuthFormPassword(),
+                            this.credentials_.getPassword());
 
                     // execute the login POST
                     LOG.info("POSTLoginFormMethod: "
                             + POSTLoginFormMethod.getURI());
+                    // XXX
+                    dumpHttpClientCookies();
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Host:"
+                                + POSTLoginFormMethod.getURI().getHost());
+                        LOG.trace("Path:"
+                                + POSTLoginFormMethod.getURI().getPath());
+                        LOG.trace("Port:"
+                                + POSTLoginFormMethod.getURI().getPort());
+                    }
+                    // BUG FIX: set the CAS JSESSIONID cookie by hand.
+                    // default CookiePolicy is RFC2109 and doesn't handle
+                    // correctly FQDN domain.
+                    String host = POSTLoginFormMethod.getURI().getHost();
+                    String path = POSTLoginFormMethod.getURI().getPath();
+                    Cookie cookies[] = getMatchingCookies("JSESSIONID", host,
+                            path);
+                    for (int j = 0; j < cookies.length; j++) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("setting CAS request Cookie: "
+                                    + cookies[j]);
+                        }
+                        POSTLoginFormMethod.setRequestHeader("Cookie",
+                                cookies[j].toString());
+                    }
+
                     int formLoginResponseStatus = executeMethod(POSTLoginFormMethod);
                     LOG.debug(POSTLoginFormMethod.getStatusLine());
 
@@ -595,7 +636,18 @@ public class ShibbolethClient {
                         if (location != null) {
                             LOG.debug("CAS Redirect: " + location);
                             String locationURL = location.getValue();
-                            idpLoginFormResponseURI = new URI(locationURL, false);
+                            // XXX: if location is the same as before, wrong
+                            // login
+                            String idpSSOUrl = idp.getUrl();
+                            if (!locationURL.startsWith(idpSSOUrl)) {
+                                LOG.error("CAS response is not the SSO url ("
+                                        + idpSSOUrl + "): " + locationURL);
+                                throw new AuthException(idp.getAuthTypeName()
+                                        + " Authentication failed: "
+                                        + this.credentials_);
+                            }
+                            idpLoginFormResponseURI = new URI(locationURL,
+                                    false);
                         }
                         else {
                             LOG.error("CAS send status 302 but no redirect Location");
@@ -634,7 +686,8 @@ public class ShibbolethClient {
                         if (pubcookieRefreshURL != null) {
                             LOG.debug("Pubcookie refresh: "
                                     + pubcookieRefreshURL);
-                            idpLoginFormResponseURI = new URI(pubcookieRefreshURL, false);
+                            idpLoginFormResponseURI = new URI(
+                                    pubcookieRefreshURL, false);
                         }
                         else {
                             LOG.error("Pubcookie META Refresh not found");
@@ -642,6 +695,9 @@ public class ShibbolethClient {
                                     + " Authentication failed: "
                                     + this.credentials_);
                         }
+
+                        // XXX
+                        dumpHttpClientCookies();
 
                     }
                     else {
@@ -698,11 +754,19 @@ public class ShibbolethClient {
             Cookie[] cookies = this.httpClient_.getState().getCookies();
             StringBuffer sb = new StringBuffer();
             sb.append("\n");
+            sb.append("CookiePolicy=").append(
+                    httpClient_.getParams().getCookiePolicy()).append("\n");
             sb.append("---HTTPCLIENT COOKIES BEGIN---").append("\n");
             for (int i = 0; i < cookies.length; i++) {
-                String name = cookies[i].getName();
-                String value = cookies[i].getValue();
-                sb.append(name).append('=').append(value).append("\n");
+                String path = cookies[i].getPath();
+                String domain = cookies[i].getDomain();
+                boolean secure = cookies[i].getSecure();
+                // sb.append(name).append('=').append(value).append("\n");
+                sb.append(i).append(": ").append(cookies[i]);
+                sb.append(" domain:").append(domain);
+                sb.append(" path:").append(path);
+                sb.append(" secure:").append(secure);
+                sb.append("\n");
             }
             sb.append("---HTTPCLIENT COOKIES END---");
             LOG.debug(sb.toString());
@@ -710,14 +774,16 @@ public class ShibbolethClient {
     }
 
     /**
-     * Returns the Cookie or <code>null</code> if not exists.
+     * Returns the <b>first</b> Cookie or <code>null</code> if not exists.
      * 
      * @param name
      *            The Cookie name
      * @return The cookie or <code>null</code>
      */
     private Cookie getCookie(String name) {
-        LOG.trace("Cookie name=" + name);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Cookie name=" + name);
+        }
         Cookie[] cookies = this.httpClient_.getState().getCookies();
         for (int i = 0; i < cookies.length; i++) {
             String cookieName = cookies[i].getName();
@@ -726,6 +792,26 @@ public class ShibbolethClient {
             }
         }
         return null;
+    }
+
+    private Cookie[] getMatchingCookies(String name, String host, String path) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("search Cookie matching name:" + name + " host:" + host
+                    + " path:" + path);
+        }
+        List matchingCookies = new ArrayList();
+        Cookie[] cookies = this.httpClient_.getState().getCookies();
+        CookieSpecBase cookieSpecBase = new CookieSpecBase();
+        for (int i = 0; i < cookies.length; i++) {
+            Cookie cookie = cookies[i];
+            if (cookieSpecBase.match(host, 443, path, true, cookie)) {
+                if (cookie.getName().equals(name)) {
+                    LOG.debug("Cookie " + cookie + " matched");
+                    matchingCookies.add(cookie);
+                }
+            }
+        }
+        return (Cookie[]) matchingCookies.toArray(new Cookie[matchingCookies.size()]);
     }
 
 }
