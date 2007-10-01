@@ -2,3 +2,4 @@
 .cdtproject
 build
 .etics
+*.tar.gz
