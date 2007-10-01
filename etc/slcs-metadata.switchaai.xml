@@ -3,7 +3,7 @@
 <!-- 
 SLCS Shibboleth Metadata
 
-$Id: slcs-metadata.switchaai.xml,v 1.1 2007/09/26 10:22:46 vtschopp Exp $
+$Id: slcs-metadata.switchaai.xml,v 1.2 2007/10/01 10:51:15 vtschopp Exp $
 
 Copyright (c) 2004. Members of the EGEE Collaboration. 
 http://www.eu-egee.org
@@ -69,7 +69,7 @@ http://www.eu-egee.org
             <name>ETH Zuerich</name>
             <url>https://aai-login.ethz.ch/shibboleth-idp/SSO</url>
             <authentication type="PUBCOOKIE">
-                <url>https://cipher.ethz.ch/login/</url>
+                <url>https://caesar.ethz.ch/login/</url>
                 <form name="query">
                     <username>user</username>
                     <password>pass</password>                   
