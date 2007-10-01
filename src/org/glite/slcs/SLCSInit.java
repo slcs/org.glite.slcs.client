@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSInit.java,v 1.5 2007/07/25 07:22:00 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.6 2007/10/01 09:39:10 vtschopp Exp $
  * 
  * Created on Aug 8, 2006 by tschopp
  *
@@ -53,7 +53,7 @@ import au.id.jericho.lib.html.Source;
  * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class SLCSInit {
 
@@ -137,7 +137,8 @@ public class SLCSInit {
         HttpClient httpClient = createHttpClient(configuration_);
         this.shibMetadata_ = new ShibbolethClientMetadata(configuration_);
         this.shibCredentials_ = credentials;
-        this.shibClient_ = new ShibbolethClient(httpClient, shibMetadata_, shibCredentials_);
+        this.shibClient_ = new ShibbolethClient(httpClient, shibMetadata_,
+                shibCredentials_);
 
     }
 
@@ -156,29 +157,36 @@ public class SLCSInit {
         String truststore = configuration.getString("HttpClient.TrustStoreFile");
         LOG.info("TrustStoreFile=" + truststore);
         try {
-            ExtendedProtocolSocketFactory protocolSocketFactory = new ExtendedProtocolSocketFactory(truststore);
+            ExtendedProtocolSocketFactory protocolSocketFactory = new ExtendedProtocolSocketFactory(
+                    truststore);
             Protocol https = new Protocol("https", protocolSocketFactory, 443);
             Protocol.registerProtocol("https", https);
         } catch (Exception e) {
             LOG.error(e);
-            throw new SLCSException("Failed to create ExtendedProtocolSocketFactory", e);
+            throw new SLCSException(
+                    "Failed to create ExtendedProtocolSocketFactory", e);
         }
         HttpClient httpClient = new HttpClient();
         setHttpClientUserAgent(httpClient);
+        
         return httpClient;
     }
 
     /**
      * Sets the User-Agent request header as
-     * <code>Mozilla/5.0 (Jakarata Commons-HttpClient/3.0.1; slcs-init/VERSION)</code>
+     * <code>Mozilla/5.0 (Jakarata Commons-HttpClient/3.0.1) slcs-init/VERSION</code>
      * to prevent PubCookie from denying access (bug fix)
      */
     private static void setHttpClientUserAgent(HttpClient httpClient) {
-        String userAgent = (String) httpClient.getParams().getParameter(HttpClientParams.USER_AGENT);
-        String newUserAgent = "Mozilla/5.0 (" + userAgent + "; slcs-init/" + SLCSClientVersion.getVersion() + ")";
-        httpClient.getParams().setParameter(HttpClientParams.USER_AGENT, newUserAgent);
+        String userAgent = (String) httpClient.getParams().getParameter(
+                HttpClientParams.USER_AGENT);
+        String newUserAgent = "Mozilla/5.0 (" + userAgent + ") slcs-init/"
+                + SLCSClientVersion.getVersion();
+        httpClient.getParams().setParameter(HttpClientParams.USER_AGENT,
+                newUserAgent);
         if (LOG.isDebugEnabled()) {
-            userAgent = (String) httpClient.getParams().getParameter(HttpClientParams.USER_AGENT);
+            userAgent = (String) httpClient.getParams().getParameter(
+                    HttpClientParams.USER_AGENT);
             LOG.debug("User-Agent=" + userAgent);
         }
     }
@@ -205,19 +213,22 @@ public class SLCSInit {
                     LOG.debug("replace ${" + propertyName + "} with: "
                             + propertyValue);
                     String replace = "\\$\\{" + propertyName + "\\}";
-                    storeDirectory = storeDirectory.replaceAll(replace, propertyValue);
+                    storeDirectory = storeDirectory.replaceAll(replace,
+                            propertyValue);
                 }
                 else {
                     LOG.error("StoreDirectory contains invalid ${"
                             + propertyName + "} java property");
-                    throw new SLCSConfigurationException("StoreDirectory contains invalid ${"
-                            + propertyName + "} java property");
+                    throw new SLCSConfigurationException(
+                            "StoreDirectory contains invalid ${" + propertyName
+                                    + "} java property");
                 }
             }
             else {
                 // ERROR
                 LOG.error("StoreDirectory contains invalid ${...} java property");
-                throw new SLCSConfigurationException("StoreDirectory contains invalid ${...} java property");
+                throw new SLCSConfigurationException(
+                        "StoreDirectory contains invalid ${...} java property");
             }
         }
         LOG.info("StoreDirectory=" + storeDirectory);
@@ -447,7 +458,8 @@ public class SLCSInit {
         else {
             // read from console
             try {
-                password = PasswordReader.getPassword(System.in, "Shibboleth Password: ");
+                password = PasswordReader.getPassword(System.in,
+                        "Shibboleth Password: ");
             } catch (IOException e) {
                 // ignored?
                 LOG.error(e);
@@ -469,7 +481,8 @@ public class SLCSInit {
         else {
             // read from console
             try {
-                keyPassword = PasswordReader.getPassword(System.in, "New Key Password: ");
+                keyPassword = PasswordReader.getPassword(System.in,
+                        "New Key Password: ");
             } catch (IOException e) {
                 // ignored?
                 LOG.error(e);
@@ -491,7 +504,8 @@ public class SLCSInit {
         try {
             LOG.debug("load SLCS client configuration...");
             SLCSClientConfiguration configuration = SLCSClientConfiguration.getInstance(config);
-            ShibbolethCredentials credentials = new ShibbolethCredentials(username, password, idpProviderId);
+            ShibbolethCredentials credentials = new ShibbolethCredentials(
+                    username, password, idpProviderId);
             LOG.debug("create SLCS client...");
             client = new SLCSInit(configuration, credentials);
             if (storeDirectory != null) {
@@ -551,7 +565,9 @@ public class SLCSInit {
             }
             client.generateCertificateRequest();
         } catch (GeneralSecurityException e) {
-            LOG.fatal("SLCSClient failed to generate key and certificate request", e);
+            LOG.fatal(
+                    "SLCSClient failed to generate key and certificate request",
+                    e);
             System.err.println("ERROR: " + e);
             System.exit(1);
         }
@@ -642,16 +658,18 @@ public class SLCSInit {
         } catch (IOException e) {
             LOG.error("Failed to request DN", e);
             throw new SLCSException("Failed to request DN", e);
-        }
-        finally {
+        } finally {
             getLoginMethod.releaseConnection();
         }
     }
 
     private void slcsCertificateRequest() throws SLCSException {
-        PostMethod postCertificateRequestMethod = new PostMethod(certificateRequestUrl_);
-        postCertificateRequestMethod.addParameter("AuthorizationToken", authorizationToken_);
-        postCertificateRequestMethod.addParameter("CertificateSigningRequest", certificateRequest_.getPEMEncoded());
+        PostMethod postCertificateRequestMethod = new PostMethod(
+                certificateRequestUrl_);
+        postCertificateRequestMethod.addParameter("AuthorizationToken",
+                authorizationToken_);
+        postCertificateRequestMethod.addParameter("CertificateSigningRequest",
+                certificateRequest_.getPEMEncoded());
         try {
             LOG.info("POST CSR: " + certificateRequestUrl_);
             int status = shibClient_.executeMethod(postCertificateRequestMethod);
@@ -672,8 +690,7 @@ public class SLCSInit {
         } catch (IOException e) {
             LOG.error("Failed to request the certificate", e);
             throw new SLCSException("Failed to request the certificate", e);
-        }
-        finally {
+        } finally {
             postCertificateRequestMethod.releaseConnection();
         }
     }
@@ -694,7 +711,8 @@ public class SLCSInit {
         Element statusElement = source.findNextElement(pos, "status");
         if (statusElement == null || statusElement.isEmpty()) {
             LOG.error("Status element not found");
-            throw new ServiceException("Status element not found in SLCS response");
+            throw new ServiceException(
+                    "Status element not found in SLCS response");
         }
         String status = statusElement.getContent().toString();
         LOG.info("Status=" + status);
@@ -703,7 +721,8 @@ public class SLCSInit {
             Element errorElement = source.findNextElement(pos, "error");
             if (errorElement == null || errorElement.isEmpty()) {
                 LOG.error("Error element not found");
-                throw new SLCSException("Error element not found in SLCS error response");
+                throw new SLCSException(
+                        "Error element not found in SLCS error response");
             }
             String error = errorElement.getContent().toString();
             // is there a stack trace?
@@ -728,28 +747,33 @@ public class SLCSInit {
         Element tokenElement = source.findNextElement(pos, "AuthorizationToken");
         if (tokenElement == null || tokenElement.isEmpty()) {
             LOG.error("AuthorizationToken element not found");
-            throw new SLCSException("AuthorizationToken element not found in SLCS response");
+            throw new SLCSException(
+                    "AuthorizationToken element not found in SLCS response");
         }
         authorizationToken_ = tokenElement.getContent().toString();
         LOG.info("AuthorizationToken=" + authorizationToken_);
         // get the certificate request URL
         pos = tokenElement.getEnd();
-        Element certificateRequestElement = source.findNextElement(pos, "CertificateRequest");
+        Element certificateRequestElement = source.findNextElement(pos,
+                "CertificateRequest");
         if (certificateRequestElement == null
                 || certificateRequestElement.isEmpty()) {
             LOG.error("CertificateRequest element not found");
-            throw new SLCSException("CertificateRequest element not found in SLCS response");
+            throw new SLCSException(
+                    "CertificateRequest element not found in SLCS response");
         }
         certificateRequestUrl_ = certificateRequestElement.getAttributeValue("url");
         if (certificateRequestUrl_ == null) {
             LOG.error("CertificateRequest url attribute not found");
-            throw new SLCSException("CertificateRequest url attribute not found in SLCS response");
+            throw new SLCSException(
+                    "CertificateRequest url attribute not found in SLCS response");
         }
         else if (!certificateRequestUrl_.startsWith("http")) {
             LOG.error("CertificateRequest url attribute doesn't starts with http: "
                     + certificateRequestUrl_);
-            throw new SLCSException("CertificateRequest url attribute is not valid: "
-                    + certificateRequestUrl_);
+            throw new SLCSException(
+                    "CertificateRequest url attribute is not valid: "
+                            + certificateRequestUrl_);
         }
         LOG.info("CertificateRequest url=" + certificateRequestUrl_);
 
@@ -757,7 +781,8 @@ public class SLCSInit {
         Element subjectElement = source.findNextElement(pos, "Subject");
         if (subjectElement == null || subjectElement.isEmpty()) {
             LOG.error("Subject element not found");
-            throw new SLCSException("Subject element not found in SLCS response");
+            throw new SLCSException(
+                    "Subject element not found in SLCS response");
         }
         certificateSubject_ = subjectElement.getContent().toString();
         LOG.info("CertificateRequest.Subject=" + certificateSubject_);
@@ -765,13 +790,15 @@ public class SLCSInit {
         certificateExtensions_ = new ArrayList();
         pos = subjectElement.getEnd();
         Element extensionElement = null;
-        while ((extensionElement = source.findNextElement(pos, "certificateextension")) != null) {
+        while ((extensionElement = source.findNextElement(pos,
+                "certificateextension")) != null) {
             pos = extensionElement.getEnd();
             String extensionName = extensionElement.getAttributeValue("name");
             String extensionValues = extensionElement.getContent().toString();
             LOG.info("CertificateRequest.CertificateExtension: "
                     + extensionName + "=" + extensionValues);
-            CertificateExtension extension = CertificateExtensionFactory.createCertificateExtension(extensionName, extensionValues);
+            CertificateExtension extension = CertificateExtensionFactory.createCertificateExtension(
+                    extensionName, extensionValues);
             if (extension != null) {
                 certificateExtensions_.add(extension);
             }
@@ -784,7 +811,8 @@ public class SLCSInit {
         Element certificateElement = source.findNextElement(pos, "Certificate");
         if (certificateElement == null || certificateElement.isEmpty()) {
             LOG.error("Certificate element not found");
-            throw new SLCSException("Certificate element not found in SLCS response");
+            throw new SLCSException(
+                    "Certificate element not found in SLCS response");
         }
         String pemCertificate = certificateElement.getContent().toString();
         LOG.info("Certificate element found");
@@ -809,21 +837,28 @@ public class SLCSInit {
         username.setArgName("username");
         Option idp = new Option("i", "idp", true, "Shibboleth IdP providerId");
         idp.setArgName("providerId");
-        Option config = new Option("c", "conf", true, "SLCS client XML configuration file");
+        Option config = new Option("c", "conf", true,
+                "SLCS client XML configuration file");
         config.setArgName("filename");
         Option verbose = new Option("v", "verbose", false, "verbose");
         Option version = new Option("V", "version", false, "shows the version");
-        Option password = new Option("p", "password", true, "Shibboleth password");
+        Option password = new Option("p", "password", true,
+                "Shibboleth password");
         password.setArgName("password");
-        Option keysize = new Option("s", "keysize", true, "private key size (default: 1024)");
+        Option keysize = new Option("s", "keysize", true,
+                "private key size (default: 1024)");
         keysize.setArgName("size");
-        Option keypassword = new Option("k", "keypass", true, "private key password (default: same as Shibboleth password)");
+        Option keypassword = new Option("k", "keypass", true,
+                "private key password (default: same as Shibboleth password)");
         keypassword.setArgName("password");
-        Option prefix = new Option("P", "prefix", true, "optional usercert.pem and userkey.pem filename prefix");
+        Option prefix = new Option("P", "prefix", true,
+                "optional usercert.pem and userkey.pem filename prefix");
         prefix.setArgName("prefix");
-        Option storedir = new Option("D", "storedir", true, "absolute pathname to the store directory (default: $HOME/.globus)");
+        Option storedir = new Option("D", "storedir", true,
+                "absolute pathname to the store directory (default: $HOME/.globus)");
         storedir.setArgName("directory");
-        Option p12 = new Option("x", "p12", false, "store additional PKCS12 user.p12 file");
+        Option p12 = new Option("x", "p12", false,
+                "store additional PKCS12 user.p12 file");
         Options options = new Options();
         options.addOption(help);
         options.addOption(username);
@@ -911,7 +946,8 @@ public class SLCSInit {
                 if (backupFile.exists() && backupFile.isFile()) {
                     String targetFilename = filename + "." + (i + 1);
                     File targetFile = new File(targetFilename);
-                    LOG.info("Rotate backup file: " + backupFile + " -> " + targetFile);
+                    LOG.info("Rotate backup file: " + backupFile + " -> "
+                            + targetFile);
                     backupFile.renameTo(targetFile);
                 }
             }
@@ -931,7 +967,8 @@ public class SLCSInit {
      */
     private void generateCertificateRequest() throws GeneralSecurityException {
         LOG.debug("generate CSR: " + certificateSubject_);
-        certificateRequest_ = new CertificateRequest(certificateKeys_, certificateSubject_, certificateExtensions_);
+        certificateRequest_ = new CertificateRequest(certificateKeys_,
+                certificateSubject_, certificateExtensions_);
     }
 
     /**
