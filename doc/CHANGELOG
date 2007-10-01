@@ -1,13 +1,19 @@
+TODO: add slcs-info option to show cert subject, issuer, and TTL...
+
+Version 1.1.3 (glite-slcs-ui_R_1_1_3_1)
+-------------
+* Metadata: ETHZ Pubcookie server name changed to caesar.ethz.ch.
+* Bug fix: corrected Shib login with IdP using CAS (UniGE).
+
 Version 1.1.2 (glite-slcs-ui_R_1_1_2_2)
 -------------
-* Metadata: Shibboleth client metadata as external file <ShibboelthClientMetadata filename="slcs-metadata.switchaai.xml"/> added.
+* Configuration: SLCS Shibboleth metadata as external file <ShibboelthClientMetadata filename="slcs-metadata.switchaai.xml"/>.
 * Metadata: UniGE CAS login form name corrected.
-* TODO: add slcs-info option to show cert subject, issuer, and TTL...
 
 Version 1.1.1  (glite-slcs-ui_R_1_1_1_1)
 -------------
+* Feature: userkey.pem, usercert.pem and optional user.p12 files are backuped (3 rotating backups)
 * Metadata: UniL now uses CAS SSO login
-* userkey.pem, usercert.pem and optional user.p12 files are backuped (3 backups keep)
 * Bug fix: create store directory specified with option -D if it does not exist.
 * Bug fix: handle Shibboleth SSO login with CAS unamed form.
 
@@ -22,4 +28,4 @@ Version 1.0.0
 * initial version
 
 --
-$Id: CHANGELOG,v 1.6 2007/09/26 10:35:11 vtschopp Exp $
+$Id: CHANGELOG,v 1.7 2007/10/01 11:02:32 vtschopp Exp $
