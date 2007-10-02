@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSInit.java,v 1.6 2007/10/01 09:39:10 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.7 2007/10/02 14:26:05 vtschopp Exp $
  * 
  * Created on Aug 8, 2006 by tschopp
  *
@@ -53,7 +53,7 @@ import au.id.jericho.lib.html.Source;
  * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class SLCSInit {
 
@@ -900,9 +900,9 @@ public class SLCSInit {
     private void storePrivateKey() throws IOException {
         String filename = getStoreDirectory() + File.separator
                 + getUserKeyFilename();
-        LOG.info("Store private key: " + filename);
         File file = new File(filename);
         backupFile(file);
+        LOG.info("Store private key: " + filename);
         certificateKeys_.storePEMPrivate(file);
     }
 
@@ -916,9 +916,9 @@ public class SLCSInit {
     private void storeCertificate() throws IOException {
         String filename = getStoreDirectory() + File.separator
                 + getUserCertFilename();
-        LOG.info("Store certificate: " + filename);
         File file = new File(filename);
         backupFile(file);
+        LOG.info("Store certificate: " + filename);
         certificate_.storePEM(file);
     }
 
@@ -1083,9 +1083,9 @@ public class SLCSInit {
         try {
             String filename = getStoreDirectory() + File.separator
                     + getUserPKCS12Filename();
-            LOG.info("Store PKCS12: " + filename);
             File file = new File(filename);
             backupFile(file);
+            LOG.info("Store PKCS12: " + filename);
             Codec.storePKCS12(privateKey, certificate, chain, file, password);
         } catch (GeneralSecurityException e) {
             LOG.error(e);
