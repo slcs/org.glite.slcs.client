@@ -3,7 +3,7 @@
 <!-- 
 SLCS Shibboleth Metadata
 
-$Id: slcs-metadata.switchaai.xml,v 1.2 2007/10/01 10:51:15 vtschopp Exp $
+$Id: slcs-metadata.switchaai.xml,v 1.3 2007/10/16 07:08:54 vtschopp Exp $
 
 Copyright (c) 2004. Members of the EGEE Collaboration. 
 http://www.eu-egee.org
@@ -136,7 +136,7 @@ http://www.eu-egee.org
             <url>https://aai.unil.ch/shibboleth-idp/SSO</url>
             <authentication type="CAS">
                 <url>https://aai.unil.ch/cas/login</url>
-                <form name="casloginform">
+                <form name="credentials">
                     <username>username</username>
                     <password>password</password>                   
                 </form>
