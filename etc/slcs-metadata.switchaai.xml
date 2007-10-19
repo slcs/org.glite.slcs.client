@@ -3,7 +3,7 @@
 <!-- 
 SLCS Shibboleth Metadata
 
-$Id: slcs-metadata.switchaai.xml,v 1.4 2007/10/19 09:22:31 vtschopp Exp $
+$Id: slcs-metadata.switchaai.xml,v 1.5 2007/10/19 09:28:25 vtschopp Exp $
 
 Copyright (c) 2004. Members of the EGEE Collaboration. 
 http://www.eu-egee.org
@@ -133,7 +133,7 @@ http://www.eu-egee.org
         <!-- Universite de Lausanne -->
         <IdentityProvider id="unil.ch">
             <name>Universite de Lausanne</name>
-            <url>https://aai.unil.ch/shibboleth-idp/SSO</url>
+            <url>https://aai1.unil.ch/shibboleth-idp/SSO</url>
             <authentication type="CAS">
                 <url>https://aai1.unil.ch/cas/login</url>
                 <form name="credentials">
