@@ -1,5 +1,5 @@
 /*
- * $Id: ShibbolethClient.java,v 1.6 2007/10/01 11:00:13 vtschopp Exp $
+ * $Id: ShibbolethClient.java,v 1.7 2007/10/19 13:40:16 vtschopp Exp $
  * 
  * Created on Jul 5, 2006 by tschopp
  *
@@ -50,7 +50,7 @@ import au.id.jericho.lib.html.Tag;
  * handler.
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class ShibbolethClient {
 
@@ -603,8 +603,6 @@ public class ShibbolethClient {
                                 + POSTLoginFormMethod.getURI().getHost());
                         LOG.trace("Path:"
                                 + POSTLoginFormMethod.getURI().getPath());
-                        LOG.trace("Port:"
-                                + POSTLoginFormMethod.getURI().getPort());
                     }
                     // BUG FIX: set the CAS JSESSIONID cookie by hand.
                     // default CookiePolicy is RFC2109 and doesn't handle
@@ -634,14 +632,21 @@ public class ShibbolethClient {
                         LOG.debug("Process CAS response...");
                         Header location = POSTLoginFormMethod.getResponseHeader("Location");
                         if (location != null) {
-                            LOG.debug("CAS Redirect: " + location);
                             String locationURL = location.getValue();
-                            // XXX: if location is the same as before, wrong
-                            // login
-                            String idpSSOUrl = idp.getUrl();
-                            if (!locationURL.startsWith(idpSSOUrl)) {
+                            LOG.debug("CAS Redirect: " + locationURL);
+                            // XXX: if location path (/cas/login) is not the IdP SSO path (/shibboleth-idp/SSO), then it's a wrong login
+                            URI locationURI = new URI(locationURL);
+                            String locationPath = locationURI.getPath();
+                            String idpSSOURL = idp.getUrl();
+                            URI idpSSOURI = new URI(idpSSOURL);
+                            String idpSSOPath = idpSSOURI.getPath();
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("location path: " + locationPath);
+                                LOG.debug("IdP SSO path: " + idpSSOPath );
+                            }
+                            if (!locationPath.equals(idpSSOPath)) {
                                 LOG.error("CAS response is not the SSO url ("
-                                        + idpSSOUrl + "): " + locationURL);
+                                        + idpSSOURL + "): " + locationURL);
                                 throw new AuthException(idp.getAuthTypeName()
                                         + " Authentication failed: "
                                         + this.credentials_);
@@ -650,7 +655,7 @@ public class ShibbolethClient {
                                     false);
                         }
                         else {
-                            LOG.error("CAS send status 302 but no redirect Location");
+                            LOG.error("CAS send status 302 but no redirect Location header");
                             throw new AuthException(idp.getAuthTypeName()
                                     + " Authentication failed: "
                                     + this.credentials_);
