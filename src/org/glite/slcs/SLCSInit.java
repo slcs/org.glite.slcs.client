@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSInit.java,v 1.7 2007/10/02 14:26:05 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.8 2007/11/02 15:24:56 vtschopp Exp $
  * 
  * Created on Aug 8, 2006 by tschopp
  *
@@ -53,7 +53,7 @@ import au.id.jericho.lib.html.Source;
  * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class SLCSInit {
 
@@ -326,7 +326,7 @@ public class SLCSInit {
      * @param args
      */
     public static void main(String[] args) {
-        LOG.info("Start...");
+        LOG.info("SLCSClientVersion: " + SLCSClientVersion.getVersion());
         // parse command line
         CommandLineParser parser = new PosixParser();
         CommandLine cmd = null;
