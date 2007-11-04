@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSInit.java,v 1.8 2007/11/02 15:24:56 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.9 2007/11/04 18:56:18 vtschopp Exp $
  * 
  * Created on Aug 8, 2006 by tschopp
  *
@@ -31,6 +31,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.glite.slcs.config.SLCSClientConfiguration;
@@ -53,7 +54,7 @@ import au.id.jericho.lib.html.Source;
  * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class SLCSInit {
 
@@ -127,7 +128,7 @@ public class SLCSInit {
         this.configuration_ = configuration;
 
         // read default params from config
-        this.storeDirectory_ = createDefaultStoreDirectory(configuration_);
+        this.storeDirectory_ = getDefaultStoreDirectory(configuration_);
         this.userCertFilename_ = getDefaultUserCertFile(configuration_);
         this.userKeyFilename_ = getDefaultUserKeyFile(configuration_);
         this.keySize_ = getDefaultUserKeySize(configuration_);
@@ -197,7 +198,7 @@ public class SLCSInit {
      * @return
      * @throws SLCSConfigurationException
      */
-    static private String createDefaultStoreDirectory(
+    static private String getDefaultStoreDirectory(
             SLCSClientConfiguration configuration)
             throws SLCSConfigurationException {
         String storeDirectory = configuration.getString("StoreDirectory");
@@ -210,11 +211,11 @@ public class SLCSInit {
                 String propertyName = storeDirectory.substring(start + 2, stop);
                 String propertyValue = System.getProperty(propertyName);
                 if (propertyValue != null) {
-                    LOG.debug("replace ${" + propertyName + "} with: "
-                            + propertyValue);
-                    String replace = "\\$\\{" + propertyName + "\\}";
-                    storeDirectory = storeDirectory.replaceAll(replace,
-                            propertyValue);
+                    LOG.debug("replace ${" + propertyName + "} with: " + propertyValue);
+                    // Windows uses backslash, must be escaped !!!
+                    propertyValue = StringUtils.replace(propertyValue,"\\","/",-1);
+                    String replace = "${" + propertyName + "}";
+                    storeDirectory = StringUtils.replace(storeDirectory, replace, propertyValue, -1);
                 }
                 else {
                     LOG.error("StoreDirectory contains invalid ${"
@@ -231,18 +232,11 @@ public class SLCSInit {
                         "StoreDirectory contains invalid ${...} java property");
             }
         }
-        LOG.info("StoreDirectory=" + storeDirectory);
-        // create directory
+        // get absolute pathname
         File directory = new File(storeDirectory);
-        if (!directory.exists()) {
-            LOG.debug("create directory: " + storeDirectory);
-            directory.mkdirs();
-        }
-        if (!directory.isDirectory()) {
-            LOG.error(directory.getAbsolutePath() + " is not a directory");
-        }
-
-        return directory.getAbsolutePath();
+        storeDirectory = directory.getAbsolutePath();
+        LOG.info("StoreDirectory=" + storeDirectory);
+        return storeDirectory;
     }
 
     /**
@@ -972,15 +966,23 @@ public class SLCSInit {
     }
 
     /**
+     * Creates if necessary and returns the absolute directory name.
+     * 
      * @return The absolute directory name to store the usercert.pem and
      *         userkey.pem files.
      */
     private String getStoreDirectory() {
-        return storeDirectory_;
+        File dir = new File(storeDirectory_);
+        // BUG FIX: create dir if not exist
+        if (!dir.exists()) {
+            LOG.info("create store directory: " + dir.getAbsolutePath());
+            dir.mkdirs();
+        }
+        return dir.getAbsolutePath();
     }
 
     /**
-     * Sets the absolute pathname to the store directory.
+     * Sets the absolute pathname to the store directory and creates it if necessary.
      * 
      * @param directory
      *            The absolute pathname of the store directory.
@@ -1003,7 +1005,7 @@ public class SLCSInit {
             valid = true;
         }
         else {
-            LOG.warn("Not a valid store directory: " + directory);
+            LOG.error("Not a valid store directory: " + directory);
         }
         return valid;
     }
