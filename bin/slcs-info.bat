@@ -5,19 +5,18 @@ rem
 rem Copyright (c) 2007. Members of the EGEE Collaboration. 
 rem http:\\www.eu-egee.org
 rem
-rem $Id: slcs-info.bat,v 1.1 2007/11/04 16:34:55 vtschopp Exp $
+rem $Id: slcs-info.bat,v 1.2 2007/11/04 18:16:52 vtschopp Exp $
 rem ---------------------------------------------------------------------------
 if "%OS%" == "Windows_NT" setlocal
 if "%OS%" == "WINNT" setlocal
 
 rem set SLCS_HOME directory
-set CURRENT_DIR=%~dp0
 if not "%SLCS_HOME%" == "" goto gotHome
-set SLCS_HOME=%CURRENT_DIR%
-if exist "%SLCS_HOME%\bin\slcs-info.bat" goto okHome
-cd /d %CURRENT_DIR%\..
+set CURRENT_DIR=%cd%
+set SLCS_BIN_DIR=%~dp0
+cd /d %SLCS_BIN_DIR%\..
 set SLCS_HOME=%cd%
-cd %CURRENT_DIR%
+cd /d %CURRENT_DIR%
 :gotHome
 if exist "%SLCS_HOME%\bin\slcs-info.bat" goto okHome
 echo The SLCS_HOME environment variable is not defined correctly
