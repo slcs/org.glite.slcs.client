@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.11 2007/09/26 10:24:51 vtschopp Exp $
+    Version: $Id: build.xml,v 1.12 2007/11/04 16:42:12 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -37,7 +37,7 @@
     <!-- module directories -->
     <property name="src.dir" location="${basedir}/src" />
     <property name="test.src.dir" location="${basedir}/test" />
-    <property name="bin.dir" location="${basedir}/scripts" />
+    <property name="bin.dir" location="${basedir}/bin" />
     <property name="etc.dir" location="${basedir}/etc" />
     <property name="doc.dir" location="${basedir}/doc" />
     
@@ -131,7 +131,10 @@
         <!-- bin scripts -->
         <copy todir="${install.bin.dir}">
             <fileset dir="${bin.dir}">
-                <include name="slcs-*" />
+    			<include name="slcs-init" />
+    			<include name="slcs-init.bat" />
+    			<include name="slcs-info" />
+    			<include name="slcs-info.bat" />
             </fileset>
         </copy>
         <chmod dir="${install.bin.dir}" perm="755">
