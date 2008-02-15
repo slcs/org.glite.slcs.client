@@ -1,0 +1,110 @@
+##
+# org.glite.slcs README
+##
+
+How to build the SLCS components with ETICS or by hand with ant.
+
+##############################################
+#
+# BUILD with ETICS build system:
+#
+
+How to bootstrap the org.glite dev framework, download the required dependencies and build the org.glite.slcs components (org.glite.slcs, org.glite.slcs.common, org.glite.slcs.ui, org.glite.slcs.server) with the ETICS build system.
+
+REQUIRED: 
+- ETICS client installed.
+- Java 1.5.X installed and configured (JAVA_HOME).
+- lsb-release package (Linux,Debian)
+
+ETICS BUILD:
+
+0. Install the ETICS client on your host: 
+
+See https://twiki.cern.ch/twiki/bin/view/ETICS/ClientHowTo
+
+
+1. Create a project directory and initialize it as ETICS workspace:
+
+mkdir ~/slcs-workspace
+cd ~/slcs-workspace
+etics-workspace-setup
+
+
+2. Create or edit the ~/slcs-workspace/etics.conf file and set the vcsroot property as follow:
+
+[user]
+vcsroot=:pserver:anonymous@glite.cvs.cern.ch:/cvs/glite
+
+
+3. Checkout the whole SLCS project (common, client, server):
+
+etics-checkout -c org.glite.slcs.HEAD org.glite.slcs
+
+This checkout will also download all the required dependencies into the ~/repository directory
+
+
+4. Build all the org.glite.slcs components:
+
+etics-build -c org.glite.slcs.HEAD org.glite.slcs
+
+This build will compile, stage org.glite.slcs.common, org.glite.slcs.ui and org.glite.slcs.server
+
+
+##############################################
+#
+# BUILD with Ant/Eclipse:
+#
+
+REQUIRED: 
+- Java 1.5.X installed and configured (JAVA_HOME).
+- Ant 1.6.X installed and configured (ANT_HOME)
+OPTIONAL:
+- Eclipse 3.2.X installed
+
+Ant BUILD:
+
+1. Create a project directory:
+
+mkdir ~/slcs-workspace
+cd ~/slcs-workspace
+
+
+2. Checkout the HEAD directly from the CVS server:
+
+export CVSROOT=:pserver:anonymous@glite.cvs.cern.ch:/cvs/glite
+
+cvs co org.glite.slcs
+cvs co org.glite.slcs.common
+cvs co org.glite.slcs.ui
+cvs co org.glite.slcs.server
+
+
+3. Use ant to download the required dependencies in the repository directory:
+
+cd org.glite.slcs
+ant -f project/etics-externals.xml etics-externals.download
+
+
+4. Use ant to build the different components:
+
+4.1 build org.glite.common:
+
+cd org.glite.slcs.common
+ant 
+
+4.2 build org.glite.slcs.server (depends on org.glite.slcs.common):
+
+cd org.glite.slcs.server
+ant 
+
+4.3 build org.glite.slcs.ui (depends on org.glite.slcs.common):
+
+cd org.glite.slcs.ui
+ant 
+
+
+5. (Optional) Open Eclipse and import the directories org.glite.slcs.common, org.glite.slcs.ui and org.glite.slcs.server as existing project. The repository must be also imported as project and all jar files contained in the sub-directories must be exported as libraries.
+
+
+--
+$Id: README.build,v 1.1 2008/02/15 11:41:34 vtschopp Exp $
