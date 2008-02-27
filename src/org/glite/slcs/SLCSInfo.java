@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSInfo.java,v 1.2 2007/05/09 07:11:50 vtschopp Exp $
+ * $Id: SLCSInfo.java,v 1.3 2008/02/27 13:14:27 vtschopp Exp $
  * 
  * Created on Oct 20, 2006 by Valery Tschopp <tschopp@switch.ch>
  *
@@ -109,7 +109,7 @@ public class SLCSInfo {
 
         ServiceProvider slcs= metadata.getSLCS();
         System.out.println("SLCS Service URL: " + slcs.getUrl());
-        Enumeration idps= metadata.getIdentityProviders();
+        Enumeration<IdentityProvider> idps= metadata.getIdentityProviders();
         while (idps.hasMoreElements()) {
             IdentityProvider idp= (IdentityProvider) idps.nextElement();
             System.out.println("Identity Provider: " + idp.getName() + " [" + idp.getId() + "]");

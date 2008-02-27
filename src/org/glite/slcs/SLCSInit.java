@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSInit.java,v 1.9 2007/11/04 18:56:18 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.10 2008/02/27 13:14:27 vtschopp Exp $
  * 
  * Created on Aug 8, 2006 by tschopp
  *
@@ -54,7 +54,7 @@ import au.id.jericho.lib.html.Source;
  * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public class SLCSInit {
 
@@ -107,7 +107,7 @@ public class SLCSInit {
     private String certificateSubject_ = null;
 
     /** List of required certificate extensions */
-    private List certificateExtensions_ = null;
+    private List<CertificateExtension> certificateExtensions_ = null;
 
     /** Private and public keys */
     private CertificateKeys certificateKeys_ = null;
@@ -781,7 +781,7 @@ public class SLCSInit {
         certificateSubject_ = subjectElement.getContent().toString();
         LOG.info("CertificateRequest.Subject=" + certificateSubject_);
         // any certificate extensions?
-        certificateExtensions_ = new ArrayList();
+        certificateExtensions_ = new ArrayList<CertificateExtension>();
         pos = subjectElement.getEnd();
         Element extensionElement = null;
         while ((extensionElement = source.findNextElement(pos,
