@@ -18,7 +18,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package org.glite.slcs.jericho.html.nodoc;
+package org.glite.slcs.jericho.html;
 
 import java.util.AbstractList;
 import java.util.Collection;
@@ -27,9 +27,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
-import org.glite.slcs.jericho.html.Attributes;
-import org.glite.slcs.jericho.html.Segment;
-import org.glite.slcs.jericho.html.Source;
 
 
 /**

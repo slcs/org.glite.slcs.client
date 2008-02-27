@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import org.glite.slcs.jericho.html.nodoc.SequentialListSegment;
 
 
 /**
