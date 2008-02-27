@@ -1,5 +1,5 @@
 /*
- * $Id: ShibbolethClient.java,v 1.7 2007/10/19 13:40:16 vtschopp Exp $
+ * $Id: ShibbolethClient.java,v 1.8 2008/02/27 14:18:36 vtschopp Exp $
  * 
  * Created on Jul 5, 2006 by tschopp
  *
@@ -36,21 +36,21 @@ import org.glite.slcs.RemoteException;
 import org.glite.slcs.SLCSConfigurationException;
 import org.glite.slcs.ServiceException;
 import org.glite.slcs.UnknownResourceException;
+import org.glite.slcs.jericho.html.Element;
+import org.glite.slcs.jericho.html.FormControl;
+import org.glite.slcs.jericho.html.FormControlType;
+import org.glite.slcs.jericho.html.Source;
+import org.glite.slcs.jericho.html.Tag;
 import org.glite.slcs.shibclient.metadata.IdentityProvider;
 import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
 
-import au.id.jericho.lib.html.Element;
-import au.id.jericho.lib.html.FormControl;
-import au.id.jericho.lib.html.FormControlType;
-import au.id.jericho.lib.html.Source;
-import au.id.jericho.lib.html.Tag;
 
 /**
  * ShibbolethClient is a SSO login parser and a Shibboleth Browser/POST profile
  * handler.
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class ShibbolethClient {
 

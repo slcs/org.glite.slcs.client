@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSInit.java,v 1.10 2008/02/27 13:14:27 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.11 2008/02/27 14:18:36 vtschopp Exp $
  * 
  * Created on Aug 8, 2006 by tschopp
  *
@@ -36,6 +36,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.glite.slcs.config.SLCSClientConfiguration;
 import org.glite.slcs.httpclient.ssl.ExtendedProtocolSocketFactory;
+import org.glite.slcs.jericho.html.Element;
+import org.glite.slcs.jericho.html.Source;
 import org.glite.slcs.pki.Certificate;
 import org.glite.slcs.pki.CertificateExtension;
 import org.glite.slcs.pki.CertificateExtensionFactory;
@@ -47,14 +49,12 @@ import org.glite.slcs.shibclient.ShibbolethCredentials;
 import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
 import org.glite.slcs.util.PasswordReader;
 
-import au.id.jericho.lib.html.Element;
-import au.id.jericho.lib.html.Source;
 
 /**
  * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public class SLCSInit {
 
