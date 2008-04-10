@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.14 2008/02/27 13:15:10 vtschopp Exp $
+    Version: $Id: build.xml,v 1.15 2008/04/10 07:58:07 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -108,7 +108,14 @@
         <!-- jar org.glite.slcs.ui classes -->
         <jar jarfile="${build.dir}/${package.name}.jar" basedir="${classes.dir}" />
     </target>
-    
+   
+    <!-- stage glite-slcs-ui.jar in ../stage/share/java dir -->
+    <target name="stage" depends="jar">
+        <echo message="stage ${package.name}.jar" />
+        <mkdir dir="${stage.lib.dir}" />
+        <copy todir="${stage.lib.dir}" file="${build.dir}/${package.name}.jar" />
+    </target>
+ 
     <!-- prepare installation layout in ${install.dir} -->
     <target name="install-layout" depends="jar">
         <echo message="prepare install in ${install.dir}"/>
