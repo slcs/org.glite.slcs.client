@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.15 2008/04/10 07:58:07 vtschopp Exp $
+    Version: $Id: build.xml,v 1.16 2008/04/11 14:51:58 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -109,7 +109,7 @@
         <jar jarfile="${build.dir}/${package.name}.jar" basedir="${classes.dir}" />
     </target>
    
-    <!-- stage glite-slcs-ui.jar in ../stage/share/java dir -->
+    <!-- OPTIONAL: stage glite-slcs-ui.jar in ../stage/share/java dir -->
     <target name="stage" depends="jar">
         <echo message="stage ${package.name}.jar" />
         <mkdir dir="${stage.lib.dir}" />
@@ -165,7 +165,7 @@
    </target>
    
    <!-- install used by ETICS packager: ant -Dprefix=${prefix} install -->
-   <target name="install" depends="install-layout">
+   <target name="install" depends="install-layout,stage">
         <!-- copy everything in $prefix -->
         <echo message="install in ${prefix}"/>
         <copy todir="${prefix}">
