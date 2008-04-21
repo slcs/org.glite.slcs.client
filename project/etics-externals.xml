@@ -19,7 +19,7 @@
     ETICS externals dependencies definition
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: etics-externals.xml,v 1.5 2008/02/11 12:58:41 vtschopp Exp $
+    Version: $Id: etics-externals.xml,v 1.6 2008/04/21 15:36:42 vtschopp Exp $
 -->
 <project name="etics-externals">
 
@@ -129,7 +129,7 @@
         <include name="**/saaj.jar" />
     </define-ext-path>
 
-    <!-- bouncycastle jdk 1.5 -->
+    <!-- bouncycastle jdk 1.5 (default) -->
     <define-ext-dir external="ext.bouncycastle" />
     <define-ext-path external="ext.bouncycastle.bcprov" dir="${ext.bouncycastle.dir}">
         <include name="**/bcprov-*.jar" />
@@ -142,47 +142,60 @@
         <include name="**/bcmail-*.jar" />
     </define-ext-path>
 
+    <!-- bouncycastle jdk 1.4 -->
+    <define-ext-dir external="ext.bouncycastle-jdk1.4" />
+    <define-ext-path external="ext.bouncycastle-jdk1.4.bcprov" dir="${ext.bouncycastle-jdk1.4.dir}">
+        <include name="**/bcprov-jdk14-*.jar" />
+    </define-ext-path>
+    <define-ext-path external="ext.bouncycastle-jdk1.4.bcmail" dir="${ext.bouncycastle-jdk1.4.dir}">
+        <include name="**/bcmail-jdk14-*.jar" />
+    </define-ext-path>
+    <define-ext-path external="ext.bouncycastle-jdk1.4">
+        <include name="**/bcprov-jdk14-*.jar" />
+        <include name="**/bcmail-jdk14-*.jar" />
+    </define-ext-path>
+
+
     <!-- commons-cli -->
-    <define-ext-dir external="ext.commons-cli" />
-    <define-ext-path external="ext.commons-cli">
-        <include name="commons-cli-*.jar" />
+    <define-ext-dir external="ext.jakarta-commons-cli" />
+    <define-ext-path external="ext.jakarta-commons-cli">
+        <include name="**/${ext.jakarta-commons-cli.name}-${ext.jakarta-commons-cli.version}.jar" />
     </define-ext-path>
 
     <!-- commons-codec -->
-    <define-ext-dir external="ext.commons-codec" />
-    <define-ext-path external="ext.commons-codec">
-        <include name="commons-codec-*.jar" />
+    <define-ext-dir external="ext.jakarta-commons-codec" />
+    <define-ext-path external="ext.jakarta-commons-codec">
+        <include name="**/${ext.jakarta-commons-codec.name}-${ext.jakarta-commons-codec.version}.jar" />
     </define-ext-path>
 
     <!-- commons-collections -->
-    <define-ext-dir external="ext.commons-collections" />
-    <define-ext-path external="ext.commons-collections">
-        <include name="commons-collections-*.jar" />
-        <exclude name="commons-collections-testframework-*.jar" />
+    <define-ext-dir external="ext.jakarta-commons-collections" />
+    <define-ext-path external="ext.jakarta-commons-collections">
+        <include name="**/${ext.jakarta-commons-collections.name}-${ext.jakarta-commons-collections.version}.jar" />
     </define-ext-path>
 
     <!-- commons-configuration -->
-    <define-ext-dir external="ext.commons-configuration" />
-    <define-ext-path external="ext.commons-configuration">
-        <include name="commons-configuration-*.jar" />
+    <define-ext-dir external="ext.jakarta-commons-configuration" />
+    <define-ext-path external="ext.jakarta-commons-configuration">
+        <include name="**/${ext.jakarta-commons-configuration.name}-${ext.jakarta-commons-configuration.version}.jar" />
     </define-ext-path>
 
     <!-- commons-httpclient -->
-    <define-ext-dir external="ext.commons-httpclient" />
-    <define-ext-path external="ext.commons-httpclient">
-        <include name="commons-httpclient-*.jar" />
+    <define-ext-dir external="ext.jakarta-commons-httpclient" />
+    <define-ext-path external="ext.jakarta-commons-httpclient">
+        <include name="**/${ext.jakarta-commons-httpclient.name}-${ext.jakarta-commons-httpclient.version}.jar" />
     </define-ext-path>
 
     <!-- commons-lang -->
-    <define-ext-dir external="ext.commons-lang" />
-    <define-ext-path external="ext.commons-lang">
-        <include name="commons-lang-*.jar" />
+    <define-ext-dir external="ext.jakarta-commons-lang" />
+    <define-ext-path external="ext.jakarta-commons-lang">
+        <include name="**/${ext.jakarta-commons-lang.name}-${ext.jakarta-commons-lang.version}.jar" />
     </define-ext-path>
 
     <!-- commons-logging -->
-    <define-ext-dir external="ext.commons-logging" />
-    <define-ext-path external="ext.commons-logging">
-        <include name="commons-logging.jar" />
+    <define-ext-dir external="ext.jakarta-commons-logging" />
+    <define-ext-path external="ext.jakarta-commons-logging">
+        <include name="**/${ext.jakarta-commons-logging.name}-${ext.jakarta-commons-logging.version}.jar" />
     </define-ext-path>
 
     <!-- jericho-html -->
@@ -223,13 +236,13 @@
     <target name="etics-externals.download">
         <download-ext external="ext.apache-struts" />
         <download-ext external="ext.bouncycastle" />
-        <download-ext external="ext.commons-cli" />
-        <download-ext external="ext.commons-codec" />
-        <download-ext external="ext.commons-collections" />
-        <download-ext external="ext.commons-configuration" />
-        <download-ext external="ext.commons-httpclient" />
-        <download-ext external="ext.commons-lang" />
-        <download-ext external="ext.commons-logging" />
+        <download-ext external="ext.jakarta-commons-cli" />
+        <download-ext external="ext.jakarta-commons-codec" />
+        <download-ext external="ext.jakarta-commons-collections" />
+        <download-ext external="ext.jakarta-commons-configuration" />
+        <download-ext external="ext.jakarta-commons-httpclient" />
+        <download-ext external="ext.jakarta-commons-lang" />
+        <download-ext external="ext.jakarta-commons-logging" />
         <download-ext external="ext.jericho-html" />
         <download-ext external="ext.junit" />
         <download-ext external="ext.log4j" />
