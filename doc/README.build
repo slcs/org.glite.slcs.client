@@ -73,17 +73,17 @@ cd ~/slcs-workspace
 
 export CVSROOT=:pserver:anonymous@glite.cvs.cern.ch:/cvs/glite
 
-cvs co org.glite.slcs
 cvs co org.glite.slcs.common
 cvs co org.glite.slcs.ui
-cvs co org.glite.slcs.server
 
 
 3. Use ant to download the required dependencies in the repository directory:
 
-cd org.glite.slcs
-ant -f project/etics-externals.xml etics-externals.download
+cd org.glite.slcs.common
+ant repository
 
+cd org.glite.slcs.ui
+ant repository
 
 4. Use ant to build the different components:
 
@@ -92,12 +92,7 @@ ant -f project/etics-externals.xml etics-externals.download
 cd org.glite.slcs.common
 ant 
 
-4.2 build org.glite.slcs.server (depends on org.glite.slcs.common):
-
-cd org.glite.slcs.server
-ant 
-
-4.3 build org.glite.slcs.ui (depends on org.glite.slcs.common):
+4.2 build org.glite.slcs.ui (depends on org.glite.slcs.common):
 
 cd org.glite.slcs.ui
 ant 
@@ -107,4 +102,4 @@ ant
 
 
 --
-$Id: README.build,v 1.1 2008/02/15 11:41:34 vtschopp Exp $
+$Id: README.build,v 1.2 2008/04/21 15:48:28 vtschopp Exp $

@@ -1,10 +1,10 @@
 SLCS client
 -----------
 Module: org.glite.slcs.ui
-ETICS: glite-slcs-ui_R_1_2_0_1
-RPM: glite-slcs-ui-1.2.0-1.noarch.rpm
+ETICS: glite-slcs-ui_R_1_3_0_1
+RPM: glite-slcs-ui-1.3.0-1.noarch.rpm
 
-Depends: org.glite.slcs.common (>= 1.3.0)
+Depends: org.glite.slcs.common (>= 1.4.0)
 
 Build Dependencies:
 
@@ -13,28 +13,30 @@ Build Dependencies:
 - junit v. 3.8.1
 - bouncycastle v. 1.37 jdk 1.5
 - commons-cli v. 1.0
-- commons-codec v. 1.3
-- commons-collections v. 3.2
-- commons-configuration v. 1.2
-- commons-httpclient v. 3.0.1
-- commons-lang v. 2.1
-- commons-logging v. 1.0.4
+- bouncycastle v. 1.37 jdk1.5
+- jakarta-commons-cli v. 1.0-8jpp
+- jakarta-commons-codec v. 1.3-8jpp
+- jakarta-commons-collections v. 3.2-2jpp
+- jakarta-commons-configuration v. 1.4-1jpp
+- jakarta-commons-httpclient v. 3.0.1-1jpp
+- jakarta-commons-lang v. 2.3-1jpp
+- jakarta-commons-logging v. 1.1-4jpp
 - log4j v. 1.2.8
-- org.glite.slcs.common >= 1.3.0
+- org.glite.slcs.common >= 1.4.0
 
 Runtime Dependencies:
 
 - Java VM 1.5 runtime
-- org.glite.slcs.common >= 1.3.0
+- org.glite.slcs.common >= 1.4.0
 - bouncycastle v. 1.37 jdk 1.5
-- commons-cli v. 1.0
-- commons-codec v. 1.3
-- commons-collections v. 3.2
-- commons-configuration v. 1.2
-- commons-httpclient v. 3.0.1
-- commons-lang v. 2.1
-- commons-logging v. 1.0.4
+- jakarta-commons-cli v. 1.0-8jpp
+- jakarta-commons-codec v. 1.3-8jpp
+- jakarta-commons-collections v. 3.2-2jpp
+- jakarta-commons-configuration v. 1.4-1jpp
+- jakarta-commons-httpclient v. 3.0.1-1jpp
+- jakarta-commons-lang v. 2.3-1jpp
+- jakarta-commons-logging v. 1.1-4jpp
 - log4j v. 1.2.8
 
 --
-$Id: DEPENDENCIES,v 1.2 2008/02/27 12:48:09 vtschopp Exp $
+$Id: DEPENDENCIES,v 1.3 2008/04/21 15:48:28 vtschopp Exp $
