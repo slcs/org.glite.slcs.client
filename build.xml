@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.16 2008/04/11 14:51:58 vtschopp Exp $
+    Version: $Id: build.xml,v 1.17 2008/04/22 09:14:08 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -57,13 +57,13 @@
             <pathelement path="${classes.dir}"/>
             <pathelement location="${stage.lib.dir}/glite-slcs-common.jar"/>
             <path refid="ext.bouncycastle.bcprov.path"/>
-            <path refid="ext.commons-cli.path"/>
-            <path refid="ext.commons-codec.path"/>
-            <path refid="ext.commons-collections.path"/>
-            <path refid="ext.commons-configuration.path"/>
-            <path refid="ext.commons-httpclient.path"/>
-            <path refid="ext.commons-lang.path"/>
-            <path refid="ext.commons-logging.path"/>
+            <path refid="ext.jakarta-commons-cli.path"/>
+            <path refid="ext.jakarta-commons-codec.path"/>
+            <path refid="ext.jakarta-commons-collections.path"/>
+            <path refid="ext.jakarta-commons-configuration.path"/>
+            <path refid="ext.jakarta-commons-httpclient.path"/>
+            <path refid="ext.jakarta-commons-lang.path"/>
+            <path refid="ext.jakarta-commons-logging.path"/>
             <path refid="ext.log4j.path"/>
         </path>
         <path id="test.path">
@@ -138,9 +138,7 @@
         <copy todir="${install.bin.dir}">
             <fileset dir="${bin.dir}">
     			<include name="slcs-init" />
-    			<include name="slcs-init.bat" />
     			<include name="slcs-info" />
-    			<include name="slcs-info.bat" />
             </fileset>
         </copy>
         <chmod dir="${install.bin.dir}" perm="755">
@@ -181,7 +179,20 @@
     <target name="full-package" depends="install-layout">
         <echo message="package..."/>
         <!-- install directory -->        
+        <property name="install.bin.dir" location="${install.dir}/bin"/>
         <property name="install.lib.dir" location="${install.dir}/share/java" />
+        <!-- bin scripts for full-packaged local dist -->
+        <copy todir="${install.bin.dir}" overwrite="true">
+            <fileset dir="${bin.dir}/local-dist">
+                <include name="slcs-init" />
+                <include name="slcs-init.bat" />
+                <include name="slcs-info" />
+                <include name="slcs-info.bat" />
+            </fileset>
+        </copy>
+        <chmod dir="${install.bin.dir}" perm="755">
+            <include name="slcs-*" />
+        </chmod>
         <!-- copy glite-slcs-common lib -->
         <property name="slcs.common.jar" location="${stage.lib.dir}/glite-slcs-common.jar" />
         <available property="slcs.common.jar.exists" file="${slcs.common.jar}"/>
@@ -192,13 +203,13 @@
         <mkdir dir="${install.externals.dir}" />
         <copy todir="${install.externals.dir}" flatten="true">
             <fileset refid="ext.bouncycastle.bcprov.fileset"/>
-            <fileset refid="ext.commons-cli.fileset"/>
-            <fileset refid="ext.commons-codec.fileset"/>
-            <fileset refid="ext.commons-collections.fileset"/>
-            <fileset refid="ext.commons-configuration.fileset"/>
-            <fileset refid="ext.commons-httpclient.fileset"/>
-            <fileset refid="ext.commons-lang.fileset"/>
-            <fileset refid="ext.commons-logging.fileset"/>
+            <fileset refid="ext.jakarta-commons-cli.fileset"/>
+            <fileset refid="ext.jakarta-commons-codec.fileset"/>
+            <fileset refid="ext.jakarta-commons-collections.fileset"/>
+            <fileset refid="ext.jakarta-commons-configuration.fileset"/>
+            <fileset refid="ext.jakarta-commons-httpclient.fileset"/>
+            <fileset refid="ext.jakarta-commons-lang.fileset"/>
+            <fileset refid="ext.jakarta-commons-logging.fileset"/>
             <fileset refid="ext.log4j.fileset"/>
         </copy>
     </target>
@@ -236,13 +247,13 @@
     <!-- download eternals dependencies in local repository -->
     <target name="repository" depends="init">
        <download-ext external="ext.bouncycastle" />
-       <download-ext external="ext.commons-cli" />
-       <download-ext external="ext.commons-codec" />
-       <download-ext external="ext.commons-collections" />
-       <download-ext external="ext.commons-configuration" />
-       <download-ext external="ext.commons-httpclient" />
-       <download-ext external="ext.commons-lang" />
-       <download-ext external="ext.commons-logging" />
+       <download-ext external="ext.jakarta-commons-cli" />
+       <download-ext external="ext.jakarta-commons-codec" />
+       <download-ext external="ext.jakarta-commons-collections" />
+       <download-ext external="ext.jakarta-commons-configuration" />
+       <download-ext external="ext.jakarta-commons-httpclient" />
+       <download-ext external="ext.jakarta-commons-lang" />
+       <download-ext external="ext.jakarta-commons-logging" />
        <download-ext external="ext.junit" />
        <download-ext external="ext.log4j" />
     </target>
