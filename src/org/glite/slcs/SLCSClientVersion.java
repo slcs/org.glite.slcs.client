@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSClientVersion.java,v 1.14 2008/04/17 11:02:24 vtschopp Exp $
+ * $Id: SLCSClientVersion.java,v 1.15 2008/04/22 09:06:51 vtschopp Exp $
  * 
  * Created on Aug 9, 2006 by tschopp
  *
@@ -14,11 +14,11 @@ public class SLCSClientVersion {
     /** Major version number */
     static public final int MAJOR= 1;
     /** Minor version number */
-    static public final int MINOR= 2;
+    static public final int MINOR= 3;
     /** Revision version number */
     static public final int REVISION= 0;
      /** Build number */
-    static public final int BUILD= 2;
+    static public final int BUILD= 1;
     
     /** Copyright */
     static public final String COPYRIGHT= "Copyright (c) 2008. Members of the EGEE Collaboration";
