@@ -36,18 +36,18 @@ etics-workspace-setup
 vcsroot=:pserver:anonymous@glite.cvs.cern.ch:/cvs/glite
 
 
-3. Checkout the whole SLCS project (common, client, server):
+3. Checkout the SLCS project (HEAD or any tag you want to build):
 
-etics-checkout -c org.glite.slcs.HEAD org.glite.slcs
+etics-checkout -c org.glite.slcs.ui.HEAD org.glite.slcs.ui
 
 This checkout will also download all the required dependencies into the ~/repository directory
 
 
 4. Build all the org.glite.slcs components:
 
-etics-build -c org.glite.slcs.HEAD org.glite.slcs
+etics-build org.glite.slcs.ui
 
-This build will compile, stage org.glite.slcs.common, org.glite.slcs.ui and org.glite.slcs.server
+This build will compile and stage org.glite.slcs.common and org.glite.slcs.ui
 
 
 ##############################################
@@ -97,9 +97,10 @@ ant
 cd org.glite.slcs.ui
 ant 
 
+This will build a local full-packaged distribution.
 
 5. (Optional) Open Eclipse and import the directories org.glite.slcs.common, org.glite.slcs.ui and org.glite.slcs.server as existing project. The repository must be also imported as project and all jar files contained in the sub-directories must be exported as libraries.
 
 
 --
-$Id: README.build,v 1.2 2008/04/21 15:48:28 vtschopp Exp $
+$Id: README.build,v 1.3 2008/04/22 09:14:30 vtschopp Exp $
