@@ -2,7 +2,7 @@
 #
 # Execute the SLCS info
 #
-# $Id: slcs-info,v 1.3 2007/11/04 16:34:55 vtschopp Exp $
+# $Id: slcs-info,v 1.4 2008/04/22 08:37:43 vtschopp Exp $
 # Copyright (c) 2004. Members of the EGEE Collaboration. 
 # http://www.eu-egee.org
 #
@@ -26,9 +26,12 @@ SLCS_CP=$SLCS_HOME/etc/glite-slcs-ui
 for slcs_jar in $SLCS_HOME/share/java/glite-slcs-*.jar ; do
     SLCS_CP=$SLCS_CP:$slcs_jar
 done
-# external slcs libs classpath
-COMMONS_CP=$SLCS_HOME/externals/share/java/commons-cli-1.0.jar:$SLCS_HOME/externals/share/java/commons-codec-1.3.jar:$SLCS_HOME/externals/share/java/commons-collections-3.2.jar:$SLCS_HOME/externals/share/java/commons-configuration-1.2.jar:$SLCS_HOME/externals/share/java/commons-httpclient-3.0.1.jar:$SLCS_HOME/externals/share/java/commons-lang-2.1.jar:$SLCS_HOME/externals/share/java/commons-logging.jar
-LOG4J_CP=$SLCS_HOME/externals/share/java/log4j.jar:$SLCS_HOME/externals/share/java/log4j-1.2.8.jar
+# external slcs libs classpath: /usr/share/java
+if [ -z $JAVA_LIBDIR ] ; then
+    JAVA_LIBDIR=/usr/share/java
+fi
+COMMONS_CP=${JAVA_LIBDIR}/jakarta-commons-cli.jar:${JAVA_LIBDIR}/jakarta-commons-codec.jar:${JAVA_LIBDIR}/jakarta-commons-collections.jar:${JAVA_LIBDIR}/jakarta-commons-configuration.jar:${JAVA_LIBDIR}/jakarta-commons-httpclient.jar:${JAVA_LIBDIR}/jakarta-commons-lang.jar:${JAVA_LIBDIR}/jakarta-commons-logging.jar
+LOG4J_CP=${JAVA_LIBDIR}/log4j.jar
 
 # SLCS classpath
 SLCS_CP=$SLCS_CP:$COMMONS_CP:$LOG4J_CP

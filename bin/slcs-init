@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Execute the SLCS client
+# Execute the SLCS client: slcs-init
 #
-# $Id: slcs-init,v 1.4 2008/02/27 12:55:43 vtschopp Exp $
+# $Id: slcs-init,v 1.5 2008/04/22 08:37:43 vtschopp Exp $
 # Copyright (c) 2004. Members of the EGEE Collaboration. 
 # http://www.eu-egee.org
 #
@@ -21,22 +21,24 @@ fi
 
 # /opt/glite/etc/glite-slcs-ui in CLASSPATH
 SLCS_CP=$SLCS_HOME/etc/glite-slcs-ui
-
 # glite slcs libs
 for slcs_jar in $SLCS_HOME/share/java/glite-slcs-*.jar ; do
     SLCS_CP=$SLCS_CP:$slcs_jar
 done
-# external slcs libs classpath
-# bouncycastle is JDK dependent
-if [ -f "$SLCS_HOME/externals/share/java/bcprov-1.37.jar" ]; then
-    BOUNCY_CP=$SLCS_HOME/externals/share/java/bcprov-1.37.jar
+# external slcs libs classpath: /usr/share/java
+if [ -z $JAVA_LIBDIR ] ; then
+    JAVA_LIBDIR=/usr/share/java
+fi
+# Bouncycastle is JDK dependent
+if [ -f "${JAVA_LIBDIR}-ext/bouncycastle-jdk1.5/bcprov.jar" ]; then
+    BOUNCY_CP=${JAVA_LIBDIR}-ext/bouncycastle-jdk1.5/bcprov.jar
 else
-    echo "ERROR: BouncyCastle: $SLCS_HOME/externals/share/java/bcprov-1.37.jar not found"
+    echo "ERROR: BouncyCastle: ${JAVA_LIBDIR}-ext/bouncycastle-jdk1.5/bcprov.jar not found"
     exit 1
 fi
-COMMONS_CP=$SLCS_HOME/externals/share/java/commons-cli-1.0.jar:$SLCS_HOME/externals/share/java/commons-codec-1.3.jar:$SLCS_HOME/externals/share/java/commons-collections-3.2.jar:$SLCS_HOME/externals/share/java/commons-configuration-1.2.jar:$SLCS_HOME/externals/share/java/commons-httpclient-3.0.1.jar:$SLCS_HOME/externals/share/java/commons-lang-2.1.jar:$SLCS_HOME/externals/share/java/commons-logging.jar
-JHTML_CP=$SLCS_HOME/externals/share/java/jericho-html-2.3.jar
-LOG4J_CP=$SLCS_HOME/externals/share/java/log4j.jar:$SLCS_HOME/externals/share/java/log4j-1.2.8.jar
+# Jakarta-commons packages
+COMMONS_CP=${JAVA_LIBDIR}/jakarta-commons-cli.jar:${JAVA_LIBDIR}/jakarta-commons-codec.jar:${JAVA_LIBDIR}/jakarta-commons-collections.jar:${JAVA_LIBDIR}/jakarta-commons-configuration.jar:${JAVA_LIBDIR}/jakarta-commons-httpclient.jar:${JAVA_LIBDIR}/jakarta-commons-lang.jar:${JAVA_LIBDIR}/jakarta-commons-logging.jar
+LOG4J_CP=${JAVA_LIBDIR}/log4j.jar
 
 # SLCS classpath
 SLCS_CP=$SLCS_CP:$BOUNCY_CP:$COMMONS_CP:$LOG4J_CP
