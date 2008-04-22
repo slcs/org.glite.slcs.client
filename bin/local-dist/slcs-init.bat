@@ -5,7 +5,7 @@ rem
 rem Copyright (c) 2007. Members of the EGEE Collaboration. 
 rem http:\\www.eu-egee.org
 rem
-rem $Id: slcs-init.bat,v 1.1 2008/04/21 16:02:41 vtschopp Exp $
+rem $Id: slcs-init.bat,v 1.2 2008/04/22 09:07:25 vtschopp Exp $
 rem ---------------------------------------------------------------------------
 if "%OS%" == "Windows_NT" setlocal
 if "%OS%" == "WINNT" setlocal
@@ -31,14 +31,13 @@ set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\share\java\glite-slcs-ui.jar;%SLCS_HOME%\share
 
 rem set the Java classpath: external jars
 set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\bcprov-1.37.jar
-set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\commons-cli-1.0.jar
-set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\commons-codec-1.3.jar
-set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\commons-collections-3.2.jar
-set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\commons-configuration-1.2.jar
-set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\commons-httpclient-3.0.1.jar
-set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\commons-lang-2.1.jar
-set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\commons-logging.jar
-rem set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\jericho-html-2.3.jar
+set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\jakarta-commons-cli-1.0.jar
+set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\jakarta-commons-codec-1.3.jar
+set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\jakarta-commons-collections-3.2.jar
+set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\jakarta-commons-configuration-1.4.jar
+set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\jakarta-commons-httpclient-3.0.1.jar
+set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\jakarta-commons-lang-2.3.jar
+set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\jakarta-commons-logging-1.1.jar
 set SLCS_CP=%SLCS_CP%;%SLCS_HOME%\externals\share\java\log4j-1.2.8.jar
 rem XXX: echo SLCS_CP=%SLCS_CP%
 
