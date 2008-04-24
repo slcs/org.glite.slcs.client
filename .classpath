@@ -3,7 +3,7 @@
 	<classpathentry kind="src" output="build/classes" path="src"/>
 	<classpathentry kind="src" output="build/test/classes" path="test"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.glite.slcs.common"/>
-	<classpathentry kind="lib" path="/repository/externals/commons-cli/1.0.0/noarch/commons-cli-1.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/repository/externals/jakarta-commons-cli/1.0/noarch/usr/share/java/jakarta-commons-cli-1.0.jar"/>
 	<classpathentry kind="output" path=""/>
 </classpath>
