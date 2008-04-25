@@ -1,5 +1,10 @@
 TODO: add slcs-info option to show cert subject, issuer, and TTL...
 
+Version 1.3.1
+-------------
+* Shibboleth client now handles Browser/POST and SAML/Artifact profile.
+* Better error handling and error messages.
+
 Version 1.3.0
 -------------
 * Packaging with ETICS new jakarta-commons-* JPackage packages. Don't use old commons-* packages anymore.
@@ -43,4 +48,4 @@ Version 1.0.0
 * initial version
 
 --
-$Id: CHANGELOG,v 1.13 2008/04/22 09:17:22 vtschopp Exp $
+$Id: CHANGELOG,v 1.14 2008/04/25 11:30:07 vtschopp Exp $
