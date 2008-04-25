@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Version: $Id: ShibbolethClientMetadata.java,v 1.2 2007/07/25 15:38:51 vtschopp Exp $
+ * Version: $Id: ShibbolethClientMetadata.java,v 1.3 2008/04/25 11:44:33 vtschopp Exp $
  */
 package org.glite.slcs.shibclient.metadata;
 
@@ -41,7 +41,7 @@ import org.glite.slcs.config.SLCSConfiguration;
  * providers
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class ShibbolethClientMetadata extends SLCSConfiguration {
 
@@ -52,7 +52,7 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
     private static final Log LOG= LogFactory.getLog(ShibbolethClientMetadata.class);
 
     /** Metadata Entities */
-    private Map providers_;
+    private Map<String,Provider> providers_;
 
     private String slcsProviderId_= null;
 
@@ -111,8 +111,8 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
      * @return
      * @throws SLCSConfigurationException
      */
-    private Map parseProviders() throws SLCSConfigurationException {
-        Map entities= new HashMap();
+    private Map<String,Provider> parseProviders() throws SLCSConfigurationException {
+        Map<String,Provider> entities= new HashMap<String,Provider>();
         LOG.debug("get configuration subset: ShibbolethClientMetadata");
         Configuration metadata= getConfiguration().subset("ShibbolethClientMetadata");
         // external metadata defined with filename= attribute?
@@ -155,7 +155,7 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
         if (idpsConfig.isEmpty()) {
             throw new SLCSConfigurationException("IdentityProviders element not found in metadata");
         }
-        List idps= idpsConfig.getList("IdentityProvider[@id]");
+        List<String> idps= idpsConfig.getList("IdentityProvider[@id]");
         int nIdp= idps.size();
         if (nIdp < 1) {
             throw new SLCSConfigurationException("No IdentityProvider element found in metadata");
@@ -240,29 +240,29 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
     /**
      * @return An iterator of all <code>Provider</code> objects
      */
-    public Iterator getProviders() {
-        Collection providers= providers_.values();
+    public Iterator<Provider> getProviders() {
+        Collection<Provider> providers= providers_.values();
         return providers.iterator();
     }
 
     /**
      * @return An iterator of all providerIds (<code>String</code>)
      */
-    public Iterator getProviderIds() {
-        Set providerIds= providers_.keySet();
+    public Iterator<String> getProviderIds() {
+        Set<String> providerIds= providers_.keySet();
         return providerIds.iterator();
     }
 
     /**
      * @return An enumeration of all <code>IdentityProvider</code>
      */
-    public Enumeration getIdentityProviders() {
-        Vector idps= new Vector();
-        Iterator providers= getProviders();
+    public Enumeration<IdentityProvider> getIdentityProviders() {
+        Vector<IdentityProvider> idps= new Vector<IdentityProvider>();
+        Iterator<Provider> providers= getProviders();
         while (providers.hasNext()) {
             Provider provider= (Provider) providers.next();
             if (provider instanceof IdentityProvider) {
-                idps.add(provider);
+                idps.add((IdentityProvider) provider);
             }
         }
         return idps.elements();
@@ -277,9 +277,9 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
     public static void main(String[] args) throws Exception {
         // slcs-client.xml config in classpath
         ShibbolethClientMetadata metadata= new ShibbolethClientMetadata("slcs-client.xml");
-        Iterator entities= metadata.getProviders();
+        Iterator<Provider> entities= metadata.getProviders();
         while (entities.hasNext()) {
-            Provider entity= (Provider) entities.next();
+            Provider entity= entities.next();
             System.out.println(entity);
         }
     }
