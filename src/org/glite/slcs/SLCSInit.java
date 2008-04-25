@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSInit.java,v 1.11 2008/02/27 14:18:36 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.12 2008/04/25 11:46:53 vtschopp Exp $
  * 
  * Created on Aug 8, 2006 by tschopp
  *
@@ -49,12 +49,11 @@ import org.glite.slcs.shibclient.ShibbolethCredentials;
 import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
 import org.glite.slcs.util.PasswordReader;
 
-
 /**
  * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
 public class SLCSInit {
 
@@ -169,7 +168,7 @@ public class SLCSInit {
         }
         HttpClient httpClient = new HttpClient();
         setHttpClientUserAgent(httpClient);
-        
+
         return httpClient;
     }
 
@@ -211,11 +210,14 @@ public class SLCSInit {
                 String propertyName = storeDirectory.substring(start + 2, stop);
                 String propertyValue = System.getProperty(propertyName);
                 if (propertyValue != null) {
-                    LOG.debug("replace ${" + propertyName + "} with: " + propertyValue);
+                    LOG.debug("replace ${" + propertyName + "} with: "
+                            + propertyValue);
                     // Windows uses backslash, must be escaped !!!
-                    propertyValue = StringUtils.replace(propertyValue,"\\","/",-1);
+                    propertyValue = StringUtils.replace(propertyValue, "\\",
+                            "/", -1);
                     String replace = "${" + propertyName + "}";
-                    storeDirectory = StringUtils.replace(storeDirectory, replace, propertyValue, -1);
+                    storeDirectory = StringUtils.replace(storeDirectory,
+                            replace, propertyValue, -1);
                 }
                 else {
                     LOG.error("StoreDirectory contains invalid ${"
@@ -636,12 +638,19 @@ public class SLCSInit {
             LOG.info("GET login: " + slcsLoginURL);
             int status = shibClient_.executeMethod(getLoginMethod);
             LOG.debug(getLoginMethod.getStatusLine());
-            // check status: 401
             if (status != 200) {
                 LOG.error("SLCS login failed: "
                         + getLoginMethod.getStatusLine());
-                throw new AuthException("SLCS login failed: "
-                        + getLoginMethod.getStatusLine());
+                if (status == 401) {
+                    throw new AuthException("SLCS authorization failed: "
+                            + getLoginMethod.getStatusLine() + ": "
+                            + slcsLoginURL);
+                }
+                else {
+                    throw new AuthException("SLCS login failed: "
+                            + getLoginMethod.getStatusLine());
+
+                }
             }
 
             // read response
@@ -982,7 +991,8 @@ public class SLCSInit {
     }
 
     /**
-     * Sets the absolute pathname to the store directory and creates it if necessary.
+     * Sets the absolute pathname to the store directory and creates it if
+     * necessary.
      * 
      * @param directory
      *            The absolute pathname of the store directory.
