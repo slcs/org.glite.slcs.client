@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.17 2008/04/22 09:14:08 vtschopp Exp $
+    Version: $Id: build.xml,v 1.18 2008/04/25 11:27:40 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -83,7 +83,9 @@
     <target name="compile" depends="prepare">
         <echo message="compile..."/>
         <!-- Compile the java code from ${src} into ${build} -->
-        <javac srcdir="${src.dir}" debug="true" destdir="${classes.dir}">
+        <javac srcdir="${src.dir}" 
+               destdir="${classes.dir}"
+               debug="true" source="1.5" >
             <classpath refid="compile.path" />
         </javac>
     </target>
@@ -92,7 +94,7 @@
     <target name="test.compile" depends="compile">
         <echo message="test.compile..."/>
         <!-- Compile the java code from ${src} into ${build} -->
-        <javac srcdir="${test.src.dir}" debug="true" destdir="${test.classes.dir}">
+        <javac srcdir="${test.src.dir}" debug="true" source="1.5" destdir="${test.classes.dir}">
             <classpath refid="test.path" />
         </javac>
     </target>
