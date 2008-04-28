@@ -1,5 +1,5 @@
 /*
- * $Id: ShibbolethClient.java,v 1.9 2008/04/25 11:47:39 vtschopp Exp $
+ * $Id: ShibbolethClient.java,v 1.10 2008/04/28 12:35:23 vtschopp Exp $
  * 
  * Created on Jul 5, 2006 by tschopp
  *
@@ -52,7 +52,7 @@ import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
  * <b>This code is just a hack. Don't rely on it to develop something else.</b>
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public class ShibbolethClient {
 
@@ -217,6 +217,7 @@ public class ShibbolethClient {
 
         // set Pubcookie cookie request header: Cookie: <pubcookie_pre_s>;
         // <pubcookie_g>
+        int authType= idp.getAuthType();
         if (idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_PUBCOOKIE) {
             Cookie pubcookie_pre_s = getCookie("pubcookie_pre_s");
             Cookie pubcookie_g = getCookie("pubcookie_g");
@@ -225,6 +226,19 @@ public class ShibbolethClient {
             LOG.debug("setting PubCookie request Cookie: " + pubcookies);
             getIdPSSOResponseMethod.addRequestHeader("Cookie", pubcookies);
         }
+        // re-enable BASIC or NTLM authN for second connection
+        else if (authType == IdentityProvider.SSO_AUTHTYPE_BASIC
+                || authType == IdentityProvider.SSO_AUTHTYPE_NTLM) {
+            LOG.info("Re-enable " + idp.getAuthTypeName() + " authentication: "
+                    + credentials_);
+            URI idpSSOURI = getIdPSSOResponseMethod.getURI();
+            AuthScope scope = new AuthScope(idpSSOURI.getHost(), 443,
+                    idp.getAuthRealm());
+            LOG.debug("AuthScope=" + scope);
+            httpClient_.getState().setCredentials(scope, credentials_);
+            getIdPSSOResponseMethod.setDoAuthentication(true);
+        }
+
 
         // BUG FIX: check if it have a SAML/Artifact endpoint
         boolean isPossiblyUsingArtifact = false;
@@ -253,7 +267,8 @@ public class ShibbolethClient {
         else {
             // try to parse the Browser/POST profile in the HTML source
             InputStream htmlStream = getIdPSSOResponseMethod.getResponseBodyAsStream();
-            idpResponseURI = processIdPBrowserPOST(idp, idpSSOResponseURI, htmlStream);
+            idpResponseURI = processIdPBrowserPOST(idp, idpSSOResponseURI,
+                    htmlStream);
         }
 
         LOG.debug("getIdPSSOResponseMethod.releaseConnection()");
@@ -314,8 +329,7 @@ public class ShibbolethClient {
                         // no SAML post URL found
                         String htmlBody = inputStreamToString(htmlStream);
                         LOG.error("No SAML Browser/POST FORM ACTION found: "
-                                + idpSSOResponseURI + ": "
-                                + htmlBody);
+                                + idpSSOResponseURI + ": " + htmlBody);
                         remoteException = new RemoteException(
                                 "No SAML Browser/POST FORM ACTION found: "
                                         + idpSSOResponseURI
@@ -380,7 +394,6 @@ public class ShibbolethClient {
                                 + idpSSOResponseURI
                                 + ". Please see the log file.");
             }
-
 
         } catch (URIException e) {
             e.printStackTrace();
@@ -469,7 +482,8 @@ public class ShibbolethClient {
         // execute the method
         LOG.info("GET IdpSSOMethod: " + getIdpSSOMethod.getURI());
         int idpSSOResponseStatus = executeMethod(getIdpSSOMethod);
-        LOG.debug(getIdpSSOMethod.getStatusLine());
+        String idpSSOResponseStatusLine = getIdpSSOMethod.getStatusLine().toString();
+        LOG.debug(idpSSOResponseStatusLine);
 
         URI idpSSOResponseURI = getIdpSSOMethod.getURI();
         String idpSSOResponseQuery = idpSSOResponseURI.getEscapedQuery();
@@ -480,24 +494,36 @@ public class ShibbolethClient {
         dumpHttpClientCookies();
 
         LOG.debug("idpSSOResponseStatus=" + idpSSOResponseStatus);
-        // if BASIC or NTLM failed
-        if (idpSSOResponseStatus == 401) {
-            LOG.error("BASIC or NTLM authentication was required for "
-                    + idpSSOURL);
+        // BASIC or NTLM response handling
+        if (idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_BASIC
+                || idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_NTLM) {
+            // if BASIC or NTLM failed
+            if (idpSSOResponseStatus != 200) {
+                LOG.error("BASIC or NTLM authentication was required for "
+                        + idpSSOURL);
 
-            LOG.trace("GETIdpSSOMethod.releaseConnection()");
-            getIdpSSOMethod.releaseConnection();
+                LOG.trace("getIdpSSOMethod.releaseConnection()");
+                getIdpSSOMethod.releaseConnection();
 
-            if (LOG.isDebugEnabled()) {
-                AuthState authState = getIdpSSOMethod.getHostAuthState();
-                String realm = authState.getRealm();
-                AuthScheme scheme = authState.getAuthScheme();
-                String schemeName = scheme.getSchemeName();
-                LOG.debug("Auth realm=" + realm + " scheme=" + schemeName);
+                if (LOG.isDebugEnabled()) {
+                    AuthState authState = getIdpSSOMethod.getHostAuthState();
+                    String realm = authState.getRealm();
+                    AuthScheme scheme = authState.getAuthScheme();
+                    String schemeName = scheme.getSchemeName();
+                    LOG.debug("Auth realm=" + realm + " scheme=" + schemeName);
+                }
+                throw new AuthException(idp.getAuthTypeName()
+                        + " Authentication failed: " + this.credentials_
+                        + " Status: " + idpSSOResponseStatusLine);
             }
-            throw new AuthException(idp.getAuthTypeName()
-                    + " Authentication failed: " + this.credentials_
-                    + " Status: " + idpSSOResponseStatus);
+            else {
+                // idpSSOResponseURI is already SP login and
+                // the XML <SLCSLoginResponse> is already there
+                // XXX: resend to same IdP SSO page once again
+                LOG.debug("XXX: BASIC or NTLM authN: resend again to the same IdP SSO URI: " + idpSSOURL);
+                idpSSOResponseURI = new URI(idpSSOURL, false);
+            }
+
         }
         // CAS sends 200 + Cookies and the login form directly
         else if (idpSSOResponseStatus == 200
@@ -545,14 +571,20 @@ public class ShibbolethClient {
             getPubcookieLoginFormMethod.releaseConnection();
 
         }
-
         else {
-            // TODO: error handling
-            LOG.error("Unexpected Status: " + idpSSOResponseStatus
-                    + " AuthType: " + idp.getAuthTypeName());
+            // error handling
+            InputStream htmlStream = getIdpSSOMethod.getResponseBodyAsStream();
+            String htmlBody = inputStreamToString(htmlStream);
+            LOG.error("Unexpected IdP SSO reponse: " + idpSSOResponseStatusLine
+                    + " AuthType: " + idp.getAuthTypeName() + " HTML:\n"
+                    + htmlBody);
+            LOG.debug("getIdpSSOMethod.releaseConnection()");
+            getIdpSSOMethod.releaseConnection();
+            throw new AuthException("Unexprected IdP SSO reponse: "
+                    + idpSSOResponseStatusLine + ". Please see the log file.");
         }
 
-        LOG.debug("GETIdpSSOMethod.releaseConnection()");
+        LOG.debug("getIdpSSOMethod.releaseConnection()");
         getIdpSSOMethod.releaseConnection();
 
         return idpSSOResponseURI;
