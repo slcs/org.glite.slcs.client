@@ -1,5 +1,5 @@
 /*
- * $Id: ShibbolethClient.java,v 1.11 2008/05/05 12:51:08 vtschopp Exp $
+ * $Id: ShibbolethClient.java,v 1.12 2008/06/26 13:55:40 vtschopp Exp $
  * 
  * Created on Jul 5, 2006 by tschopp
  *
@@ -51,7 +51,7 @@ import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
  * have been warned.</b>
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
 public class ShibbolethClient {
 
@@ -149,10 +149,9 @@ public class ShibbolethClient {
 
             // 1. get the first redirection or already authenticated
             URI spLoginResponseURI = processSPEntry(spEntryURL);
-
             // either wayf or idp or same (already authenticated)
-            LOG.debug("spLoginResponseURI=" + spLoginResponseURI);
             String spLoginResponseURL = spLoginResponseURI.getEscapedURI();
+            LOG.debug("spLoginResponseURL=" + spLoginResponseURL);
             // check if already authenticated
             if (spLoginResponseURL.startsWith(spEntryURL)) {
                 LOG.info("Already authenticated? " + isAuthenticated_ + ": "
@@ -160,7 +159,8 @@ public class ShibbolethClient {
                 return this.isAuthenticated_;
             }
             // checks if URL contains the shire= parameter (WAYF of IdP)
-            if (spLoginResponseURL.indexOf("shire=") == -1) {
+            if (spLoginResponseURL.indexOf("shire=") == -1
+                    && spLoginResponseURL.indexOf("shire%3D") == -1) {
                 LOG.error("Unexpected spLoginResponseURL=" + spLoginResponseURL);
                 throw new ServiceException(
                         "SP response URL doesn't contain the 'shire=' parameter: "
@@ -441,14 +441,35 @@ public class ShibbolethClient {
             throws URIException, HttpException, IOException, AuthException,
             RemoteException, ServiceException {
         String idpSSOURL = idp.getUrl();
-        String query = spResponseURI.getQuery();
-        if (query != null) {
-            idpSSOURL += "?" + query;
-        }
+        LOG.debug("IdP SSO URL: " + idpSSOURL);
+
         // create HttpMethod
         GetMethod getIdpSSOMethod = new GetMethod(idpSSOURL);
-        URI idpSSOURI = getIdpSSOMethod.getURI();
 
+        // BUG FIX: Shib SP 2.0 send the ?service=... in the query
+        String query = spResponseURI.getQuery();
+        LOG.debug("IdP SSO Query: " + query);
+        if (query != null) {
+            if (query.startsWith("service=")) {
+                int i = query.indexOf("shire");
+                if (i > 0) {
+                    query = query.substring(i);
+                    LOG.debug("IdP SSO Query contains the 'service=...' part, cutting up to 'shire=': "
+                            + query);
+                }
+                else {
+                    LOG.error("IdP SSO Query contains the 'service=' parameter, but not the 'shire=' parameter: "
+                            + query);
+                    throw new RemoteException(
+                            "IdP SSO Query contains the 'service=' parameter, but not the 'shire=' parameter: "
+                                    + query);
+                }
+            }
+            getIdpSSOMethod.setQueryString(query);
+            idpSSOURL += "?" + query;
+        }
+
+        URI idpSSOURI = getIdpSSOMethod.getURI();
         // set credential for basic or ntlm
         int authType = idp.getAuthType();
         LOG.debug("IdP authType: " + idp.getAuthTypeName());
