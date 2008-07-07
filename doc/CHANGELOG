@@ -1,5 +1,10 @@
 TODO: add slcs-info option to show cert subject, issuer, and TTL...
 
+Version 1.3.3
+-------------
+* Dependency on glite-slcs-common 1.5.0.
+* Bug fix: Shib SP 2.0 (SLCS server) don't use WAYF and send 'service=...' query parameter directly.
+
 Version 1.3.2
 -------------
 * Bug fix: IdP BASIC authN + SAML/Aritifact profile work flow corrected.
@@ -53,4 +58,4 @@ Version 1.0.0
 * initial version
 
 --
-$Id: CHANGELOG,v 1.16 2008/05/05 13:23:43 vtschopp Exp $
+$Id: CHANGELOG,v 1.17 2008/07/07 09:17:28 vtschopp Exp $
