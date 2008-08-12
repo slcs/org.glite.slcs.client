@@ -4,8 +4,9 @@ TODO: add slcs-info option to update truststore, metadata, ...
 Version 1.3.3
 -------------
 * Dependency on glite-slcs-common 1.5.0.
-* SLCS truststore for SWITCHaai fed contains now the QuoVadis Root CA.
-* Bug fix: Shib SP 2.0 (SLCS server) don't use WAYF and send 'service=...' query parameter directly.
+* SLCS truststore for SWITCHaai federation now contains the QuoVadis Root CA 2 cert.
+* University of Zurich domain name changed from unizh.ch to uzh.ch.
+* Bug fix: Shib SP 2.0 (SLCS server) doesn't use WAYF, but sends 'service=...' query parameter directly.
 
 Version 1.3.2
 -------------
@@ -60,4 +61,4 @@ Version 1.0.0
 * initial version
 
 --
-$Id: CHANGELOG,v 1.18 2008/08/07 08:06:54 vtschopp Exp $
+$Id: CHANGELOG,v 1.19 2008/08/12 07:50:08 vtschopp Exp $
