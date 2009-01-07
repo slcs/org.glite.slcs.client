@@ -1,5 +1,5 @@
 /*
- * $Id: IdentityProvider.java,v 1.1 2006/10/24 09:24:18 vtschopp Exp $
+ * $Id: IdentityProvider.java,v 1.2 2009/01/07 09:28:21 vtschopp Exp $
  * 
  * Created on Jul 6, 2006 by tschopp
  *
@@ -13,7 +13,7 @@ package org.glite.slcs.shibclient.metadata;
  * IdentityProvider is a Shibboleth IdP description
  *
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class IdentityProvider extends Provider {
 
@@ -24,6 +24,8 @@ public class IdentityProvider extends Provider {
     public static final int SSO_AUTHTYPE_CAS= 3;
 
     public static final int SSO_AUTHTYPE_PUBCOOKIE= 4;
+    
+    public static final int SSO_AUTHTYPE_FORM= 5;
 
     private int authType_;
 
@@ -66,6 +68,9 @@ public class IdentityProvider extends Provider {
         else if (name.equalsIgnoreCase("pubcookie")) {
             return SSO_AUTHTYPE_PUBCOOKIE;
         }
+        else if (name.equalsIgnoreCase("form")) {
+            return SSO_AUTHTYPE_FORM;
+        }
 
         return 0;
     }
@@ -84,6 +89,9 @@ public class IdentityProvider extends Provider {
             break;
         case SSO_AUTHTYPE_PUBCOOKIE:
             authTypeName= "PUBCOOKIE";
+            break;
+        case SSO_AUTHTYPE_FORM:
+            authTypeName= "FORM";
             break;
         default:
             break;

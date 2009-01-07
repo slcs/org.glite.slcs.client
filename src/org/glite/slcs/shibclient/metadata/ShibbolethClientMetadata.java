@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Version: $Id: ShibbolethClientMetadata.java,v 1.3 2008/04/25 11:44:33 vtschopp Exp $
+ * Version: $Id: ShibbolethClientMetadata.java,v 1.4 2009/01/07 09:28:20 vtschopp Exp $
  */
 package org.glite.slcs.shibclient.metadata;
 
@@ -41,7 +41,7 @@ import org.glite.slcs.config.SLCSConfiguration;
  * providers
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 public class ShibbolethClientMetadata extends SLCSConfiguration {
 
@@ -177,7 +177,8 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
                                                        authTypeName,
                                                        authUrl);
             if (idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_CAS
-                    || idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_PUBCOOKIE) {
+                    || idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_PUBCOOKIE
+                    || idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_FORM) {
                 // read form name and username and password field names
                 String formName= config.getString("authentication.form[@name]");
                 idp.setAuthFormName(formName);
