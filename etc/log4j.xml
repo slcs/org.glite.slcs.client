@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <!-- 
-	$Id: log4j.xml,v 1.4 2008/08/07 08:00:54 vtschopp Exp $
+	$Id: log4j.xml,v 1.5 2009/01/13 14:11:09 vtschopp Exp $
 	
 	Copyright (c) 2004. Members of the EGEE Collaboration. http://www.eu-egee.org
 	
@@ -27,6 +27,14 @@
 			<param name="ConversionPattern" value="%-5p %C{1}.%M: %m%n" />
 		</layout>
 	</appender>
+	<!-- stderr appender -->
+	<appender name="stderr" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.err" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p %C{1}.%M: %m%n" />
+		</layout>
+	</appender>
+
 
 	<!-- SLCS loggers -->
 	<logger name="org.glite.slcs">
@@ -54,6 +62,7 @@
 	<root>
 		<priority value="info" />
 		<appender-ref ref="logfile" />
+		<!-- <appender-ref ref="stderr" /> -->
 	</root>
 
 </log4j:configuration>
