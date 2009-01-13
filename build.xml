@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.18 2008/04/25 11:27:40 vtschopp Exp $
+    Version: $Id: build.xml,v 1.19 2009/01/13 14:07:34 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -134,7 +134,9 @@
         <mkdir dir="${install.bin.dir}"/>
         <mkdir dir="${install.etc.dir}"/>
         <mkdir dir="${install.doc.dir}"/>
+<!--
         <mkdir dir="${install.log.dir}"/>
+-->
         <mkdir dir="${install.lib.dir}"/>
         <!-- bin scripts -->
         <copy todir="${install.bin.dir}">
@@ -158,7 +160,9 @@
             <fileset dir="${doc.dir}" />
         </copy>
         <!-- empty log file -->
+<!--
         <touch file="${install.log.dir}/slcs-init.log" />
+-->
         <!-- application jar -->
         <copy todir="${install.lib.dir}" file="${build.dir}/${package.name}.jar"/>
         
@@ -224,12 +228,16 @@
             <tarfileset dir="${install.dir}" mode="755" username="root" group="root">
                 <include name="bin/slcs-*" />
             </tarfileset>
+<!--
             <tarfileset dir="${install.dir}" mode="666" username="root" group="root">
                 <include name="log/slcs-init.log" />
             </tarfileset>
+-->
             <tarfileset dir="${install.dir}" username="root" group="root">
                 <exclude name="bin/slcs-*" />
+<!--
                 <exclude name="log/slcs-init.log" />
+-->
             </tarfileset>
         </tar>
         <zip destfile="${dist.filename}.zip" basedir="${install.dir}" />
