@@ -1,5 +1,5 @@
 /*
- * $Id: Provider.java,v 1.1 2006/10/24 09:24:19 vtschopp Exp $
+ * $Id: Provider.java,v 1.2 2009/01/14 09:19:09 vtschopp Exp $
  * 
  * Created on Jul 6, 2006 by tschopp
  *
@@ -13,9 +13,9 @@ package org.glite.slcs.shibclient.metadata;
  * Provider is an abstract Shibboleth provider description (SP or IdP)
  *
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
-public abstract class Provider {
+public abstract class Provider implements Comparable<Provider> {
 
     private String name_;
     private String url_;
@@ -55,5 +55,14 @@ public abstract class Provider {
         sb.append(url_);
         return sb;
     }
+
+    /**
+     * Compare by Provider id.
+     */
+    public int compareTo(Provider p) {
+        return id_.compareTo(p.getId());
+    }
+    
+    
     
 }
