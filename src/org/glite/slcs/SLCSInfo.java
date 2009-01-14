@@ -1,5 +1,5 @@
 /*
- * $Id: SLCSInfo.java,v 1.4 2008/04/25 11:46:53 vtschopp Exp $
+ * $Id: SLCSInfo.java,v 1.5 2009/01/14 09:19:51 vtschopp Exp $
  * 
  * Created on Oct 20, 2006 by Valery Tschopp <tschopp@switch.ch>
  *
@@ -10,7 +10,10 @@
 package org.glite.slcs;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 
 import org.glite.slcs.config.SLCSClientConfiguration;
 import org.glite.slcs.shibclient.metadata.IdentityProvider;
@@ -109,9 +112,14 @@ public class SLCSInfo {
 
         ServiceProvider slcs= metadata.getSLCS();
         System.out.println("SLCS Service URL: " + slcs.getUrl());
+        // sort by providerId and display
         Enumeration<IdentityProvider> idps= metadata.getIdentityProviders();
+        List<IdentityProvider> sortedIdps= new ArrayList<IdentityProvider>();
         while (idps.hasMoreElements()) {
-            IdentityProvider idp= (IdentityProvider) idps.nextElement();
+            sortedIdps.add(idps.nextElement());
+        }
+        Collections.sort(sortedIdps);
+        for (IdentityProvider idp : sortedIdps) {            
             System.out.println("Identity ProviderID: " + idp.getId() + " [" + idp.getName() + "]");
         }
         
