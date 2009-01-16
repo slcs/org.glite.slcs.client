@@ -3,7 +3,7 @@
 <!-- 
 SLCS Shibboleth Metadata
 
-$Id: slcs-metadata.switchaai.xml,v 1.7 2008/08/11 15:58:20 vtschopp Exp $
+$Id: slcs-metadata.switchaai.xml,v 1.8 2009/01/16 12:24:29 vtschopp Exp $
 
 Copyright (c) 2004. Members of the EGEE Collaboration. 
 http://www.eu-egee.org
@@ -69,7 +69,7 @@ http://www.eu-egee.org
             <name>ETH Zuerich</name>
             <url>https://aai-login.ethz.ch/shibboleth-idp/SSO</url>
             <authentication type="PUBCOOKIE">
-                <url>https://caesar.ethz.ch/login/</url>
+                <url>https://aai-login.ethz.ch/login/</url>
                 <form name="query">
                     <username>user</username>
                     <password>pass</password>                   
@@ -208,7 +208,33 @@ http://www.eu-egee.org
             </authentication>
         </IdentityProvider>
         
-    </IdentityProviders>
+        <!-- Paul Scherrer Institut (PSI) -->
+        <IdentityProvider id="psi.ch">
+            <name>Paul-Scherrer-Institut (PSI)</name>
+            <url>https://adamin.psi.ch/shibboleth-idp/SSO</url>
+            <authentication type="CAS">
+                <url>https://adamin.psi.ch/cas/login</url>
+                <form name=""> <!-- to be tested-->
+                    <username>username</username>
+                    <password>password</password>
+                </form>
+            </authentication>
+        </IdentityProvider>
     
+        <!-- Eidg. Forschungsanstalt WSL -->
+        <IdentityProvider id="wsl.ch">
+            <name>Eidg. Forschungsanstalt fuer Wald, Schnee und Landschaft (WSL)</name>
+            <url>https://aai-logon.wsl.ch/idp/profile/Shibboleth/SSO</url>
+            <authentication type="FORM">  
+                <!-- TO BE TESTED -->
+                <url>https://aai-logon.wsl.ch/idp/Authn/UserPassword</url>
+                <form name="j_loginform">
+                    <username>j_username</username>
+                    <password>j_password</password>
+                </form>
+            </authentication>
+        </IdentityProvider> 
+
+    </IdentityProviders>
 </ShibbolethClientMetadata>
 
