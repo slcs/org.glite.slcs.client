@@ -1,11 +1,19 @@
 /*
- * $Id: ShibbolethClient.java,v 1.13 2009/01/08 16:56:41 vtschopp Exp $
- * 
- * Created on Jul 5, 2006 by tschopp
+ * Copyright (c) 2007-2009. Members of the EGEE Collaboration.
  *
- * Copyright (c) Members of the EGEE Collaboration. 2004.
- * See http://eu-egee.org/partners/ for details on the copyright holders.
- * For license conditions see the license file or http://eu-egee.org/license.html
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ * $Id: ShibbolethClient.java,v 1.14 2009/01/16 12:20:33 vtschopp Exp $
  */
 package org.glite.slcs.shibclient;
 
@@ -51,7 +59,7 @@ import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
  * have been warned.</b>
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  */
 public class ShibbolethClient {
 
@@ -226,16 +234,6 @@ public class ShibbolethClient {
                 LOG.debug("setting Cookie: " + cookies[j]);
             }
             getIdPSSOResponseMethod.addRequestHeader("Cookie", cookies[j].toString());
-        }
-
-        // set Pubcookie cookie request header: Cookie: <pubcookie_pre_s>;
-        // <pubcookie_g>
-        if (idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_PUBCOOKIE) {
-            Cookie pubcookie_pre_s = getCookie("pubcookie_pre_s");
-            Cookie pubcookie_g = getCookie("pubcookie_g");
-            String pubcookies = pubcookie_pre_s.toString() + "; " + pubcookie_g.toString();
-            LOG.debug("setting PubCookie request Cookie: " + pubcookies);
-            getIdPSSOResponseMethod.addRequestHeader("Cookie", pubcookies);
         }
 
         // BUG FIX: check if url have a SAML/Artifact endpoint
@@ -550,48 +548,72 @@ public class ShibbolethClient {
             LOG.debug("Process " + idp.getAuthTypeName() + " login form...");
             // process CAS login form
             InputStream idpLoginForm = getIdpSSOMethod.getResponseBodyAsStream();
-            idpSSOResponseURI = processIdPLoginForm(idp, idpSSOResponseURI, idpLoginForm);
-            if (idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_FORM) {
-                // we are already authenticated, re-request the IdP SSO with the correct 
-                // cookies set (JSESSIONID for CAS, _idp_session for IdP 2.X)
-                idpSSOResponseURI = new URI(idpSSOURL, false);
-            }
+            LOG.debug("idpSSOURI Query=" + idpSSOURI.getQuery());
+            idpSSOResponseURI = processIdPLoginForm(idp, idpSSOResponseURI, idpSSOURI.getQuery(), idpLoginForm);
             LOG.debug(idp.getAuthTypeName() + " idpSSOResponseURI=" + idpSSOResponseURI);
         }
-        // PUBCOOKIE sends 200 + Cookies and a HTML page #!@!
-        // <meta http-equiv="Refresh"
-        // content="0;URL=https://aai1.unil.ch/"> back
+        // FIXME: ETHZ use a new PubCookie
+        // PUBCOOKIE sends 200 + onload form with hidden fields to post
         else if (idpSSOResponseStatus == 200
                 && idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_PUBCOOKIE) {
 
+            // parse <form> and extract hidden fields, then post
+            PostMethod postPubcookieFormMethod = null;
+            InputStream pubcookieFormStream= getIdpSSOMethod.getResponseBodyAsStream();
+            Source source = new Source(pubcookieFormStream);
+            List<Element> forms = source.findAllElements(Tag.FORM);
+            for (Element form : forms) {
+                String formAction = form.getAttributeValue("ACTION");
+                LOG.debug("PubCookie form action=" + formAction);
+                if (!idp.getAuthUrl().equalsIgnoreCase(formAction)) {
+                    // TODO: ERROR
+                    throw new RemoteException("form action: " + formAction + " doesn't match IdP authN url: " + idp.getAuthUrl());
+                }
+                // create PubCookie POST
+                postPubcookieFormMethod= new PostMethod(formAction);
+
+                // add all HIDDEN fields to POST
+                List<FormControl> formControls = form.findFormControls();
+                for (FormControl control : formControls) {
+                    FormControlType type = control.getFormControlType();
+                    if (type.equals(FormControlType.HIDDEN)) {
+                        String name = control.getName();
+                        Collection<String> values = control.getValues();
+                        for (String value : values) {
+                            LOG.debug("add hidden: " + name + "=" + value);
+                            // add all hidden fields
+                            postPubcookieFormMethod.addParameter(name, value);
+                        }
+                    }
+                }
+
+            } // for all forms
+            
             LOG.trace("getIdpSSOMethod.releaseConnection()");
             getIdpSSOMethod.releaseConnection();
 
-            LOG.debug("Get Pubcookie login form...");
-
-            GetMethod getPubcookieLoginFormMethod = new GetMethod(
-                    idp.getAuthUrl());
-            // set Cookie 'pubcookie_g_req'
-            Cookie pubcookie_r_req = getCookie("pubcookie_g_req");
-            getPubcookieLoginFormMethod.setRequestHeader("Cookie",
-                    pubcookie_r_req.toString());
-            LOG.info("GET PubcookieLoginFormMethod: "
-                    + getPubcookieLoginFormMethod.getURI());
-            int pubcookieLoginFormStatus = executeMethod(getPubcookieLoginFormMethod);
-            LOG.debug(getPubcookieLoginFormMethod.getStatusLine());
-            // TODO check status
-
+            if (postPubcookieFormMethod == null) {
+                // ERROR
+                LOG.error("PubCookie form not found");
+                throw new RemoteException("PubCookie form not found");
+            }
+            
+            // 
+            LOG.debug("POST " + postPubcookieFormMethod.getURI());
+            int postPubcookieFormStatus= executeMethod(postPubcookieFormMethod);
+            LOG.debug(postPubcookieFormMethod.getStatusLine());
+            
             // XXX
             dumpHttpClientCookies();
 
             // process pubcookie login form
-            InputStream loginFormStream = getPubcookieLoginFormMethod.getResponseBodyAsStream();
-            idpSSOResponseURI = processIdPLoginForm(idp, idpSSOResponseURI,
+            InputStream loginFormStream = postPubcookieFormMethod.getResponseBodyAsStream();
+            idpSSOResponseURI = processIdPLoginForm(idp, idpSSOResponseURI, idpSSOURI.getQuery(),
                     loginFormStream);
             LOG.debug("Pubcookie idpSSOResponseURI=" + idpSSOResponseURI);
 
-            LOG.debug("getPubcookieLoginFormMethod.releaseConnection()");
-            getPubcookieLoginFormMethod.releaseConnection();
+            LOG.trace("postPubcookieFormMethod.releaseConnection()");
+            postPubcookieFormMethod.releaseConnection();
 
         }
         else {
@@ -616,7 +638,7 @@ public class ShibbolethClient {
     }
 
     /**
-     * Prases and process Pubcookie or CAS login form.
+     * Parses and processes Pubcookie or CAS login form.
      * 
      * @param idp
      * @param htmlForm
@@ -625,11 +647,11 @@ public class ShibbolethClient {
      * @throws ServiceException
      * @throws AuthException
      */
-    private URI processIdPLoginForm(IdentityProvider idp, URI ssoLoginURI,
+    private URI processIdPLoginForm(IdentityProvider idp, URI ssoLoginURI, String ssoQuery,
             InputStream htmlForm) throws IOException, RemoteException,
             ServiceException, AuthException {
         LOG.info("Parse and process " + idp.getAuthTypeName()
-                + " login form...");
+                + " login form: " + ssoLoginURI);
 
         boolean formFound = false;
         URI idpLoginFormResponseURI = null;
@@ -691,7 +713,7 @@ public class ShibbolethClient {
                             String name = control.getName();
                             Collection<String> values = control.getValues();
                             for (String value : values) {
-                                LOG.debug("HIDDEN " + name + "=" + value);
+                                LOG.debug("add hidden: " + name + "=" + value);
                                 // add all hidden fields
                                 postLoginFormMethod.addParameter(name, value);
                             }
@@ -704,14 +726,9 @@ public class ShibbolethClient {
                     postLoginFormMethod.addParameter(idp.getAuthFormPassword(),
                             this.credentials_.getPassword());
 
-                    // execute the login POST
-                    LOG.info("POST LoginFormMethod: " + postLoginFormMethod.getURI());
                     // XXX
-                    dumpHttpClientCookies();
-                    if (LOG.isTraceEnabled()) {
-                        LOG.trace("Host:"  + postLoginFormMethod.getURI().getHost());
-                        LOG.trace("Path:" + postLoginFormMethod.getURI().getPath());
-                    }
+                    //dumpHttpClientCookies();
+
                     // BUG FIX: set the JSESSIONID and IdP 2.X _idp_authn_lc_key 
                     // cookies by hand.
                     // Because default CookiePolicy is RFC2109 and doesn't handle
@@ -726,20 +743,24 @@ public class ShibbolethClient {
                         postLoginFormMethod.addRequestHeader("Cookie", cookies[j].toString());
                     }
 
+                    // execute the login POST
+                    LOG.info("POST LoginFormMethod: " + postLoginFormMethod.getURI());
+
                     int formLoginResponseStatus = executeMethod(postLoginFormMethod);
                     LOG.debug(postLoginFormMethod.getStatusLine());
 
                     // XXX
                     dumpHttpClientCookies();
 
-                    // CAS send a 302 + Location header back
+                    // CAS, or FORM can, send a 302 + Location header back
                     if (formLoginResponseStatus == 302
-                            && idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_CAS) {
-                        LOG.debug("Process CAS response (302 + Location header)...");
+                            && (idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_CAS 
+                                || idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_FORM)) {
+                        LOG.debug("Process " + idp.getAuthTypeName() + " redirect response (302 + Location header)...");
                         Header location = postLoginFormMethod.getResponseHeader("Location");
                         if (location != null) {
                             String locationURL = location.getValue();
-                            LOG.debug("CAS Redirect: " + locationURL);
+                            LOG.debug("302 Location: " + locationURL);
                             // XXX: if location path (/cas/login) is not the IdP
                             // SSO path (/shibboleth-idp/SSO), then it's a wrong
                             // login
@@ -753,55 +774,90 @@ public class ShibbolethClient {
                                 LOG.debug("IdP SSO path: " + idpSSOPath);
                             }
                             if (!locationPath.equals(idpSSOPath)) {
-                                LOG.error("CAS response is not the SSO url ("
+                                LOG.error("Redirect response is not the SSO url ("
                                         + idpSSOURL + "): " + locationURL);
                                 throw new AuthException(idp.getAuthTypeName()
                                         + " Authentication failed: "
                                         + this.credentials_);
                             }
-                            idpLoginFormResponseURI = new URI(locationURL,
-                                    false);
+                            idpLoginFormResponseURI = new URI(locationURL,false);
+                            LOG.debug("(" + idp.getAuthTypeName() + ": 302 + Location) idpLoginFormReponseURI= " + idpLoginFormResponseURI);
                         }
                         else {
-                            LOG.error("CAS send status 302 but no redirect Location header");
+                            LOG.error( idp.getAuthTypeName() + ": Status 302 but no redirect Location header");
                             throw new AuthException(idp.getAuthTypeName()
                                     + " Authentication failed: "
                                     + this.credentials_);
                         }
                     }
-                    // Pubcookie send 200 + fucking HTML meta-data refresh!!!
-                    // <meta http-equiv="Refresh"
-                    // content="0;URL=https://cipher.ethz.ch/login/index.cgi">
+                    // IdP 2.1 FORM authN send 200 and directly the SAMLResponse
+                    else if (formLoginResponseStatus == 200
+                            && idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_FORM) {
+                        LOG.debug("Process FORM (200 + full Browser/POST profile) response...");
+                        idpLoginFormResponseURI= new URI(idp.getUrl(),false);
+                        // re-set the original SSO query params
+                        idpLoginFormResponseURI.setQuery(ssoQuery);
+                        LOG.debug("(FORM: 200 + Browser/POST) idpLoginFormReponseURI= " + idpLoginFormResponseURI);                        
+                    }
+                    // Pubcookie send 200 + fucking HTML form relay with hidden fields!!!
+                    // <form method=post action="https://aai-login.ethz.ch/PubCookie.reply" name=relay>
+                    // then reply a redirect 302 + Location header
                     else if (formLoginResponseStatus == 200
                             && idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_PUBCOOKIE) {
-                        LOG.debug("Process Pubcookie (200 + meta Refresh) response...");
-                        String pubcookieRefreshURL = null;
-                        InputStream pubcookieResponse = postLoginFormMethod.getResponseBodyAsStream();
-                        Source pubcookieSource = new Source(pubcookieResponse);
-                        List<Element> metas = pubcookieSource.findAllElements(Tag.META);
-                        for (Element meta : metas) {
-                            LOG.debug("Pubcookie META: " + meta);
-                            String metaRefresh = meta.getAttributeValue("HTTP-EQUIV");
-                            if (metaRefresh != null
-                                    && metaRefresh.equalsIgnoreCase("Refresh")) {
-                                String metaContent = meta.getAttributeValue("CONTENT");
-                                // format: <n>;URL=<location> where <n> in
-                                // second
-                                int pos = metaContent.indexOf(";URL=");
-                                if (pos > 0) {
-                                    pubcookieRefreshURL = metaContent.substring(pos + 5);
+                        LOG.debug("Process Pubcookie (200 + relay FORM) response...");
+                        InputStream pubcookieLoginResponse = postLoginFormMethod.getResponseBodyAsStream();
+                        Source pubcookieSource = new Source(pubcookieLoginResponse);
+                        PostMethod postPubcookieRelayMethod= null;
+                        List<Element> relayForms = pubcookieSource.findAllElements(Tag.FORM);
+                        for (Element relayForm : relayForms) {
+                            String relayFormAction = relayForm.getAttributeValue("ACTION");
+                            LOG.debug("Pubcookie relay form action= " + relayFormAction);
+                            if (relayFormAction == null) {
+                                LOG.error("Pubcookie relay form action not found.");
+                                throw new RemoteException("Pubcookie relay form action not found");
+                            }
+                            // create PubCookie relay POST
+                            postPubcookieRelayMethod= new PostMethod(relayFormAction);
+
+                            // add all HIDDEN fields to POST
+                            List<FormControl> relayFormControls = relayForm.findFormControls();
+                            for (FormControl control : relayFormControls) {
+                                FormControlType type = control.getFormControlType();
+                                if (type.equals(FormControlType.HIDDEN)) {
+                                    String name = control.getName();
+                                    Collection<String> values = control.getValues();
+                                    for (String value : values) {
+                                        LOG.debug("add hidden: " + name + "=" + value);
+                                        // add all hidden fields
+                                        postPubcookieRelayMethod.addParameter(name, value);
+                                    }
                                 }
+                            }  // add hidden fields
+                        } // for all relay forms
+
+                        if (postPubcookieRelayMethod != null) {
+                            LOG.debug("POST postPubcookieRelayMethod: " + postPubcookieRelayMethod.getURI());
+                            int pubcookieRelayStatus= executeMethod(postPubcookieRelayMethod);
+                            LOG.debug(postPubcookieRelayMethod.getStatusLine());
+                            Header location = postPubcookieRelayMethod.getResponseHeader("Location");
+                            LOG.debug("postPubcookieRelayMethod.releaseConnection()");
+                            postPubcookieRelayMethod.releaseConnection();
+                            if (location != null) {
+                                String locationURL = location.getValue();
+                                LOG.debug("302 Location: " + locationURL);
+                                // parse Location
+                                idpLoginFormResponseURI = new URI(locationURL,false);
+                                LOG.debug("(PubCookie: 302 + Location header) idpLoginFormReponseURI= " + idpLoginFormResponseURI);
+                            }
+                            else {
+                                LOG.error("Pubcookie relay response 302 + Location header not found");
+                                throw new AuthException(idp.getAuthTypeName()
+                                                        + " Authentication failed: "
+                                                        + this.credentials_);
                             }
                         }
-
-                        if (pubcookieRefreshURL != null) {
-                            LOG.debug("Pubcookie refresh: "
-                                    + pubcookieRefreshURL);
-                            idpLoginFormResponseURI = new URI(
-                                    pubcookieRefreshURL, false);
-                        }
                         else {
-                            LOG.error("Pubcookie META Refresh not found");
+                            LOG.error("Pubcookie relay form not found");
                             throw new AuthException(idp.getAuthTypeName()
                                     + " Authentication failed: "
                                     + this.credentials_);
@@ -809,12 +865,6 @@ public class ShibbolethClient {
 
                         // XXX
                         dumpHttpClientCookies();
-                    }
-                    // IdP 2.1 FORM authN send 200 and directly the SAMLResponse
-                    else if (formLoginResponseStatus == 200
-                            && idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_FORM) {
-                        LOG.debug("Process FORM (200 + Browser/POST profile) response...");
-                        idpLoginFormResponseURI= new URI(idp.getUrl(),false);
                     }
                     else {
                         LOG.error("Unexpected response status: "
