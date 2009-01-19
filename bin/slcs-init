@@ -2,7 +2,7 @@
 #
 # Execute the SLCS client: slcs-init
 #
-# $Id: slcs-init,v 1.6 2009/01/19 10:07:29 vtschopp Exp $
+# $Id: slcs-init,v 1.7 2009/01/19 12:16:27 vtschopp Exp $
 # Copyright (c) 2004. Members of the EGEE Collaboration. 
 # http://www.eu-egee.org
 #
@@ -31,13 +31,13 @@ if [ -z $JAVA_LIBDIR ] ; then
 fi
 # Bouncycastle is JDK dependent
 if [ -f "${JAVA_LIBDIR}/bcprov.jar" ]; then
-	# BC 1.41 
+    # new BC 1.41 
     BOUNCY_CP=${JAVA_LIBDIR}/bcprov.jar
 elif [ -f "${JAVA_LIBDIR}-ext/bouncycastle-jdk1.5/bcprov.jar" ]; then
     # old BC 1.37
     BOUNCY_CP=${JAVA_LIBDIR}-ext/bouncycastle-jdk1.5/bcprov.jar
 else
-    echo "ERROR: BouncyCastle: ${JAVA_LIBDIR}-ext/bouncycastle-jdk1.5/bcprov.jar not found"
+    echo "ERROR: BouncyCastle: neither ${JAVA_LIBDIR}/bcprov.jar nor ${JAVA_LIBDIR}-ext/bouncycastle-jdk1.5/bcprov.jar found"
     exit 1
 fi
 # Jakarta-commons packages
