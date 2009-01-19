@@ -2,7 +2,7 @@
 #
 # Execute the SLCS client: slcs-init
 #
-# $Id: slcs-init,v 1.8 2009/01/19 15:53:47 vtschopp Exp $
+# $Id: slcs-init,v 1.9 2009/01/19 15:54:35 vtschopp Exp $
 # Copyright (c) 2004. Members of the EGEE Collaboration. 
 # http://www.eu-egee.org
 #
@@ -38,7 +38,7 @@ elif [ -f "${JAVA_LIBDIR}/bcprov.jar" ]; then
     # JPackage bouncycastle-1.41-2.jpp5
     BOUNCY_CP=${JAVA_LIBDIR}/bcprov.jar
 else
-    echo "ERROR: BouncyCastle: neither ${JAVA_LIBDIR}/bcprov.jar nor ${JAVA_LIBDIR}-ext/bouncycastle-jdk1.5/bcprov.jar found"
+    echo "ERROR: BouncyCastle: neither ${JAVA_LIBDIR}-ext/bouncycastle-jdk1.5/bcprov.jar nor ${JAVA_LIBDIR}/bcprov.jar found"
     exit 1
 fi
 # Jakarta-commons packages
