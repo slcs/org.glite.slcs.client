@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.20 2009/01/16 12:23:32 vtschopp Exp $
+    Version: $Id: build.xml,v 1.21 2009/01/21 16:48:59 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -52,7 +52,8 @@
     <!-- init -->
     <target name="init" depends="">
         <tstamp />
-        <fileset id="glite-slcs-common.fileset" dir="${stage.lib.dir}">
+		<!-- check for the glite-slcs-common jar file -->
+    	<fileset id="glite-slcs-common.fileset" dir="${stage.lib.dir}">
             <include name="glite-slcs-common-*.jar"/>
         </fileset>
         <path id="glite-slcs-common.path">
@@ -231,16 +232,8 @@
             <tarfileset dir="${install.dir}" mode="755" username="root" group="root">
                 <include name="bin/slcs-*" />
             </tarfileset>
-<!--
-            <tarfileset dir="${install.dir}" mode="666" username="root" group="root">
-                <include name="log/slcs-init.log" />
-            </tarfileset>
--->
             <tarfileset dir="${install.dir}" username="root" group="root">
                 <exclude name="bin/slcs-*" />
-<!--
-                <exclude name="log/slcs-init.log" />
--->
             </tarfileset>
         </tar>
         <zip destfile="${dist.filename}.zip" basedir="${install.dir}" />
