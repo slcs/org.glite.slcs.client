@@ -3,7 +3,7 @@
 <!-- 
 SLCS Client configuration 
 
-$Id: slcs-init.xml,v 1.7 2007/09/26 10:22:46 vtschopp Exp $
+$Id: slcs-init.xml,v 1.8 2009/02/03 09:30:22 vtschopp Exp $
 
 Copyright (c) 2004. Members of the EGEE Collaboration. 
 http://www.eu-egee.org
@@ -14,7 +14,7 @@ http://www.eu-egee.org
     <!-- Extended Trust configuration for the HTTP agent -->
     <HttpClient>
         <!-- Absolute filename or file in CLASSPATH -->
-        <TrustStoreFile>truststore.switchaai.jks</TrustStoreFile>
+        <TrustStoreFile>truststore.slcs.jks</TrustStoreFile>
     </HttpClient>
 
     <!-- Default directory to store the key and certificate -->
