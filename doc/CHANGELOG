@@ -7,6 +7,7 @@ Version 1.3.4
 * Modified PUBCOOKIE authentication handler for new ETHZ PubCookie workflow.
 * slcs-info lists the IdPs sorted by providerId.
 * truststore contains all SwissSign and QuoVadis root CAs.
+* bouncycastle 1.37 provider delivered with client.
 
 Version 1.3.3
 -------------
@@ -68,4 +69,4 @@ Version 1.0.0
 * initial version
 
 --
-$Id: CHANGELOG,v 1.21 2009/02/03 09:55:05 vtschopp Exp $
+$Id: CHANGELOG,v 1.22 2009/02/03 15:34:32 vtschopp Exp $

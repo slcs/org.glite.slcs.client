@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.21 2009/01/21 16:48:59 vtschopp Exp $
+    Version: $Id: build.xml,v 1.22 2009/02/03 15:34:32 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -137,6 +137,7 @@
         <property name="install.doc.dir" location="${install.dir}/share/doc/${package.name}"/>
         <property name="install.log.dir" location="${install.dir}/log"/>
         <property name="install.lib.dir" location="${install.dir}/share/java"/>
+        <property name="install.lib.bouncycastle.dir" location="${install.dir}/share/${package.name}/java"/>
 
         <!-- first clean up -->
         <delete dir="${install.dir}"/>
@@ -146,6 +147,7 @@
         <mkdir dir="${install.etc.dir}"/>
         <mkdir dir="${install.doc.dir}"/>
         <mkdir dir="${install.lib.dir}"/>
+        <mkdir dir="${install.lib.bouncycastle.dir}"/>
         <!-- bin scripts -->
         <copy todir="${install.bin.dir}">
             <fileset dir="${bin.dir}">
@@ -169,6 +171,10 @@
         </copy>
         <!-- application jar -->
         <copy todir="${install.lib.dir}" file="${build.dir}/${package.jarname}"/>
+        <!-- static bouncycastle 1.37 jar -->
+        <copy todir="${install.lib.bouncycastle.dir}" flatten="true">
+            <fileset refid="ext.bouncycastle.bcprov.fileset"/>
+        </copy>
         
    </target>
    
