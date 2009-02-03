@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SLCSClientVersion.java,v 1.22 2009/02/03 09:45:16 vtschopp Exp $
+ * $Id: SLCSClientVersion.java,v 1.23 2009/02/03 15:51:58 vtschopp Exp $
  */
 package org.glite.slcs;
 
@@ -26,7 +26,7 @@ public class SLCSClientVersion {
     /** Revision version number */
     static public final int REVISION= 4;
      /** Build number */
-    static public final int BUILD= 2;
+    static public final int BUILD= 3;
     
     /** Copyright */
     static public final String COPYRIGHT= "Copyright (c) 2008-2009. Members of the EGEE Collaboration";
