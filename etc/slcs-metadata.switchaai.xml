@@ -3,7 +3,7 @@
 <!-- 
 SLCS Shibboleth Metadata
 
-$Id: slcs-metadata.switchaai.xml,v 1.8 2009/01/16 12:24:29 vtschopp Exp $
+$Id: slcs-metadata.switchaai.xml,v 1.9 2009/02/05 14:33:52 vtschopp Exp $
 
 Copyright (c) 2004. Members of the EGEE Collaboration. 
 http://www.eu-egee.org
@@ -44,14 +44,14 @@ http://www.eu-egee.org
         <!-- Virtual Home Organization @SWITCHaai -->
         <IdentityProvider id="vho-switchaai.ch">
             <name>Virtual Home Organization</name>
-            <url>https://aai.vho-switchaai.ch/shibboleth-idp/SSO</url>
-            <authentication type="CAS">
-                <url>https://aai.vho-switchaai.ch/cas/login</url>
-                <form name="login_form">
-                    <username>username</username>
-                    <password>password</password>
+            <url>https://aai-logon.vho-switchaai.ch/idp/profile/Shibboleth/SSO</url>
+            <authentication type="FORM">
+                <url>https://aai-logon.vho-switchaai.ch/idp/Authn/UserPassword</url>
+                <form name="j_loginform">
+                    <username>j_username</username>
+                    <password>j_password</password>
                 </form>
-            </authentication>
+            </authentication> 
         </IdentityProvider>
 
         <!-- Ecole Polytechnique Federale de Lausanne -->
