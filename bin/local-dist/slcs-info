@@ -2,9 +2,11 @@
 #
 # Execute the SLCS info
 #
-# $Id: slcs-info,v 1.2 2008/04/22 09:07:25 vtschopp Exp $
-# Copyright (c) 2004. Members of the EGEE Collaboration. 
+# Copyright (c) 2004-2009. Members of the EGEE Collaboration. 
 # http://www.eu-egee.org
+#
+# $Id: slcs-info,v 1.3 2009/03/09 11:28:55 vtschopp Exp $
+# $Name:  $
 #
 #set -x
 

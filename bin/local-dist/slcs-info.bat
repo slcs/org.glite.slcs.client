@@ -2,10 +2,11 @@
 rem ---------------------------------------------------------------------------
 rem Execute the SLCS info
 rem
-rem Copyright (c) 2007. Members of the EGEE Collaboration. 
+rem Copyright (c) 2004-2009. Members of the EGEE Collaboration. 
 rem http:\\www.eu-egee.org
 rem
-rem $Id: slcs-info.bat,v 1.2 2008/04/22 09:07:25 vtschopp Exp $
+rem $Id: slcs-info.bat,v 1.3 2009/03/09 11:28:55 vtschopp Exp $
+rem $Name:  $
 rem ---------------------------------------------------------------------------
 if "%OS%" == "Windows_NT" setlocal
 if "%OS%" == "WINNT" setlocal
