@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.22 2009/02/03 15:34:32 vtschopp Exp $
+    Version: $Id: build.xml,v 1.23 2009/03/09 12:20:01 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -228,9 +228,13 @@
             <fileset refid="ext.jakarta-commons-logging.fileset"/>
             <fileset refid="ext.log4j.fileset"/>
         </copy>
+        <!-- remove previousely copied static bouncycastle to avoid duplicate -->
+        <property name="install.lib.bouncycastle.dir" location="${install.dir}/share/${package.name}"/>
+        <delete dir="${install.lib.bouncycastle.dir}" />
+
     </target>
     
-    <!-- create standalone tar.gz distribution  -->
+    <!-- create standalone tar.gz and zip distribution packages -->
     <target name="local-dist" depends="clean,full-package">
         <property name="dist.filename"
             value="${package.name}-${package.version}-jdk${ant.java.version}" />
