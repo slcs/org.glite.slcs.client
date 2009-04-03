@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SLCSClientVersion.java,v 1.25 2009/03/31 12:12:13 vtschopp Exp $
+ * $Id: SLCSClientVersion.java,v 1.26 2009/04/03 11:27:22 vtschopp Exp $
  */
 package org.glite.slcs;
 
 public class SLCSClientVersion {
 
     /** Major version number */
-    static public final int MAJOR= 1;
+    static public final String MAJOR= "@version.major@";
     /** Minor version number */
-    static public final int MINOR= 3;
+    static public final String MINOR= "@version.minor@";
     /** Revision version number */
-    static public final int REVISION= 4;
+    static public final String REVISION= "@version.revision@";
      /** Build number */
-    static public final int BUILD= 5;
+    static public final String BUILD= "@version.build@";
     
     /** Copyright */
     static public final String COPYRIGHT= "Copyright (c) 2008-2009. Members of the EGEE Collaboration";
