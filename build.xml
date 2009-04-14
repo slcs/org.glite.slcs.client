@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.23 2009/03/09 12:20:01 vtschopp Exp $
+    Version: $Id: build.xml,v 1.24 2009/04/14 09:28:50 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -90,8 +90,22 @@
         <mkdir dir="${test.classes.dir}" />
     </target>
 
+    <!-- update version number in java source -->
+    <target name="version" depends="prepare">
+        <property name="version.java.file" value="src/org/glite/slcs/SLCSClientVersion.java"/>
+        <echo message="set version ${source.version.major}.${source.version.minor}.${source.version.revision}-${package.release} in ${version.java.file}"/>
+        <cvs command="update -C ${version.java.file}"/>
+        <replace dir="${src.dir}" summary="true" propertyFile="build.properties">
+            <include name="**/*Version.java"/>
+            <replacefilter token="@version.major@" property="source.version.major"/>
+            <replacefilter token="@version.minor@" property="source.version.minor"/>
+            <replacefilter token="@version.revision@" property="source.version.revision"/>
+            <replacefilter token="@version.build@" property="package.release"/>
+        </replace>
+    </target>
+
     <!-- compile -->
-    <target name="compile" depends="prepare">
+    <target name="compile" depends="version">
         <echo message="compile..."/>
         <!-- Compile the java code from ${src} into ${build} -->
         <javac srcdir="${src.dir}" 
