@@ -8,8 +8,9 @@ Version 1.3.4
 * slcs-info lists the IdPs sorted by providerId.
 * truststore contains all SwissSign and QuoVadis root CAs.
 * bouncycastle 1.37 provider embeded with client.
-* SWITCHaai VHO new IdP 2 definition updated in metadata.
-* SWITCH new IdP 2 definition updated in metadata.
+* SWITCHaai VHO IdP definition updated in metadata.
+* SWITCH IdP definition updated in metadata.
+* HES-SO IdP definition added in metadata.
 
 Version 1.3.3
 -------------
@@ -71,4 +72,4 @@ Version 1.0.0
 * initial version
 
 --
-$Id: CHANGELOG,v 1.24 2009/03/31 11:49:33 vtschopp Exp $
+$Id: CHANGELOG,v 1.25 2009/04/14 09:19:18 vtschopp Exp $
