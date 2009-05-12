@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.24 2009/04/14 09:28:50 vtschopp Exp $
+    Version: $Id: build.xml,v 1.25 2009/05/12 07:39:41 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -48,6 +48,10 @@
     
     <!-- install dirs -->
     <property name="install.dir" location="${build.dir}/glite" />
+    
+    <!-- version java file: relative path !!! -->
+    <property name="version.java.file" value="src/org/glite/slcs/SLCSClientVersion.java"/>
+    
     
     <!-- init -->
     <target name="init" depends="">
@@ -92,11 +96,9 @@
 
     <!-- update version number in java source -->
     <target name="version" depends="prepare">
-        <property name="version.java.file" value="src/org/glite/slcs/SLCSClientVersion.java"/>
         <echo message="set version ${source.version.major}.${source.version.minor}.${source.version.revision}-${package.release} in ${version.java.file}"/>
         <cvs command="update -C ${version.java.file}"/>
-        <replace dir="${src.dir}" summary="true" propertyFile="build.properties">
-            <include name="**/*Version.java"/>
+        <replace file="${version.java.file}" summary="true" propertyFile="build.properties">
             <replacefilter token="@version.major@" property="source.version.major"/>
             <replacefilter token="@version.minor@" property="source.version.minor"/>
             <replacefilter token="@version.revision@" property="source.version.revision"/>
@@ -272,6 +274,9 @@
         <delete dir="RPMS" failonerror="false"/>
         <delete dir="tgz" failonerror="false"/>
         <delete dir="rpmbuild" failonerror="false"/>
+        <!-- replace version java file with orginial from CVS -->
+        <delete file="${version.java.file}" failonerror="false"/>        
+        <cvs command="update -C ${version.java.file}"/>
     </target>
 
     <!-- download eternals dependencies in local repository -->
