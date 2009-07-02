@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SLCSInit.java,v 1.13 2009/01/14 10:09:52 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.14 2009/07/02 11:01:10 vtschopp Exp $
  */
 package org.glite.slcs;
 
@@ -61,7 +61,7 @@ import org.glite.slcs.util.PasswordReader;
  * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  */
 public class SLCSInit {
 
@@ -869,7 +869,7 @@ public class SLCSInit {
                 "absolute pathname to the store directory (default: $HOME/.globus)");
         storedir.setArgName("directory");
         Option p12 = new Option("x", "p12", false,
-                "store additional PKCS12 user.p12 file");
+                "store additional PKCS12 usercred.p12 file");
         Options options = new Options();
         options.addOption(help);
         options.addOption(username);
