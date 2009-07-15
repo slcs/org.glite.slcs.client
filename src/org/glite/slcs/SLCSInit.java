@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SLCSInit.java,v 1.14 2009/07/02 11:01:10 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.15 2009/07/15 14:04:35 vtschopp Exp $
  */
 package org.glite.slcs;
 
@@ -61,7 +61,7 @@ import org.glite.slcs.util.PasswordReader;
  * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.15 $
  */
 public class SLCSInit {
 
@@ -630,7 +630,7 @@ public class SLCSInit {
      * 
      * @throws SLCSException
      */
-    private void shibbolethLogin() throws SLCSException {
+    public void shibbolethLogin() throws SLCSException {
         LOG.debug("Shibboleth authentication...");
         boolean authenticated = shibClient_.authenticate();
         if (!authenticated) {
@@ -639,7 +639,7 @@ public class SLCSInit {
         }
     }
 
-    private void slcsLogin() throws SLCSException {
+    public void slcsLogin() throws SLCSException {
         String slcsLoginURL = shibMetadata_.getSLCS().getUrl();
         GetMethod getLoginMethod = new GetMethod(slcsLoginURL);
         try {
@@ -674,7 +674,7 @@ public class SLCSInit {
         }
     }
 
-    private void slcsCertificateRequest() throws SLCSException {
+    public void slcsCertificateRequest() throws SLCSException {
         PostMethod postCertificateRequestMethod = new PostMethod(
                 certificateRequestUrl_);
         postCertificateRequestMethod.addParameter("AuthorizationToken",
@@ -896,7 +896,7 @@ public class SLCSInit {
      * @throws GeneralSecurityException
      *             If an
      */
-    private void generateCertificateKeys(int size, char[] password)
+    public void generateCertificateKeys(int size, char[] password)
             throws GeneralSecurityException {
         LOG.debug("generate keys...");
         certificateKeys_ = new CertificateKeys(size, password);
@@ -908,7 +908,7 @@ public class SLCSInit {
      * @throws IOException
      *             If an error occurs while writing the userkey.pem file.
      */
-    private void storePrivateKey() throws IOException {
+    public void storePrivateKey() throws IOException {
         String filename = getStoreDirectory() + File.separator
                 + getUserKeyFilename();
         File file = new File(filename);
@@ -924,7 +924,7 @@ public class SLCSInit {
      * @throws IOException
      *             If an error occurs while writing the usercert.pem file.
      */
-    private void storeCertificate() throws IOException {
+    public void storeCertificate() throws IOException {
         String filename = getStoreDirectory() + File.separator
                 + getUserCertFilename();
         File file = new File(filename);
@@ -976,7 +976,7 @@ public class SLCSInit {
      * @throws GeneralSecurityException
      *             If an error occurs while creating the object.
      */
-    private void generateCertificateRequest() throws GeneralSecurityException {
+    public void generateCertificateRequest() throws GeneralSecurityException {
         LOG.debug("generate CSR: " + certificateSubject_);
         certificateRequest_ = new CertificateRequest(certificateKeys_,
                 certificateSubject_, certificateExtensions_);
@@ -988,7 +988,7 @@ public class SLCSInit {
      * @return The absolute directory name to store the usercert.pem and
      *         userkey.pem files.
      */
-    private String getStoreDirectory() {
+    public String getStoreDirectory() {
         File dir = new File(storeDirectory_);
         // BUG FIX: create dir if not exist
         if (!dir.exists()) {
@@ -1007,7 +1007,7 @@ public class SLCSInit {
      * @return <code>true</code> iff the absolute dirname is an existing
      *         writable directory
      */
-    private boolean setStoreDirectory(String directory) {
+    public boolean setStoreDirectory(String directory) {
         boolean valid = false;
         if (directory == null) {
             return false;
@@ -1033,14 +1033,14 @@ public class SLCSInit {
      * 
      * @param prefix
      */
-    private void setUserPrefix(String prefix) {
+    public void setUserPrefix(String prefix) {
         userPrefix_ = prefix;
     }
 
     /**
      * @return The prefixed (if any) usercert filename.
      */
-    private String getUserCertFilename() {
+    public String getUserCertFilename() {
         String usercert = null;
         if (userPrefix_ == null) {
             usercert = userCertFilename_;
@@ -1054,7 +1054,7 @@ public class SLCSInit {
     /**
      * @return The prefixed (if any) userkey filename.
      */
-    private String getUserKeyFilename() {
+    public String getUserKeyFilename() {
         String userkey = null;
         if (userPrefix_ == null) {
             userkey = userKeyFilename_;
@@ -1068,7 +1068,7 @@ public class SLCSInit {
     /**
      * @return The prefixed (if any) userp12 filename.
      */
-    private String getUserPKCS12Filename() {
+    public String getUserPKCS12Filename() {
         String userp12 = null;
         if (userPrefix_ == null) {
             userp12 = userPKCS12Filename_;
@@ -1079,11 +1079,11 @@ public class SLCSInit {
         return userp12;
     }
 
-    private int getKeySize() {
+    public int getKeySize() {
         return keySize_;
     }
 
-    private void setKeySize(int size) {
+    public void setKeySize(int size) {
         // TODO check valid size
         keySize_ = size;
     }
@@ -1095,7 +1095,7 @@ public class SLCSInit {
      * @throws IOException
      *             If an IO error occurs.
      */
-    private void storePKCS12() throws IOException {
+    public void storePKCS12() throws IOException {
         PrivateKey privateKey = certificateKeys_.getPrivate();
         X509Certificate certificate = certificate_.getCertificate();
         X509Certificate chain[] = certificate_.getCertificateChain();
