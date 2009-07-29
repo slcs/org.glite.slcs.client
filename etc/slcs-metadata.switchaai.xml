@@ -2,7 +2,7 @@
 <!-- 
 SLCS Shibboleth Metadata
 
-$Id: slcs-metadata.switchaai.xml,v 1.14 2009/05/11 09:32:17 vtschopp Exp $
+$Id: slcs-metadata.switchaai.xml,v 1.15 2009/07/29 12:37:33 vtschopp Exp $
 $Name:  $
 
 Copyright (c) 2008-2009. Members of the EGEE Collaboration. 
@@ -198,12 +198,12 @@ http://www.eu-egee.org/
         <!-- Universitaet Zuerich -->
         <IdentityProvider id="uzh.ch">
             <name>Universitaet Zuerich</name>
-            <url>https://idp.uzh.ch/shibboleth-idp/SSO</url>
-            <authentication type="CAS">
-                <url>https://idp.uzh.ch/cas/login</url>
+            <url>https://aai-idp.uzh.ch/idp/profile/Shibboleth/SSO</url>
+            <authentication type="FORM">
+                <url>https://aai-idp.uzh.ch/idp/Authn/UserPassword</url>
                 <form name="login_form">
-                    <username>username</username>
-                    <password>password</password>
+                    <username>j_username</username>
+                    <password>j_password</password>
                 </form>
             </authentication>
         </IdentityProvider>
