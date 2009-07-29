@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: ShibbolethClient.java,v 1.14 2009/01/16 12:20:33 vtschopp Exp $
+ * $Id: ShibbolethClient.java,v 1.15 2009/07/29 12:38:49 vtschopp Exp $
  */
 package org.glite.slcs.shibclient;
 
@@ -59,7 +59,7 @@ import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
  * have been warned.</b>
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.15 $
  */
 public class ShibbolethClient {
 
@@ -790,9 +790,36 @@ public class ShibbolethClient {
                                     + this.credentials_);
                         }
                     }
-                    // IdP 2.1 FORM authN send 200 and directly the SAMLResponse
+                    // IdP 2.1 FORM authN send 200 and directly the SAMLResponse form
                     else if (formLoginResponseStatus == 200
                             && idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_FORM) {
+                        // BUG FIX: check for Browser/POST hidden form element SAMLResponse for valid authentication
+                        LOG.debug("check for SAMLResponse hidden element");
+                        boolean samlResponseFound= false;
+                        InputStream authnLoginResponse = postLoginFormMethod.getResponseBodyAsStream();
+                        Source authnSource = new Source(authnLoginResponse);
+                        List<Element> browserPOSTForms = authnSource.findAllElements(Tag.FORM);
+                        for (Element browserPOSTForm : browserPOSTForms) {
+                            List<FormControl> browserPOSTFormControls = browserPOSTForm.findFormControls();
+                            for (FormControl control : browserPOSTFormControls) {
+                                FormControlType type = control.getFormControlType();
+                                if (type.equals(FormControlType.HIDDEN)) {
+                                    String name = control.getName();
+                                    if (name.equals("SAMLResponse")) {
+                                        LOG.debug("Hidden element found: " + control.getName());
+                                        samlResponseFound= true;
+                                    }
+                                }
+                            }
+                        }
+                        if (!samlResponseFound) {
+                            LOG.error( idp.getAuthTypeName() + ": no Browser/POST SAMLResponse hidden element found");
+                            throw new AuthException(idp.getAuthTypeName()
+                                    + " Authentication failed: "
+                                    + this.credentials_);
+
+                        }
+                        
                         LOG.debug("Process FORM (200 + full Browser/POST profile) response...");
                         idpLoginFormResponseURI= new URI(idp.getUrl(),false);
                         // re-set the original SSO query params
@@ -931,6 +958,8 @@ public class ShibbolethClient {
      */
     public int executeMethod(HttpMethod method) throws HttpException,
             IOException {
+        if (LOG.isTraceEnabled())
+            LOG.trace("exec: " + method.getName() + " " + method.getURI());
         // use delegate
         return this.httpClient_.executeMethod(method);
     }
