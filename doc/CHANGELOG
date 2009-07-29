@@ -1,6 +1,11 @@
 TODO: add slcs-info option to show cert subject, issuer, and TTL...
 TODO: add slcs-info option to update truststore, metadata, ...
 
+Version 1.3.6
+-------------
+* Improved authentication error checking for FORM handler.
+* UZH IdP updated in metadata.
+
 Version 1.3.5
 -------------
 * Bug fix: correct possible race condition in PasswordReader.getPassword()
@@ -79,4 +84,4 @@ Version 1.0.0
 * initial version
 
 --
-$Id: CHANGELOG,v 1.28 2009/06/22 09:03:33 vtschopp Exp $
+$Id: CHANGELOG,v 1.29 2009/07/29 12:35:49 vtschopp Exp $
