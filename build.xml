@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.25 2009/05/12 07:39:41 vtschopp Exp $
+    Version: $Id: build.xml,v 1.26 2009/07/31 13:27:43 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -58,7 +58,7 @@
         <tstamp />
 		<!-- check for the glite-slcs-common jar file -->
     	<fileset id="glite-slcs-common.fileset" dir="${stage.lib.dir}">
-            <include name="glite-slcs-common-*.jar"/>
+            <include name="glite-slcs-common.jar"/>
         </fileset>
         <path id="glite-slcs-common.path">
         	<fileset refid="glite-slcs-common.fileset" />
