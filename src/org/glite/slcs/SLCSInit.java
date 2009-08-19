@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SLCSInit.java,v 1.16 2009/08/19 14:44:49 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.17 2009/08/19 14:59:50 vtschopp Exp $
  */
 package org.glite.slcs;
 
@@ -62,7 +62,7 @@ import org.glite.slcs.util.PasswordReader;
  * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.17 $
  */
 public class SLCSInit {
 
@@ -331,7 +331,7 @@ public class SLCSInit {
      * @param args
      */
     public static void main(String[] args) {
-        LOG.info("Version: ui " + Version.getVersion() + ", common " + SLCSCommonVersion.getVersion());
+        LOG.info("Version: ui " + Version.getVersion() + ", common " + org.glite.slcs.common.Version.getVersion());
 
         // parse command line
         CommandLineParser parser = new PosixParser();
@@ -349,7 +349,7 @@ public class SLCSInit {
         if (error || cmd.hasOption('h')) {
             System.out.println("slcs-init: " + SLCSInit.class.getName() + " - "
                     + Version.getCopyright());
-            System.out.println("Version: ui " + Version.getVersion() + ", common " + SLCSCommonVersion.getVersion());
+            System.out.println("Version: ui " + Version.getVersion() + ", common " + org.glite.slcs.common.Version.getVersion());
             HelpFormatter help = new HelpFormatter();
             help.printHelp("slcs-init --idp <providerId> [options]", options);
             System.exit(1);
@@ -359,7 +359,7 @@ public class SLCSInit {
         if (cmd.hasOption('V')) {
             System.out.println("slcs-init: " + SLCSInit.class.getName() + " - "
                     + Version.getCopyright());
-            System.out.println("Version: ui " + Version.getVersion() + ", common " + SLCSCommonVersion.getVersion());
+            System.out.println("Version: ui " + Version.getVersion() + ", common " + org.glite.slcs.common.Version.getVersion());
             System.exit(0);
         }
 
@@ -367,7 +367,7 @@ public class SLCSInit {
         boolean verbose = false;
         if (cmd.hasOption('v')) {
             verbose = true;
-            System.out.println("Version: ui " + Version.getVersion() + ", common " + SLCSCommonVersion.getVersion());
+            System.out.println("Version: ui " + Version.getVersion() + ", common " + org.glite.slcs.common.Version.getVersion());
         }
 
         // config

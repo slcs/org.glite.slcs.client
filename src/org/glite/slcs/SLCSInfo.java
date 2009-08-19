@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SLCSInfo.java,v 1.7 2009/08/19 14:44:49 vtschopp Exp $
+ * $Id: SLCSInfo.java,v 1.8 2009/08/19 14:59:50 vtschopp Exp $
  */
 package org.glite.slcs;
 
@@ -51,7 +51,7 @@ public class SLCSInfo {
      * @param args
      */
     public static void main(String[] args) {
-        LOG.info("Version: ui " + Version.getVersion() + ", common " + SLCSCommonVersion.getVersion());
+        LOG.info("Version: ui " + Version.getVersion() + ", common " + org.glite.slcs.common.Version.getVersion());
 
         CommandLineParser parser= new PosixParser();
         CommandLine cmd= null;
@@ -75,7 +75,7 @@ public class SLCSInfo {
         if (cmd.hasOption('V')) {
             System.out.println("slcs-info: " + SLCSInfo.class.getName() + " - "
                     + Version.getCopyright());
-            System.out.println("Version: ui " + Version.getVersion() + ", common " + SLCSCommonVersion.getVersion());
+            System.out.println("Version: ui " + Version.getVersion() + ", common " + org.glite.slcs.common.Version.getVersion());
             System.exit(0);
         }
 
