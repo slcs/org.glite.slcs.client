@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Version: $Id: SLCSClientConfiguration.java,v 1.2 2007/07/25 15:37:17 vtschopp Exp $
+ * Version: $Id: SLCSClientConfiguration.java,v 1.3 2009/08/19 14:46:30 vtschopp Exp $
  */
 package org.glite.slcs.config;
 
@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
  * client.
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class SLCSClientConfiguration extends SLCSConfiguration {
 
@@ -127,5 +127,12 @@ public class SLCSClientConfiguration extends SLCSConfiguration {
 		}
 
 	}
+
+    /**
+     * @return The absolute filename or URL used as source for the SLCS config.
+     */
+    public String getConfigSource() {
+        return getFilename();
+    }
 
 }
