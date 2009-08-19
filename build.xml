@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.26 2009/07/31 13:27:43 vtschopp Exp $
+    Version: $Id: build.xml,v 1.27 2009/08/19 14:30:34 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -94,20 +94,8 @@
         <mkdir dir="${test.classes.dir}" />
     </target>
 
-    <!-- update version number in java source -->
-    <target name="version" depends="prepare">
-        <echo message="set version ${source.version.major}.${source.version.minor}.${source.version.revision}-${package.release} in ${version.java.file}"/>
-        <cvs command="update -C ${version.java.file}"/>
-        <replace file="${version.java.file}" summary="true" propertyFile="build.properties">
-            <replacefilter token="@version.major@" property="source.version.major"/>
-            <replacefilter token="@version.minor@" property="source.version.minor"/>
-            <replacefilter token="@version.revision@" property="source.version.revision"/>
-            <replacefilter token="@version.build@" property="package.release"/>
-        </replace>
-    </target>
-
     <!-- compile -->
-    <target name="compile" depends="version">
+    <target name="compile" depends="prepare">
         <echo message="compile..."/>
         <!-- Compile the java code from ${src} into ${build} -->
         <javac srcdir="${src.dir}" 
@@ -135,7 +123,15 @@
     <!-- jar -->
     <target name="jar" depends="compile">
         <!-- jar org.glite.slcs.ui classes -->
-        <jar jarfile="${build.dir}/${package.jarname}" basedir="${classes.dir}" />
+        <jar jarfile="${build.dir}/${package.jarname}" basedir="${classes.dir}">
+        	<manifest>
+                <section name="org/glite/slcs/ui/">
+                    <attribute name="Implementation-Title" value="${packge.name}"/>
+                    <attribute name="Implementation-Version" value="${package.version}"/> 
+                    <attribute name="Implementation-Vendor" value="EGEE gLite"/>
+                </section>
+        	</manifest>
+        </jar>
     </target>
    
     <!-- OPTIONAL: stage glite-slcs-ui.jar in ../stage/share/java dir -->
@@ -274,9 +270,6 @@
         <delete dir="RPMS" failonerror="false"/>
         <delete dir="tgz" failonerror="false"/>
         <delete dir="rpmbuild" failonerror="false"/>
-        <!-- replace version java file with orginial from CVS -->
-        <delete file="${version.java.file}" failonerror="false"/>        
-        <cvs command="update -C ${version.java.file}"/>
     </target>
 
     <!-- download eternals dependencies in local repository -->
