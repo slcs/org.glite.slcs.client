@@ -13,25 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SLCSClientVersion.java,v 1.27 2009/08/19 14:13:56 vtschopp Exp $
+ * $Id: Version.java,v 1.1 2009/08/19 14:13:56 vtschopp Exp $
  */
-package org.glite.slcs;
+package org.glite.slcs.ui;
 
-public class SLCSClientVersion {
-
-    /** Copyright */
-    static public final String COPYRIGHT= "Copyright (c) 2008-2009. Members of the EGEE Collaboration";
-
-    /**
-     * Prevents instantiation
-     */
-    private SLCSClientVersion() {}
+/**
+ * Version class to retrieve version info from jar manifest.
+ */
+public class Version {
 
     /**
-     * @return The version number in format MAJOR.MINOR.REVISION-BUILD
+     * @return the implementation version from MANIFEST
      */
     static public String getVersion() {
-        return org.glite.slcs.ui.Version.getVersion();
+        Package pkg= Version.class.getPackage();
+        return pkg.getImplementationVersion();   
+    }
+
+    /**
+     * @return the implementation title from MANIFEST
+     */
+    static public String getName() {
+        Package pkg= Version.class.getPackage();
+        return pkg.getImplementationTitle();   
     }
 
 }
