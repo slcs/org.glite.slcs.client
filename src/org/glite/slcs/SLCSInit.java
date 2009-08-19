@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SLCSInit.java,v 1.15 2009/07/15 14:04:35 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.16 2009/08/19 14:44:49 vtschopp Exp $
  */
 package org.glite.slcs;
 
@@ -55,13 +55,14 @@ import org.glite.slcs.pki.bouncycastle.Codec;
 import org.glite.slcs.shibclient.ShibbolethClient;
 import org.glite.slcs.shibclient.ShibbolethCredentials;
 import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
+import org.glite.slcs.ui.Version;
 import org.glite.slcs.util.PasswordReader;
 
 /**
  * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  */
 public class SLCSInit {
 
@@ -189,7 +190,7 @@ public class SLCSInit {
         String userAgent = (String) httpClient.getParams().getParameter(
                 HttpClientParams.USER_AGENT);
         String newUserAgent = "Mozilla/5.0 (" + userAgent + ") slcs-init/"
-                + SLCSClientVersion.getVersion();
+                + Version.getVersion();
         httpClient.getParams().setParameter(HttpClientParams.USER_AGENT,
                 newUserAgent);
         if (LOG.isDebugEnabled()) {
@@ -330,7 +331,8 @@ public class SLCSInit {
      * @param args
      */
     public static void main(String[] args) {
-        LOG.info("SLCSClientVersion: " + SLCSClientVersion.getVersion());
+        LOG.info("Version: ui " + Version.getVersion() + ", common " + SLCSCommonVersion.getVersion());
+
         // parse command line
         CommandLineParser parser = new PosixParser();
         CommandLine cmd = null;
@@ -346,8 +348,8 @@ public class SLCSInit {
         // help? or error
         if (error || cmd.hasOption('h')) {
             System.out.println("slcs-init: " + SLCSInit.class.getName() + " - "
-                    + SLCSClientVersion.COPYRIGHT);
-            System.out.println("Version: " + SLCSClientVersion.getVersion());
+                    + Version.getCopyright());
+            System.out.println("Version: ui " + Version.getVersion() + ", common " + SLCSCommonVersion.getVersion());
             HelpFormatter help = new HelpFormatter();
             help.printHelp("slcs-init --idp <providerId> [options]", options);
             System.exit(1);
@@ -356,8 +358,8 @@ public class SLCSInit {
         // version?
         if (cmd.hasOption('V')) {
             System.out.println("slcs-init: " + SLCSInit.class.getName() + " - "
-                    + SLCSClientVersion.COPYRIGHT);
-            System.out.println("Version: " + SLCSClientVersion.getVersion());
+                    + Version.getCopyright());
+            System.out.println("Version: ui " + Version.getVersion() + ", common " + SLCSCommonVersion.getVersion());
             System.exit(0);
         }
 
@@ -365,6 +367,7 @@ public class SLCSInit {
         boolean verbose = false;
         if (cmd.hasOption('v')) {
             verbose = true;
+            System.out.println("Version: ui " + Version.getVersion() + ", common " + SLCSCommonVersion.getVersion());
         }
 
         // config
@@ -384,9 +387,6 @@ public class SLCSInit {
         }
         else {
             config = DEFAULT_CONFIGURATION_FILE;
-        }
-        if (verbose) {
-            System.out.println("Config: " + config);
         }
 
         // store directory
@@ -508,10 +508,16 @@ public class SLCSInit {
         try {
             LOG.debug("load SLCS client configuration...");
             SLCSClientConfiguration configuration = SLCSClientConfiguration.getInstance(config);
+            if (verbose) {
+                System.out.println("Config: " + configuration.getConfigSource());
+            }
             ShibbolethCredentials credentials = new ShibbolethCredentials(
                     username, password, idpProviderId);
             LOG.debug("create SLCS client...");
             client = new SLCSInit(configuration, credentials);
+            if (verbose) {
+                System.out.println("Metadata: " + client.getMetadataSource());
+            }
             if (storeDirectory != null) {
                 LOG.debug("overwrite store directory: " + storeDirectory);
                 client.setStoreDirectory(storeDirectory);
@@ -625,6 +631,13 @@ public class SLCSInit {
 
     }
 
+    /**
+     * @return The absolute filename or URL used as source for the SLCS metadata.
+     */
+    private String getMetadataSource() {
+        return this.shibMetadata_.getMetadataSource();
+    }
+    
     /**
      * Login with Shibboleth
      * 
