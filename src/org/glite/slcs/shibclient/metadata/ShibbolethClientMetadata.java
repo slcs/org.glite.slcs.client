@@ -15,10 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Version: $Id: ShibbolethClientMetadata.java,v 1.5 2009/01/07 16:34:27 vtschopp Exp $
+ * Version: $Id: ShibbolethClientMetadata.java,v 1.6 2009/08/19 14:49:15 vtschopp Exp $
  */
 package org.glite.slcs.shibclient.metadata;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -41,7 +43,7 @@ import org.glite.slcs.config.SLCSConfiguration;
  * providers
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 public class ShibbolethClientMetadata extends SLCSConfiguration {
 
@@ -55,6 +57,8 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
     private Map<String,Provider> providers_;
 
     private String slcsProviderId_= null;
+    
+    private String metadataSource_= null;
 
     /**
      * 
@@ -117,17 +121,43 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
         Configuration metadata= getConfiguration().subset("ShibbolethClientMetadata");
         // external metadata defined with filename= attribute?
         String metadataFilename= metadata.getString("[@filename]");
+        LOG.debug("metadata filename=" + metadataFilename);
+        String metadataUrl= metadata.getString("[@url]");
+        LOG.debug("metadata url=" + metadataUrl);
         if (metadataFilename != null) {
         	// load external metadata file       
         	try {
-        		LOG.info("load external metadata: " + metadataFilename);
-        		metadata = loadConfiguration(metadataFilename);
+        		LOG.info("load metadata from file: " + metadataFilename);
+        		FileConfiguration metadataFileConfiguration = loadConfiguration(metadataFilename);
+        		metadataSource_= metadataFileConfiguration.getFile().getAbsolutePath();
+        		metadata= metadataFileConfiguration;
         	} catch (SLCSConfigurationException e) {
         		LOG.error("Failed to load external ShibbolethClientMetadata: " + metadataFilename, e);
         		throw e;
         	}
+        }
+        // TODO: check for metadata url and download
+        else if (metadataUrl != null) {
+            // download external metadata file
+            try {
+                URL url= new URL(metadataUrl);
+                LOG.info("download metadata from url: " + url);
+                metadata = downloadConfiguration(url);
+                metadataSource_= metadataUrl;
+            } catch (MalformedURLException mue) {
+                LOG.error("Invalid URL for external ShibbolethClientMetadata: " + metadataUrl, mue);
+                throw new SLCSConfigurationException("ShibbolethClientMetadata url=" + metadataUrl + " parameter is invalid", mue);
+            } catch (SLCSConfigurationException sce) {
+                LOG.error("Failed to download ShibbolethClientMetadata from: " + metadataUrl, sce);
+                throw sce;
+            }
+        }
+        else {
+            LOG.info("inline metadata from: " + getFilename());
+            metadataSource_= getFilename();
 
         }
+        // process metadata
         String name= null;
         String url= null;
         String id= null;
@@ -269,6 +299,14 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
         return idps.elements();
     }
 
+    /**
+     * Returns the SLCS metadata source. e.g. absolute filename or url.
+     * @return The absolute filename or URL used as source for the SLCS metadata.
+     */
+    public String getMetadataSource() {
+        return metadataSource_;
+    }
+    
     /**
      * TEST DRIVE
      * 
