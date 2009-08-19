@@ -5,7 +5,7 @@
 # Copyright (c) 2004-2009. Members of the EGEE Collaboration. 
 # http://www.eu-egee.org
 #
-# $Id: slcs-init,v 1.3 2009/03/09 11:28:55 vtschopp Exp $
+# $Id: slcs-init,v 1.4 2009/08/19 14:19:15 vtschopp Exp $
 # $Name:  $
 #
 #set -x
@@ -25,11 +25,9 @@ fi
 SLCS_CP=$SLCS_HOME/etc/glite-slcs-ui
 
 # glite slcs libs
-for slcs_jar in $SLCS_HOME/share/java/glite-slcs-*.jar ; do
-    SLCS_CP=$SLCS_CP:$slcs_jar
-done
+SLCS_CP=$SLCS_CP:$SLCS_HOME/share/java/glite-slcs-common.jar:$SLCS_HOME/share/java/glite-slcs-ui.jar
+
 # external slcs libs classpath
-# external slcs libs classpathEXTERNAL_CP=
 for ext_jar in $SLCS_HOME/externals/share/java/*.jar ; do
     EXTERNAL_CP=$EXTERNAL_CP:$ext_jar
 done
