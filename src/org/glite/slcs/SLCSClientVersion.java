@@ -13,13 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SLCSClientVersion.java,v 1.27 2009/08/19 14:13:56 vtschopp Exp $
+ * $Id: SLCSClientVersion.java,v 1.28 2009/08/19 14:41:47 vtschopp Exp $
  */
 package org.glite.slcs;
 
+import org.glite.slcs.ui.Version;
+
 public class SLCSClientVersion {
 
-    /** Copyright */
+    /** 
+     * Copyright
+     * @deprecated use {@link Version#getCopyright()}
+     */
     static public final String COPYRIGHT= "Copyright (c) 2008-2009. Members of the EGEE Collaboration";
 
     /**
@@ -29,9 +34,10 @@ public class SLCSClientVersion {
 
     /**
      * @return The version number in format MAJOR.MINOR.REVISION-BUILD
+     * @deprecated use {@link Version#getVersion()}
      */
     static public String getVersion() {
-        return org.glite.slcs.ui.Version.getVersion();
+        return Version.getVersion();
     }
 
 }
