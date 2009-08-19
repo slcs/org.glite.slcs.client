@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SLCSInfo.java,v 1.8 2009/08/19 14:59:50 vtschopp Exp $
+ * $Id: SLCSInfo.java,v 1.9 2009/08/19 15:33:51 vtschopp Exp $
  */
 package org.glite.slcs;
 
@@ -103,9 +103,6 @@ public class SLCSInfo {
         else {
             config= DEFAULT_CONFIGURATION_FILE;
         }
-        if (verbose) {
-            System.out.println("Config: " + config);
-        }
 
         // read SLCS config
         SLCSClientConfiguration configuration= null;
@@ -115,6 +112,10 @@ public class SLCSInfo {
             LOG.debug("load SLCS client configuration...");
             configuration= SLCSClientConfiguration.getInstance(config);
             metadata= new ShibbolethClientMetadata(configuration);
+            if (verbose) {
+                System.out.println("Config: " + configuration.getConfigSource());
+                System.out.println("Metadata: " + metadata.getMetadataSource() );
+            }
         } catch (SLCSConfigurationException e) {
             LOG.fatal("SLCS info error", e);
             System.err.println("ERROR: SLCS info: " + e);
