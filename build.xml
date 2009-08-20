@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.28 2009/08/19 14:36:31 vtschopp Exp $
+    Version: $Id: build.xml,v 1.29 2009/08/20 09:36:24 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -127,7 +127,7 @@
         	<manifest>
                 <section name="org/glite/slcs/ui/">
                     <attribute name="Specification-Version" value="${source.version}"/>
-                    <attribute name="Implementation-Title" value="${packge.name}"/>
+                    <attribute name="Implementation-Title" value="${package.name}"/>
                     <attribute name="Implementation-Version" value="${package.version}"/> 
                     <attribute name="Implementation-Vendor" value="EGEE gLite"/>
                 </section>
