@@ -1,6 +1,10 @@
 
 TODO: add slcs-info option to show cert subject, issuer, and TTL...
-TODO: add slcs-info option to update truststore, metadata, ...
+TODO: add slcs-info option to update truststore, ...
+
+Version 1.4.1
+-------------
+* bug fix: correct cookie handling for IdP 2.X
 
 Version 1.4.0
 -------------
@@ -92,4 +96,4 @@ Version 1.0.0
 * initial version
 
 --
-$Id: CHANGELOG,v 1.30 2009/08/19 15:55:30 vtschopp Exp $
+$Id: CHANGELOG,v 1.31 2009/09/15 15:23:47 vtschopp Exp $
