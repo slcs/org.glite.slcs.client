@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.29 2009/08/20 09:36:24 vtschopp Exp $
+    Version: $Id: build.xml,v 1.30 2009/09/15 12:58:21 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -48,10 +48,7 @@
     
     <!-- install dirs -->
     <property name="install.dir" location="${build.dir}/glite" />
-    
-    <!-- version java file: relative path !!! -->
-    <property name="version.java.file" value="src/org/glite/slcs/SLCSClientVersion.java"/>
-    
+        
     
     <!-- init -->
     <target name="init" depends="">
