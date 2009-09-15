@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: ShibbolethClient.java,v 1.15 2009/07/29 12:38:49 vtschopp Exp $
+ * $Id: ShibbolethClient.java,v 1.16 2009/09/15 12:59:05 vtschopp Exp $
  */
 package org.glite.slcs.shibclient;
 
@@ -33,6 +33,7 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.cookie.CookieSpecBase;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -59,7 +60,7 @@ import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
  * have been warned.</b>
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  */
 public class ShibbolethClient {
 
@@ -493,6 +494,12 @@ public class ShibbolethClient {
             httpClient_.getState().setCredentials(scope, credentials_);
             getIdpSSOMethod.setDoAuthentication(true);
         }
+
+        //XXX cookies problem with 2.1.3
+        //String cookiePolicy= CookiePolicy.NETSCAPE;
+        //LOG.debug("set CookiePolicy: " + cookiePolicy);
+        //httpClient_.getParams().setCookiePolicy(cookiePolicy);
+        //getIdpSSOMethod.getParams().setCookiePolicy(cookiePolicy);
 
         // execute the method
         LOG.info("GET IdpSSOMethod: " + idpSSOURI);
@@ -969,21 +976,23 @@ public class ShibbolethClient {
             Cookie[] cookies = this.httpClient_.getState().getCookies();
             StringBuffer sb = new StringBuffer();
             sb.append("\n");
-            sb.append("CookiePolicy=").append(
-                    httpClient_.getParams().getCookiePolicy()).append("\n");
-            sb.append("---HTTPCLIENT COOKIES BEGIN---").append("\n");
+            sb.append("---[CookiePolicy=").append(
+                    httpClient_.getParams().getCookiePolicy()).append("]---\n");
             for (int i = 0; i < cookies.length; i++) {
-                String path = cookies[i].getPath();
-                String domain = cookies[i].getDomain();
-                boolean secure = cookies[i].getSecure();
+                Cookie cookie= cookies[i];
+                String path = cookie.getPath();
+                String domain = cookie.getDomain();
+                boolean secure = cookie.getSecure();
+                int version= cookie.getVersion();
                 // sb.append(name).append('=').append(value).append("\n");
-                sb.append(i).append(": ").append(cookies[i]);
+                sb.append(i).append(": ").append(cookie);
                 sb.append(" domain:").append(domain);
                 sb.append(" path:").append(path);
                 sb.append(" secure:").append(secure);
+                sb.append(" version:").append(version);
                 sb.append("\n");
             }
-            sb.append("---HTTPCLIENT COOKIES END---");
+            sb.append("---[End]---");
             LOG.debug(sb.toString());
         }
     }
