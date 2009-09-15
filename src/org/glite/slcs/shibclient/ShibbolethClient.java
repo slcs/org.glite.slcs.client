@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: ShibbolethClient.java,v 1.16 2009/09/15 12:59:05 vtschopp Exp $
+ * $Id: ShibbolethClient.java,v 1.17 2009/09/15 15:22:31 vtschopp Exp $
  */
 package org.glite.slcs.shibclient;
 
@@ -60,7 +60,7 @@ import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
  * have been warned.</b>
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.17 $
  */
 public class ShibbolethClient {
 
@@ -227,6 +227,7 @@ public class ShibbolethClient {
         // cookies by hand.
         // Because default CookiePolicy is RFC2109 and doesn't handle
         // correctly FQDN hostname as cookie domain.
+        /*
         String host = getIdPSSOResponseMethod.getURI().getHost();
         String path = getIdPSSOResponseMethod.getURI().getPath();
         Cookie cookies[] = getMatchingCookies(host, path);
@@ -236,6 +237,7 @@ public class ShibbolethClient {
             }
             getIdPSSOResponseMethod.addRequestHeader("Cookie", cookies[j].toString());
         }
+        */
 
         // BUG FIX: check if url have a SAML/Artifact endpoint
         boolean isPossiblyUsingArtifact = false;
@@ -495,12 +497,6 @@ public class ShibbolethClient {
             getIdpSSOMethod.setDoAuthentication(true);
         }
 
-        //XXX cookies problem with 2.1.3
-        //String cookiePolicy= CookiePolicy.NETSCAPE;
-        //LOG.debug("set CookiePolicy: " + cookiePolicy);
-        //httpClient_.getParams().setCookiePolicy(cookiePolicy);
-        //getIdpSSOMethod.getParams().setCookiePolicy(cookiePolicy);
-
         // execute the method
         LOG.info("GET IdpSSOMethod: " + idpSSOURI);
         int idpSSOResponseStatus = executeMethod(getIdpSSOMethod);
@@ -740,6 +736,7 @@ public class ShibbolethClient {
                     // cookies by hand.
                     // Because default CookiePolicy is RFC2109 and doesn't handle
                     // correctly FQDN hostname as cookie domain.
+/*
                     String host = postLoginFormMethod.getURI().getHost();
                     String path = postLoginFormMethod.getURI().getPath();
                     Cookie cookies[] = getMatchingCookies(host, path);
@@ -749,7 +746,7 @@ public class ShibbolethClient {
                         }
                         postLoginFormMethod.addRequestHeader("Cookie", cookies[j].toString());
                     }
-
+*/
                     // execute the login POST
                     LOG.info("POST LoginFormMethod: " + postLoginFormMethod.getURI());
 
