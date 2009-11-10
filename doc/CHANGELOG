@@ -1,10 +1,13 @@
 
 TODO: add slcs-info option to show cert subject, issuer, and TTL...
-TODO: add slcs-info option to update truststore, ...
+
+Version 1.4.2
+-------------
+* bug fix: correct authentication workflow for IdP 2.X using CAS with RemoteUser handler.
 
 Version 1.4.1
 -------------
-* bug fix: correct cookie handling for IdP 2.X
+* bug fix: correct cookie handling for IdP 2.X.
 
 Version 1.4.0
 -------------
@@ -96,4 +99,4 @@ Version 1.0.0
 * initial version
 
 --
-$Id: CHANGELOG,v 1.31 2009/09/15 15:23:47 vtschopp Exp $
+$Id: CHANGELOG,v 1.32 2009/11/10 11:40:24 vtschopp Exp $
