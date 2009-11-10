@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: ShibbolethClient.java,v 1.17 2009/09/15 15:22:31 vtschopp Exp $
+ * $Id: ShibbolethClient.java,v 1.18 2009/11/10 11:35:46 vtschopp Exp $
  */
 package org.glite.slcs.shibclient;
 
@@ -33,7 +33,6 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.cookie.CookieSpecBase;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -60,7 +59,7 @@ import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
  * have been warned.</b>
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.18 $
  */
 public class ShibbolethClient {
 
@@ -729,27 +728,9 @@ public class ShibbolethClient {
                     postLoginFormMethod.addParameter(idp.getAuthFormPassword(),
                             this.credentials_.getPassword());
 
-                    // XXX
-                    //dumpHttpClientCookies();
-
-                    // BUG FIX: set the JSESSIONID and IdP 2.X _idp_authn_lc_key 
-                    // cookies by hand.
-                    // Because default CookiePolicy is RFC2109 and doesn't handle
-                    // correctly FQDN hostname as cookie domain.
-/*
-                    String host = postLoginFormMethod.getURI().getHost();
-                    String path = postLoginFormMethod.getURI().getPath();
-                    Cookie cookies[] = getMatchingCookies(host, path);
-                    for (int j = 0; j < cookies.length; j++) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("setting Cookie: " + cookies[j]);
-                        }
-                        postLoginFormMethod.addRequestHeader("Cookie", cookies[j].toString());
-                    }
-*/
                     // execute the login POST
                     LOG.info("POST LoginFormMethod: " + postLoginFormMethod.getURI());
-
+                    
                     int formLoginResponseStatus = executeMethod(postLoginFormMethod);
                     LOG.debug(postLoginFormMethod.getStatusLine());
 
@@ -765,9 +746,9 @@ public class ShibbolethClient {
                         if (location != null) {
                             String locationURL = location.getValue();
                             LOG.debug("302 Location: " + locationURL);
-                            // XXX: if location path (/cas/login) is not the IdP
-                            // SSO path (/shibboleth-idp/SSO), then it's a wrong
-                            // login
+                            // CAS: if location path (/cas/login) is not the IdP 1.3
+                            // SSO path (/shibboleth-idp/SSO) or the IdP 2.X /Authn/RemoteUser 
+                            // handler, then it's a wrong login
                             URI locationURI = new URI(locationURL, false);
                             String locationPath = locationURI.getPath();
                             String idpSSOURL = idp.getUrl();
@@ -775,11 +756,12 @@ public class ShibbolethClient {
                             String idpSSOPath = idpSSOURI.getPath();
                             if (LOG.isDebugEnabled()) {
                                 LOG.debug("location path: " + locationPath);
+                                LOG.debug("location is the /Authn/RemoteUser hanlder? " + locationPath.endsWith("/Authn/RemoteUser"));
                                 LOG.debug("IdP SSO path: " + idpSSOPath);
                             }
-                            if (!locationPath.equals(idpSSOPath)) {
-                                LOG.error("Redirect response is not the SSO url ("
-                                        + idpSSOURL + "): " + locationURL);
+                            if (!locationPath.equals(idpSSOPath) && !locationPath.endsWith("/Authn/RemoteUser")) {
+                                LOG.error("Redirect response is not the SSO ("
+                                        + idpSSOURL + ") or the /Authn/RemoteUser handler: " + locationURL);
                                 throw new AuthException(idp.getAuthTypeName()
                                         + " Authentication failed: "
                                         + this.credentials_);
