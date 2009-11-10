@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.31 2009/09/16 13:09:07 vtschopp Exp $
+    Version: $Id: build.xml,v 1.32 2009/11/10 12:30:48 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -247,7 +247,7 @@
     <!-- create standalone tar.gz and zip distribution packages -->
     <target name="local-dist" depends="clean,full-package">
         <property name="dist.filename"
-            value="${package.name}-${package.version}-jdk${ant.java.version}" />
+            value="${package.name}-${package.version}-jdk1.5" />
         <tar destfile="${dist.filename}.tar.gz" compression="gzip">
             <tarfileset dir="${install.dir}" mode="755" username="root" group="root">
                 <include name="bin/slcs-*" />
