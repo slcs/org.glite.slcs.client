@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Version: $Id: ShibbolethClientMetadata.java,v 1.6 2009/08/19 14:49:15 vtschopp Exp $
+ * Version: $Id: ShibbolethClientMetadata.java,v 1.7 2009/11/10 10:08:24 vtschopp Exp $
  */
 package org.glite.slcs.shibclient.metadata;
 
@@ -43,7 +43,7 @@ import org.glite.slcs.config.SLCSConfiguration;
  * providers
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 public class ShibbolethClientMetadata extends SLCSConfiguration {
 
@@ -111,8 +111,8 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
     }
 
     /**
-     * 
-     * @return
+     * Parses the <ShibbolethClientMetadata> element and return a map of (id,idpObject)
+     * @return a Map of (idpID,idpObject)
      * @throws SLCSConfigurationException
      */
     private Map<String,Provider> parseProviders() throws SLCSConfigurationException {
