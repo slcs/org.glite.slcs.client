@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Version: $Id: ShibbolethClientMetadata.java,v 1.7 2009/11/10 10:08:24 vtschopp Exp $
+ * Version: $Id: ShibbolethClientMetadata.java,v 1.8 2010/02/09 09:50:00 vtschopp Exp $
  */
 package org.glite.slcs.shibclient.metadata;
 
@@ -43,7 +43,7 @@ import org.glite.slcs.config.SLCSConfiguration;
  * providers
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 public class ShibbolethClientMetadata extends SLCSConfiguration {
 
@@ -136,12 +136,13 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
         		throw e;
         	}
         }
-        // TODO: check for metadata url and download
+        // check for metadata url and download
         else if (metadataUrl != null) {
             // download external metadata file
             try {
                 URL url= new URL(metadataUrl);
                 LOG.info("download metadata from url: " + url);
+                // httpclient is used to download the config
                 metadata = downloadConfiguration(url);
                 metadataSource_= metadataUrl;
             } catch (MalformedURLException mue) {
