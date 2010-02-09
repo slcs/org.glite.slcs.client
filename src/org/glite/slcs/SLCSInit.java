@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SLCSInit.java,v 1.17 2009/08/19 14:59:50 vtschopp Exp $
+ * $Id: SLCSInit.java,v 1.18 2010/02/09 17:06:48 vtschopp Exp $
  */
 package org.glite.slcs;
 
@@ -38,12 +38,9 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
-import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.glite.slcs.config.SLCSClientConfiguration;
-import org.glite.slcs.httpclient.ssl.ExtendedProtocolSocketFactory;
 import org.glite.slcs.jericho.html.Element;
 import org.glite.slcs.jericho.html.Source;
 import org.glite.slcs.pki.Certificate;
@@ -62,15 +59,12 @@ import org.glite.slcs.util.PasswordReader;
  * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.18 $
  */
-public class SLCSInit {
+public class SLCSInit extends SLCSBaseClient {
 
     /** Logging */
-    private static Log LOG = LogFactory.getLog(SLCSInit.class);
-
-    /** Default XML config filename in CLASSPATH */
-    static private String DEFAULT_CONFIGURATION_FILE = "slcs-init.xml";
+    static Log LOG = LogFactory.getLog(SLCSInit.class);
 
     /** Default number of backup file to keep */
     static private int MAX_BACKUP = 3;
@@ -152,7 +146,8 @@ public class SLCSInit {
     }
 
     /**
-     * Creates the HttpClient based on the SLCS client config.
+     * Creates the HttpClient based on the SLCS client config. Also register the
+     * ExtendedProtocolSocketFactory as default SSL socket factory.
      * 
      * @param configuration
      *            SLCS client configuration.
@@ -163,21 +158,9 @@ public class SLCSInit {
     static private HttpClient createHttpClient(
             SLCSClientConfiguration configuration)
             throws SLCSConfigurationException, SLCSException {
-        String truststore = configuration.getString("HttpClient.TrustStoreFile");
-        LOG.info("TrustStoreFile=" + truststore);
-        try {
-            ExtendedProtocolSocketFactory protocolSocketFactory = new ExtendedProtocolSocketFactory(
-                    truststore);
-            Protocol https = new Protocol("https", protocolSocketFactory, 443);
-            Protocol.registerProtocol("https", https);
-        } catch (Exception e) {
-            LOG.error(e);
-            throw new SLCSException(
-                    "Failed to create ExtendedProtocolSocketFactory", e);
-        }
+        registerSSLTrustStore(configuration);
         HttpClient httpClient = new HttpClient();
         setHttpClientUserAgent(httpClient);
-
         return httpClient;
     }
 
@@ -188,150 +171,24 @@ public class SLCSInit {
      */
     private static void setHttpClientUserAgent(HttpClient httpClient) {
         String userAgent = (String) httpClient.getParams().getParameter(
-                HttpClientParams.USER_AGENT);
+                                                                        HttpClientParams.USER_AGENT);
         String newUserAgent = "Mozilla/5.0 (" + userAgent + ") slcs-init/"
                 + Version.getVersion();
         httpClient.getParams().setParameter(HttpClientParams.USER_AGENT,
-                newUserAgent);
+                                            newUserAgent);
         if (LOG.isDebugEnabled()) {
             userAgent = (String) httpClient.getParams().getParameter(
-                    HttpClientParams.USER_AGENT);
+                                                                     HttpClientParams.USER_AGENT);
             LOG.debug("User-Agent=" + userAgent);
         }
-    }
-
-    /**
-     * @param configuration
-     *            SLCS client configuration.
-     * @return
-     * @throws SLCSConfigurationException
-     */
-    static private String getDefaultStoreDirectory(
-            SLCSClientConfiguration configuration)
-            throws SLCSConfigurationException {
-        String storeDirectory = configuration.getString("StoreDirectory");
-        LOG.debug("StoreDirectory=" + storeDirectory);
-        // check java properties variable and expand
-        int start = storeDirectory.indexOf("${");
-        if (0 <= start) {
-            int stop = storeDirectory.indexOf("}");
-            if (start <= stop) {
-                String propertyName = storeDirectory.substring(start + 2, stop);
-                String propertyValue = System.getProperty(propertyName);
-                if (propertyValue != null) {
-                    LOG.debug("replace ${" + propertyName + "} with: "
-                            + propertyValue);
-                    // Windows uses backslash, must be escaped !!!
-                    propertyValue = StringUtils.replace(propertyValue, "\\",
-                            "/", -1);
-                    String replace = "${" + propertyName + "}";
-                    storeDirectory = StringUtils.replace(storeDirectory,
-                            replace, propertyValue, -1);
-                }
-                else {
-                    LOG.error("StoreDirectory contains invalid ${"
-                            + propertyName + "} java property");
-                    throw new SLCSConfigurationException(
-                            "StoreDirectory contains invalid ${" + propertyName
-                                    + "} java property");
-                }
-            }
-            else {
-                // ERROR
-                LOG.error("StoreDirectory contains invalid ${...} java property");
-                throw new SLCSConfigurationException(
-                        "StoreDirectory contains invalid ${...} java property");
-            }
-        }
-        // get absolute pathname
-        File directory = new File(storeDirectory);
-        storeDirectory = directory.getAbsolutePath();
-        LOG.info("StoreDirectory=" + storeDirectory);
-        return storeDirectory;
-    }
-
-    /**
-     * Returns the default UserCertFile from the config.
-     * 
-     * @param configuration
-     *            the XML config obj.
-     * @return The usercert filename.
-     * @throws SLCSConfigurationException
-     */
-    static private String getDefaultUserCertFile(
-            SLCSClientConfiguration configuration)
-            throws SLCSConfigurationException {
-        String userCertFile = configuration.getString("UserCertFile");
-        LOG.info("UserCertFile=" + userCertFile);
-        return userCertFile;
-    }
-
-    /**
-     * Returns the default UserKeyFile from the config.
-     * 
-     * @param configuration
-     *            the XML config obj.
-     * @return The userkey filename.
-     * @throws SLCSConfigurationException
-     */
-    static private String getDefaultUserKeyFile(
-            SLCSClientConfiguration configuration)
-            throws SLCSConfigurationException {
-        String userKeyFile = configuration.getString("UserKeyFile");
-        LOG.info("UserKeyFile=" + userKeyFile);
-        return userKeyFile;
-    }
-
-    static private String getDefaultUserPKCS12File(
-            SLCSClientConfiguration configuration)
-            throws SLCSConfigurationException {
-        String userPKCS12File = configuration.getString("UserPKCS12File");
-        LOG.info("UserPKCS12File=" + userPKCS12File);
-        return userPKCS12File;
-    }
-
-    /**
-     * Returns the default private KeySize from the config.
-     * 
-     * @param configuration
-     *            the XML config obj.
-     * @return the key size (bits).
-     * @throws SLCSConfigurationException
-     */
-    static private int getDefaultUserKeySize(
-            SLCSClientConfiguration configuration)
-            throws SLCSConfigurationException {
-        int keySize = configuration.getInt("UserKeySize");
-        // check valid key size
-        if (!validKeySize(keySize)) {
-            LOG.error("Invalid UserKeySize: " + keySize);
-            throw new SLCSConfigurationException("Invalid UserKeySize: "
-                    + keySize);
-        }
-        LOG.info("KeySize=" + keySize);
-        return keySize;
-    }
-
-    /**
-     * Checks that the size is 512, 1024 or 2048
-     * 
-     * @param size
-     *            the key size
-     * @return <code>true</code> if the size valid.
-     */
-    static private boolean validKeySize(int size) {
-        boolean valid = false;
-        if (size == 1024 || size == 2048 || size == 512) {
-            valid = true;
-        }
-        return valid;
     }
 
     /**
      * @param args
      */
     public static void main(String[] args) {
-        LOG.info("Version: ui " + Version.getVersion() + ", common " + org.glite.slcs.common.Version.getVersion());
+        LOG.info("Version: ui " + Version.getVersion() + ", common "
+                + org.glite.slcs.common.Version.getVersion());
 
         // parse command line
         CommandLineParser parser = new PosixParser();
@@ -349,7 +206,8 @@ public class SLCSInit {
         if (error || cmd.hasOption('h')) {
             System.out.println("slcs-init: " + SLCSInit.class.getName() + " - "
                     + Version.getCopyright());
-            System.out.println("Version: ui " + Version.getVersion() + ", common " + org.glite.slcs.common.Version.getVersion());
+            System.out.println("Version: ui " + Version.getVersion()
+                    + ", common " + org.glite.slcs.common.Version.getVersion());
             HelpFormatter help = new HelpFormatter();
             help.printHelp("slcs-init --idp <providerId> [options]", options);
             System.exit(1);
@@ -359,7 +217,8 @@ public class SLCSInit {
         if (cmd.hasOption('V')) {
             System.out.println("slcs-init: " + SLCSInit.class.getName() + " - "
                     + Version.getCopyright());
-            System.out.println("Version: ui " + Version.getVersion() + ", common " + org.glite.slcs.common.Version.getVersion());
+            System.out.println("Version: ui " + Version.getVersion()
+                    + ", common " + org.glite.slcs.common.Version.getVersion());
             System.exit(0);
         }
 
@@ -367,7 +226,8 @@ public class SLCSInit {
         boolean verbose = false;
         if (cmd.hasOption('v')) {
             verbose = true;
-            System.out.println("Version: ui " + Version.getVersion() + ", common " + org.glite.slcs.common.Version.getVersion());
+            System.out.println("Version: ui " + Version.getVersion()
+                    + ", common " + org.glite.slcs.common.Version.getVersion());
         }
 
         // config
@@ -463,7 +323,7 @@ public class SLCSInit {
             // read from console
             try {
                 password = PasswordReader.getPassword(System.in,
-                        "Shibboleth Password: ");
+                                                      "Shibboleth Password: ");
             } catch (IOException e) {
                 // ignored?
                 LOG.error(e);
@@ -486,7 +346,7 @@ public class SLCSInit {
             // read from console
             try {
                 keyPassword = PasswordReader.getPassword(System.in,
-                        "New Key Password: ");
+                                                         "New Key Password: ");
             } catch (IOException e) {
                 // ignored?
                 LOG.error(e);
@@ -576,8 +436,8 @@ public class SLCSInit {
             client.generateCertificateRequest();
         } catch (GeneralSecurityException e) {
             LOG.fatal(
-                    "SLCSClient failed to generate key and certificate request",
-                    e);
+                      "SLCSClient failed to generate key and certificate request",
+                      e);
             System.err.println("ERROR: " + e);
             System.exit(1);
         }
@@ -632,12 +492,13 @@ public class SLCSInit {
     }
 
     /**
-     * @return The absolute filename or URL used as source for the SLCS metadata.
+     * @return The absolute filename or URL used as source for the SLCS
+     *         metadata.
      */
     private String getMetadataSource() {
         return this.shibMetadata_.getMetadataSource();
     }
-    
+
     /**
      * Login with Shibboleth
      * 
@@ -691,9 +552,10 @@ public class SLCSInit {
         PostMethod postCertificateRequestMethod = new PostMethod(
                 certificateRequestUrl_);
         postCertificateRequestMethod.addParameter("AuthorizationToken",
-                authorizationToken_);
-        postCertificateRequestMethod.addParameter("CertificateSigningRequest",
-                certificateRequest_.getPEMEncoded());
+                                                  authorizationToken_);
+        postCertificateRequestMethod.addParameter(
+                                                  "CertificateSigningRequest",
+                                                  certificateRequest_.getPEMEncoded());
         try {
             LOG.info("POST CSR: " + certificateRequestUrl_);
             int status = shibClient_.executeMethod(postCertificateRequestMethod);
@@ -779,7 +641,7 @@ public class SLCSInit {
         // get the certificate request URL
         pos = tokenElement.getEnd();
         Element certificateRequestElement = source.findNextElement(pos,
-                "CertificateRequest");
+                                                                   "CertificateRequest");
         if (certificateRequestElement == null
                 || certificateRequestElement.isEmpty()) {
             LOG.error("CertificateRequest element not found");
@@ -815,14 +677,15 @@ public class SLCSInit {
         pos = subjectElement.getEnd();
         Element extensionElement = null;
         while ((extensionElement = source.findNextElement(pos,
-                "certificateextension")) != null) {
+                                                          "certificateextension")) != null) {
             pos = extensionElement.getEnd();
             String extensionName = extensionElement.getAttributeValue("name");
             String extensionValues = extensionElement.getContent().toString();
             LOG.info("CertificateRequest.CertificateExtension: "
                     + extensionName + "=" + extensionValues);
             CertificateExtension extension = CertificateExtensionFactory.createCertificateExtension(
-                    extensionName, extensionValues);
+                                                                                                    extensionName,
+                                                                                                    extensionValues);
             if (extension != null) {
                 certificateExtensions_.add(extension);
             }

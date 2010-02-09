@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SLCSInfo.java,v 1.9 2009/08/19 15:33:51 vtschopp Exp $
+ * $Id: SLCSInfo.java,v 1.10 2010/02/09 17:06:48 vtschopp Exp $
  */
 package org.glite.slcs;
 
@@ -22,12 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-
-import org.glite.slcs.config.SLCSClientConfiguration;
-import org.glite.slcs.shibclient.metadata.IdentityProvider;
-import org.glite.slcs.shibclient.metadata.ServiceProvider;
-import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
-import org.glite.slcs.ui.Version;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -38,14 +32,16 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.glite.slcs.config.SLCSClientConfiguration;
+import org.glite.slcs.shibclient.metadata.IdentityProvider;
+import org.glite.slcs.shibclient.metadata.ServiceProvider;
+import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
+import org.glite.slcs.ui.Version;
 
-public class SLCSInfo {
+public class SLCSInfo extends SLCSBaseClient {
 
     /** Logging */
     private static Log LOG= LogFactory.getLog(SLCSInfo.class);
-
-    /** Default XML config filename in CLASSPATH */
-    static private String DEFAULT_CONFIGURATION_FILE= "slcs-init.xml";
 
     /**
      * @param args
@@ -111,12 +107,14 @@ public class SLCSInfo {
         try {
             LOG.debug("load SLCS client configuration...");
             configuration= SLCSClientConfiguration.getInstance(config);
+            // install truststore for QuoVadis certs
+            registerSSLTrustStore(configuration);
             metadata= new ShibbolethClientMetadata(configuration);
             if (verbose) {
                 System.out.println("Config: " + configuration.getConfigSource());
                 System.out.println("Metadata: " + metadata.getMetadataSource() );
             }
-        } catch (SLCSConfigurationException e) {
+        } catch (SLCSException e) {
             LOG.fatal("SLCS info error", e);
             System.err.println("ERROR: SLCS info: " + e);
             System.exit(1);
@@ -136,6 +134,7 @@ public class SLCSInfo {
         }
         
     }
+
 
     /**
      * Creates the CLI options.
