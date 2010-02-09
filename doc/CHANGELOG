@@ -1,6 +1,11 @@
 
 TODO: add slcs-info option to show cert subject, issuer, and TTL...
 
+Version 1.4.3
+-------------
+* bug fix: use internal SSL truststore to download the metadata from https url. Some JVM doesn't
+  include QuoVadis root CA in the default cacerts file.
+
 Version 1.4.2
 -------------
 * bug fix: correct authentication workflow for IdP 2.X using CAS with RemoteUser handler.
@@ -99,4 +104,4 @@ Version 1.0.0
 * initial version
 
 --
-$Id: CHANGELOG,v 1.32 2009/11/10 11:40:24 vtschopp Exp $
+$Id: CHANGELOG,v 1.33 2010/02/09 17:05:39 vtschopp Exp $
