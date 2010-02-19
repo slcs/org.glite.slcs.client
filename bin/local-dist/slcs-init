@@ -5,14 +5,25 @@
 # Copyright (c) 2004-2009. Members of the EGEE Collaboration. 
 # http://www.eu-egee.org
 #
-# $Id: slcs-init,v 1.4 2009/08/19 14:19:15 vtschopp Exp $
+# $Id: slcs-init,v 1.5 2010/02/19 13:14:21 vtschopp Exp $
 # $Name:  $
 #
 #set -x
 
-# dertermine current directory
-BINDIR=`dirname $0`
-SLCS_HOME=`cd $BINDIR/..; pwd`
+# dertermine SLCS_HOME
+# resolve links - $0 may be a softlink
+PRG="$0"
+while [ -h "$PRG" ]; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG=`dirname "$PRG"`/"$link"
+    fi
+done
+PRGDIR=`dirname "$PRG"`
+SLCS_HOME="$(cd "$PRGDIR/.." && pwd)"
 
 # source java conf
 if [ -z $JAVA_HOME ]; then
