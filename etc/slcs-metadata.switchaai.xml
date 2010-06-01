@@ -2,7 +2,7 @@
 <!-- 
 SLCS Shibboleth Metadata
 
-$Id: slcs-metadata.switchaai.xml,v 1.18 2010/03/30 12:33:11 vtschopp Exp $
+$Id: slcs-metadata.switchaai.xml,v 1.19 2010/06/01 13:21:08 vtschopp Exp $
 $Name:  $
 
 Copyright (c) 2008-2009. Members of the EGEE Collaboration. 
@@ -185,10 +185,10 @@ http://www.eu-egee.org/
         <!-- Universita della Svizzera Italiana -->
         <IdentityProvider id="unisi.ch">
             <name>Universita della Svizzera Italiana</name>
-            <url>https://login.unisi.ch/shibboleth-idp/SSO</url>
+            <url>https://login2.usi.ch/idp/profile/Shibboleth/SSO</url>
             <authentication type="CAS">
-                <url>https://login.unisi.ch/cas/login</url>
-                <form name="login_form">
+                <url>https://login2.usi.ch/cas/login</url>
+                <form name="fm1">
                     <username>username</username>
                     <password>password</password>
                 </form>
