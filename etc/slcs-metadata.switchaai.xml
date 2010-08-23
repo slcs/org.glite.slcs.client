@@ -2,7 +2,7 @@
 <!-- 
 SLCS Shibboleth Metadata
 
-$Id: slcs-metadata.switchaai.xml,v 1.22 2010/08/18 14:31:34 vtschopp Exp $
+$Id: slcs-metadata.switchaai.xml,v 1.23 2010/08/23 07:36:57 vtschopp Exp $
 $Name:  $
 
 Copyright (c) 2008-2009. Members of the EGEE Collaboration. 
@@ -90,15 +90,15 @@ http://www.eu-egee.org/
             </authentication>
         </IdentityProvider>
 
-       <!-- Universitaet Basel -->
+        <!-- Universitaet Basel -->
         <IdentityProvider id="unibas.ch">
             <name>Universitaet Basel</name>
-            <url>https://aai-idp.unibas.ch/shibboleth-idp/SSO</url>
-            <authentication type="CAS">
-                <url>https://aai-idp.unibas.ch/cas/login</url>
-                <form name="login_form">
-                    <username>username</username>
-                    <password>password</password>
+            <url>https://aai-logon.unibas.ch/idp/profile/Shibboleth/SSO</url>
+            <authentication type="FORM">
+                <url>https://aai-logon.unibas.ch/idp/Authn/UserPassword</url>
+                <form name="j_loginform">
+                    <username>j_username</username>
+                    <password>j_password</password>
                 </form>
             </authentication>
         </IdentityProvider>
