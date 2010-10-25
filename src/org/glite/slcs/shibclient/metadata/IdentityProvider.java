@@ -1,5 +1,5 @@
 /*
- * $Id: IdentityProvider.java,v 1.2 2009/01/07 09:28:21 vtschopp Exp $
+ * $Id: IdentityProvider.java,v 1.3 2010/10/25 09:10:02 vtschopp Exp $
  * 
  * Created on Jul 6, 2006 by tschopp
  *
@@ -13,7 +13,7 @@ package org.glite.slcs.shibclient.metadata;
  * IdentityProvider is a Shibboleth IdP description
  *
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 public class IdentityProvider extends Provider {
 
@@ -27,6 +27,9 @@ public class IdentityProvider extends Provider {
     
     public static final int SSO_AUTHTYPE_FORM= 5;
 
+    // Shib entity ID
+    private String entityID_;
+    
     private int authType_;
 
     private String authUrl_;
@@ -54,7 +57,17 @@ public class IdentityProvider extends Provider {
         this.authUrl_= authUrl;
         this.authType_= authType;
     }
+    
+    public void setEntityID(String entityID) {
+        this.entityID_= entityID;
+    }
 
+    /**
+     * @return <code>null</code> if the IdP doesn't support SAML2
+     */
+    public String getEntityID() {
+        return entityID_;
+    }
     static protected int getAuthType(String name) {
         if (name.equalsIgnoreCase("basic")) {
             return SSO_AUTHTYPE_BASIC;
@@ -174,7 +187,11 @@ public class IdentityProvider extends Provider {
     }
 
     protected StringBuffer toStringBuffer() {
-        StringBuffer sb= super.toStringBuffer();
+        StringBuffer sb= new StringBuffer();
+        if (entityID_!=null) {
+            sb.append('(').append(entityID_).append(')');
+        }
+        sb.append(super.toStringBuffer());
         sb.append(",[");
         sb.append(this.authType_).append(",");
         sb.append(this.authUrl_);

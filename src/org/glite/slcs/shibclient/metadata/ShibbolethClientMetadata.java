@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Version: $Id: ShibbolethClientMetadata.java,v 1.8 2010/02/09 09:50:00 vtschopp Exp $
+ * Version: $Id: ShibbolethClientMetadata.java,v 1.9 2010/10/25 09:10:02 vtschopp Exp $
  */
 package org.glite.slcs.shibclient.metadata;
 
@@ -43,7 +43,7 @@ import org.glite.slcs.config.SLCSConfiguration;
  * providers
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class ShibbolethClientMetadata extends SLCSConfiguration {
 
@@ -207,6 +207,11 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
                                                        url,
                                                        authTypeName,
                                                        authUrl);
+            // optional entityID for SAML2 support
+            String entityID= config.getString("[@entityID]");
+            if (entityID!=null) {
+                idp.setEntityID(entityID);
+            }
             if (idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_CAS
                     || idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_PUBCOOKIE
                     || idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_FORM) {
