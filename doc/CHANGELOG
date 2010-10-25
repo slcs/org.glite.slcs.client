@@ -1,5 +1,14 @@
 
 TODO: add slcs-info option to show cert subject, issuer, and TTL...
+      add <Version/> element in metadata
+
+Version 1.5.0
+-------------
+* Added support for SAML2 discovery service (SAMLDS).
+* Added support for SAML2 direct redirection to the IdP.
+* SLCS metadata extended to include the SAML2 IdP entityID if required.
+* bug fix: correct authentication workflow when the SP redirect directly to the IdP SSO url, 
+  without using a WAYF or DS.
 
 Version 1.4.3
 -------------
@@ -104,4 +113,4 @@ Version 1.0.0
 * initial version
 
 --
-$Id: CHANGELOG,v 1.33 2010/02/09 17:05:39 vtschopp Exp $
+$Id: CHANGELOG,v 1.34 2010/10/25 08:24:33 vtschopp Exp $
