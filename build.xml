@@ -19,7 +19,7 @@
     ETICS build for org.glite.slcs.ui
 
     Author: Valery Tschopp <tschopp@switch.ch>
-    Version: $Id: build.xml,v 1.32 2009/11/10 12:30:48 vtschopp Exp $
+    Version: $Id: build.xml,v 1.33 2010/10/25 09:12:35 vtschopp Exp $
 -->
 <project name="org.glite.slcs.ui" default="local-dist" basedir=".">
 
@@ -97,7 +97,8 @@
         <!-- Compile the java code from ${src} into ${build} -->
         <javac srcdir="${src.dir}" 
                destdir="${classes.dir}"
-               debug="true" source="1.5" target="1.5" >
+               debug="true" source="1.5" target="1.5"
+               includeantruntime="false" >
             <classpath refid="compile.path" />
         </javac>
     </target>
