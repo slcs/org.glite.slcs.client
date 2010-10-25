@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: ShibbolethClient.java,v 1.18 2009/11/10 11:35:46 vtschopp Exp $
+ * $Id: ShibbolethClient.java,v 1.19 2010/10/25 09:11:56 vtschopp Exp $
  */
 package org.glite.slcs.shibclient;
 
@@ -21,6 +21,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +32,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.auth.AuthScope;
@@ -59,7 +62,7 @@ import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
  * have been warned.</b>
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.19 $
  */
 public class ShibbolethClient {
 
@@ -149,36 +152,25 @@ public class ShibbolethClient {
         }
         LOG.info(spEntryURL + " IdP=" + idp.getUrl() + " AuthType="
                 + idp.getAuthTypeName());
-        String idpURL = idp.getUrl();
-        LOG.debug("idpURL=" + idpURL);
-        // LOG.debug("wayfURL=" + wayfURL);
         try {
             URI idpSSOResponseURI = null;
 
-            // 1. get the first redirection or already authenticated
-            URI spLoginResponseURI = processSPEntry(spEntryURL);
+            // 1. get the first redirection, or the SAML2 DS response, or the
+            // same
+            // (already authN)
+            URI spLoginResponseURI = processSPEntry(spEntryURL, idp);
             // either wayf or idp or same (already authenticated)
             String spLoginResponseURL = spLoginResponseURI.getEscapedURI();
             LOG.debug("spLoginResponseURL=" + spLoginResponseURL);
-            // check if already authenticated
+            // check if already authenticated (multiple call to authenticate)
             if (spLoginResponseURL.startsWith(spEntryURL)) {
                 LOG.info("Already authenticated? " + isAuthenticated_ + ": "
                         + spLoginResponseURL);
                 return this.isAuthenticated_;
             }
-            // checks if URL contains the shire= parameter (WAYF of IdP)
-            if (spLoginResponseURL.indexOf("shire=") == -1
-                    && spLoginResponseURL.indexOf("shire%3D") == -1) {
-                LOG.error("Unexpected spLoginResponseURL=" + spLoginResponseURL);
-                throw new ServiceException(
-                        "SP response URL doesn't contain the 'shire=' parameter: "
-                                + spLoginResponseURL);
-            }
-            else {
-                LOG.debug("IdP SSO: " + idpURL);
-                // 2. process the IdP SSO login
-                idpSSOResponseURI = processIdPSSO(idp, spLoginResponseURI);
-            }
+
+            // 2. process the IdP SSO login
+            idpSSOResponseURI = processIdPSSO(idp, spLoginResponseURI);
 
             // 3. process the IdP SSO response -> Artifact or Browser/POST
             // profile
@@ -221,22 +213,19 @@ public class ShibbolethClient {
 
         String idpSSOResponseURL = idpSSOResponseURI.getURI();
         GetMethod getIdPSSOResponseMethod = new GetMethod(idpSSOResponseURL);
-        
-        // BUG FIX: set the JSESSIONID and IdP 2.X _idp_session 
+
+        // BUG FIX: set the JSESSIONID and IdP 2.X _idp_session
         // cookies by hand.
         // Because default CookiePolicy is RFC2109 and doesn't handle
         // correctly FQDN hostname as cookie domain.
         /*
-        String host = getIdPSSOResponseMethod.getURI().getHost();
-        String path = getIdPSSOResponseMethod.getURI().getPath();
-        Cookie cookies[] = getMatchingCookies(host, path);
-        for (int j = 0; j < cookies.length; j++) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("setting Cookie: " + cookies[j]);
-            }
-            getIdPSSOResponseMethod.addRequestHeader("Cookie", cookies[j].toString());
-        }
-        */
+         * String host = getIdPSSOResponseMethod.getURI().getHost(); String path
+         * = getIdPSSOResponseMethod.getURI().getPath(); Cookie cookies[] =
+         * getMatchingCookies(host, path); for (int j = 0; j < cookies.length;
+         * j++) { if (LOG.isDebugEnabled()) { LOG.debug("setting Cookie: " +
+         * cookies[j]); } getIdPSSOResponseMethod.addRequestHeader("Cookie",
+         * cookies[j].toString()); }
+         */
 
         // BUG FIX: check if url have a SAML/Artifact endpoint
         boolean isPossiblyUsingArtifact = false;
@@ -265,7 +254,8 @@ public class ShibbolethClient {
         else {
             // try to parse the Browser/POST profile in the HTML source
             InputStream htmlStream = getIdPSSOResponseMethod.getResponseBodyAsStream();
-            idpResponseURI = processIdPBrowserPOST(idp, idpSSOResponseURI, htmlStream);
+            idpResponseURI = processIdPBrowserPOST(idp, idpSSOResponseURI,
+                                                   htmlStream);
         }
 
         LOG.debug("getIdPSSOResponseMethod.releaseConnection()");
@@ -348,7 +338,7 @@ public class ShibbolethClient {
                                 LOG.debug("HIDDEN " + name + "=" + value);
                                 // add all hidden fields
                                 postSPSAMLMethod.addParameter(name,
-                                        (String) value);
+                                                              (String) value);
                             }
                         }
                     }
@@ -411,32 +401,153 @@ public class ShibbolethClient {
 
     /**
      * Gets the Shibboleth session needed afterward.
+     * <p>
+     * Supports Shib1 (SAML1) WAFY and direct redirection to IdP, SAML2 direct
+     * redirection to IdP, and SAML2 DS
      * 
      * @param entryURL
+     * @param idp
      * @return
      * @throws URIException
      * @throws HttpException
      * @throws IOException
      * @throws RemoteException
      */
-    private URI processSPEntry(String entryURL) throws URIException,
-            HttpException, IOException, RemoteException {
+    private URI processSPEntry(String entryURL, IdentityProvider idp)
+            throws URIException, HttpException, IOException, RemoteException,
+            ServiceException {
         GetMethod getSPEntryMethod = new GetMethod(entryURL);
         LOG.info("GET SPEntryMethod: " + getSPEntryMethod.getURI());
+        // get only the first redirect, if any
+        getSPEntryMethod.setFollowRedirects(false);
+
         int spEntryStatus = executeMethod(getSPEntryMethod);
-        LOG.debug(getSPEntryMethod.getStatusLine());
+        String spEntryStatusLine = getSPEntryMethod.getStatusLine().toString();
+        LOG.debug("spEntryStatusLine=" + spEntryStatusLine);
 
         URI loginResponseURI = getSPEntryMethod.getURI();
+        LOG.debug("loginResponseURI=" + loginResponseURI);
+        if (spEntryStatus == 302) {
+            Header locationHeader = getSPEntryMethod.getResponseHeader("Location");
+            String location = locationHeader.getValue();
+            LOG.debug("Redirect location=" + location);
+            loginResponseURI = new URI(location, true);
+        }
 
         LOG.trace("getSPEntryMethod.releaseConnection()");
         getSPEntryMethod.releaseConnection();
 
-        // check response status
-        if (spEntryStatus != 200) {
-            throw new RemoteException("Unexpected SP response status:"
-                    + spEntryStatus + " " + entryURL);
+        String loginResponseURL = loginResponseURI.getEscapedURI();
+        LOG.debug("loginResponseURL=" + loginResponseURL);
+
+        if (spEntryStatus == 200 && loginResponseURL.startsWith(entryURL)) {
+            LOG.debug("SP entry response is the same, already authenticated?");
+            return loginResponseURI;
         }
-        return loginResponseURI;
+        if (spEntryStatus != 302) {
+            throw new RemoteException("Unexpected SP response: "
+                    + spEntryStatusLine + " " + loginResponseURI + " for "
+                    + entryURL);
+        }
+        // checks if URL is Shib1 (SAML1) 'shire=' and 'target=' params (also
+        // WAYF)
+        if (loginResponseURL.indexOf("shire=") != -1
+                && loginResponseURL.indexOf("target=") != -1) {
+            LOG.debug("loginResponseURL is Shib1 (SAML1, WAYF)");
+            return loginResponseURI;
+
+        }
+        // checks if URL is SAML2 'SAMLRequest=' (direct redirection to IdP)
+        // params
+        else if (loginResponseURL.indexOf("SAMLRequest=") != -1) {
+            LOG.debug("loginResponseURL is SAML2 redirection to IdP");
+            return loginResponseURI;
+        }
+        // checks if URL is SAML2 'entityID=' and 'return=' (SAMLDS)
+        else if (loginResponseURL.indexOf("entityID=") != -1
+                && loginResponseURL.indexOf("return=") != -1) {
+            LOG.debug("loginResponseURL is SAML2 DiscoveryService");
+            // redirect to return url with entityID of the IdP
+            loginResponseURI = processSPSAML2DS(loginResponseURI, idp);
+            return loginResponseURI;
+        }
+        else {
+            String error = "SP response URL is not Shib1, nor SAML2 protocol: "
+                    + loginResponseURL;
+            LOG.error(error);
+            throw new RemoteException(error);
+        }
+
+    }
+
+    /**
+     * Redirect to SP SAMLDS return url with entityID of the IdP
+     * 
+     * @param spResponseURI
+     * @param idp
+     * @return
+     * @throws NullPointerException
+     * @throws ServiceException
+     * @throws IOException
+     * @throws HttpException
+     * @throws RemoteException
+     */
+    private URI processSPSAML2DS(URI spResponseURI, IdentityProvider idp)
+            throws NullPointerException, ServiceException, HttpException,
+            IOException, RemoteException {
+        String entityID = idp.getEntityID();
+        if (entityID == null) {
+            String error = "IdentityProvider " + idp.getId()
+                    + " doesn't have a SAML2 entityID";
+            LOG.error(error);
+            throw new ServiceException(error);
+        }
+        String returnURL = null;
+        String query = spResponseURI.getEscapedQuery();
+        LOG.debug("SAMLDS query: " + query);
+        for (String param : query.split("&")) {
+            if (param.startsWith("return=")) {
+                returnURL = param.substring("return=".length());
+                try {
+                    returnURL = URLDecoder.decode(returnURL, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    // ignored, not possible
+                }
+            }
+        }
+        if (returnURL == null) {
+            throw new ServiceException("SAML2 DS return URL not found in "
+                    + spResponseURI);
+        }
+
+        // add the IdP SAML2 entityID param
+        returnURL += "&entityID=" + entityID;
+        LOG.debug("return URL to SAMLDS: " + returnURL);
+
+        GetMethod getSPSAML2DSMethod = new GetMethod(returnURL);
+        getSPSAML2DSMethod.setFollowRedirects(false);
+        int spSAML2DSStatus = executeMethod(getSPSAML2DSMethod);
+        String spSAML2DSStatusLine = getSPSAML2DSMethod.getStatusLine().toString();
+        LOG.debug("spSAML2DSStatusLine=" + spSAML2DSStatusLine);
+        URI saml2DSResponseURI = getSPSAML2DSMethod.getURI();
+        if (spSAML2DSStatus == 302) {
+            Header locationHeader = getSPSAML2DSMethod.getResponseHeader("Location");
+            String location = locationHeader.getValue();
+            LOG.debug("Redirect location=" + location);
+            saml2DSResponseURI = new URI(location, true);
+        }
+
+        LOG.trace("getSPSAML2DSMethod.releaseConnection()");
+        getSPSAML2DSMethod.releaseConnection();
+
+        if (spSAML2DSStatus != 302) {
+            throw new RemoteException("Unexpected SAML2 DS response: "
+                    + spSAML2DSStatusLine + " (" + saml2DSResponseURI
+                    + ") for " + returnURL);
+        }
+
+        return saml2DSResponseURI;
+
     }
 
     /**
@@ -454,32 +565,40 @@ public class ShibbolethClient {
             RemoteException, ServiceException {
         String idpSSOURL = idp.getUrl();
         LOG.debug("IdP SSO URL: " + idpSSOURL);
-
+        String spResponseURL = spResponseURI.getEscapedURI();
+        LOG.debug("spResponseURL=" + spResponseURL);
+        // check if the spResponseURL is not already the IdP SSO url
+        if (spResponseURL.startsWith(idpSSOURL)) {
+            idpSSOURL = spResponseURL;
+        }
+        else {
+            // if not, build it
+            // BUG FIX: Shib SP 2.0 send the ?service=... in the query
+            String query = spResponseURI.getEscapedQuery();
+            LOG.debug("IdP SSO Query: " + query);
+            if (query != null) {
+                if (query.startsWith("service=")) {
+                    int i = query.indexOf("shire");
+                    if (i > 0) {
+                        query = query.substring(i);
+                        LOG.debug("IdP SSO Query contains the 'service=...' part, cutting up to 'shire=': "
+                                + query);
+                    }
+                    else {
+                        LOG.error("IdP SSO Query contains the 'service=' parameter, but not the 'shire=' parameter: "
+                                + query);
+                        throw new RemoteException(
+                                "IdP SSO Query contains the 'service=' parameter, but not the 'shire=' parameter: "
+                                        + query);
+                    }
+                }
+                // getIdpSSOMethod.setQueryString(query);
+                idpSSOURL += "?" + query;
+            }
+            LOG.debug("IdP SSO URL (with query): " + idpSSOURL);
+        }
         // create HttpMethod
         GetMethod getIdpSSOMethod = new GetMethod(idpSSOURL);
-
-        // BUG FIX: Shib SP 2.0 send the ?service=... in the query
-        String query = spResponseURI.getQuery();
-        LOG.debug("IdP SSO Query: " + query);
-        if (query != null) {
-            if (query.startsWith("service=")) {
-                int i = query.indexOf("shire");
-                if (i > 0) {
-                    query = query.substring(i);
-                    LOG.debug("IdP SSO Query contains the 'service=...' part, cutting up to 'shire=': "
-                            + query);
-                }
-                else {
-                    LOG.error("IdP SSO Query contains the 'service=' parameter, but not the 'shire=' parameter: "
-                            + query);
-                    throw new RemoteException(
-                            "IdP SSO Query contains the 'service=' parameter, but not the 'shire=' parameter: "
-                                    + query);
-                }
-            }
-            getIdpSSOMethod.setQueryString(query);
-            idpSSOURL += "?" + query;
-        }
 
         URI idpSSOURI = getIdpSSOMethod.getURI();
         // set credential for basic or ntlm
@@ -545,14 +664,16 @@ public class ShibbolethClient {
         }
         // CAS sends 200 + Cookies and the login form directly
         else if (idpSSOResponseStatus == 200
-                && (idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_CAS 
-                		|| idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_FORM)) {
+                && (idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_CAS || idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_FORM)) {
             LOG.debug("Process " + idp.getAuthTypeName() + " login form...");
             // process CAS login form
             InputStream idpLoginForm = getIdpSSOMethod.getResponseBodyAsStream();
             LOG.debug("idpSSOURI Query=" + idpSSOURI.getQuery());
-            idpSSOResponseURI = processIdPLoginForm(idp, idpSSOResponseURI, idpSSOURI.getQuery(), idpLoginForm);
-            LOG.debug(idp.getAuthTypeName() + " idpSSOResponseURI=" + idpSSOResponseURI);
+            idpSSOResponseURI = processIdPLoginForm(idp, idpSSOResponseURI,
+                                                    idpSSOURI.getQuery(),
+                                                    idpLoginForm);
+            LOG.debug(idp.getAuthTypeName() + " idpSSOResponseURI="
+                    + idpSSOResponseURI);
         }
         // FIXME: ETHZ use a new PubCookie
         // PUBCOOKIE sends 200 + onload form with hidden fields to post
@@ -561,7 +682,7 @@ public class ShibbolethClient {
 
             // parse <form> and extract hidden fields, then post
             PostMethod postPubcookieFormMethod = null;
-            InputStream pubcookieFormStream= getIdpSSOMethod.getResponseBodyAsStream();
+            InputStream pubcookieFormStream = getIdpSSOMethod.getResponseBodyAsStream();
             Source source = new Source(pubcookieFormStream);
             List<Element> forms = source.findAllElements(Tag.FORM);
             for (Element form : forms) {
@@ -569,10 +690,12 @@ public class ShibbolethClient {
                 LOG.debug("PubCookie form action=" + formAction);
                 if (!idp.getAuthUrl().equalsIgnoreCase(formAction)) {
                     // TODO: ERROR
-                    throw new RemoteException("form action: " + formAction + " doesn't match IdP authN url: " + idp.getAuthUrl());
+                    throw new RemoteException("form action: " + formAction
+                            + " doesn't match IdP authN url: "
+                            + idp.getAuthUrl());
                 }
                 // create PubCookie POST
-                postPubcookieFormMethod= new PostMethod(formAction);
+                postPubcookieFormMethod = new PostMethod(formAction);
 
                 // add all HIDDEN fields to POST
                 List<FormControl> formControls = form.findFormControls();
@@ -590,7 +713,7 @@ public class ShibbolethClient {
                 }
 
             } // for all forms
-            
+
             LOG.trace("getIdpSSOMethod.releaseConnection()");
             getIdpSSOMethod.releaseConnection();
 
@@ -599,19 +722,20 @@ public class ShibbolethClient {
                 LOG.error("PubCookie form not found");
                 throw new RemoteException("PubCookie form not found");
             }
-            
-            // 
+
+            //
             LOG.debug("POST " + postPubcookieFormMethod.getURI());
-            int postPubcookieFormStatus= executeMethod(postPubcookieFormMethod);
+            int postPubcookieFormStatus = executeMethod(postPubcookieFormMethod);
             LOG.debug(postPubcookieFormMethod.getStatusLine());
-            
+
             // XXX
             dumpHttpClientCookies();
 
             // process pubcookie login form
             InputStream loginFormStream = postPubcookieFormMethod.getResponseBodyAsStream();
-            idpSSOResponseURI = processIdPLoginForm(idp, idpSSOResponseURI, idpSSOURI.getQuery(),
-                    loginFormStream);
+            idpSSOResponseURI = processIdPLoginForm(idp, idpSSOResponseURI,
+                                                    idpSSOURI.getQuery(),
+                                                    loginFormStream);
             LOG.debug("Pubcookie idpSSOResponseURI=" + idpSSOResponseURI);
 
             LOG.trace("postPubcookieFormMethod.releaseConnection()");
@@ -649,11 +773,11 @@ public class ShibbolethClient {
      * @throws ServiceException
      * @throws AuthException
      */
-    private URI processIdPLoginForm(IdentityProvider idp, URI ssoLoginURI, String ssoQuery,
-            InputStream htmlForm) throws IOException, RemoteException,
-            ServiceException, AuthException {
-        LOG.info("Parse and process " + idp.getAuthTypeName()
-                + " login form: " + ssoLoginURI);
+    private URI processIdPLoginForm(IdentityProvider idp, URI ssoLoginURI,
+            String ssoQuery, InputStream htmlForm) throws IOException,
+            RemoteException, ServiceException, AuthException {
+        LOG.info("Parse and process " + idp.getAuthTypeName() + " login form: "
+                + ssoLoginURI);
 
         boolean formFound = false;
         URI idpLoginFormResponseURI = null;
@@ -690,17 +814,20 @@ public class ShibbolethClient {
                     LOG.info("default form action=" + formAction);
                 }
                 else {
-                    URI formActionURI= new URI(formAction,false);
+                    URI formActionURI = new URI(formAction, false);
                     if (formActionURI.isRelativeURI()) {
-                        // action URL is not absolute like: http://localhost/cas/login?...
-                        formActionURI= new URI(ssoLoginURI,formActionURI.getPathQuery(),true);
+                        // action URL is not absolute like:
+                        // http://localhost/cas/login?...
+                        formActionURI = new URI(ssoLoginURI,
+                                formActionURI.getPathQuery(), true);
                     }
-                    formAction= formActionURI.getEscapedURI();
+                    formAction = formActionURI.getEscapedURI();
                     LOG.info("corrected form action=" + formAction);
                 }
-                
+
                 String formMethod = form.getAttributeValue("METHOD");
-                LOG.debug("form name=" + formName + " action=" + formAction + " method=" + formMethod);
+                LOG.debug("form name=" + formName + " action=" + formAction
+                        + " method=" + formMethod);
 
                 if (!formAction.equals("")
                         && formMethod.equalsIgnoreCase("POST")) {
@@ -723,14 +850,15 @@ public class ShibbolethClient {
                     }
                     // add username field
                     postLoginFormMethod.addParameter(idp.getAuthFormUsername(),
-                            this.credentials_.getUserName());
+                                                     this.credentials_.getUserName());
                     // add the PASSWORD field
                     postLoginFormMethod.addParameter(idp.getAuthFormPassword(),
-                            this.credentials_.getPassword());
+                                                     this.credentials_.getPassword());
 
                     // execute the login POST
-                    LOG.info("POST LoginFormMethod: " + postLoginFormMethod.getURI());
-                    
+                    LOG.info("POST LoginFormMethod: "
+                            + postLoginFormMethod.getURI());
+
                     int formLoginResponseStatus = executeMethod(postLoginFormMethod);
                     LOG.debug(postLoginFormMethod.getStatusLine());
 
@@ -739,15 +867,18 @@ public class ShibbolethClient {
 
                     // CAS, or FORM can, send a 302 + Location header back
                     if (formLoginResponseStatus == 302
-                            && (idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_CAS 
-                                || idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_FORM)) {
-                        LOG.debug("Process " + idp.getAuthTypeName() + " redirect response (302 + Location header)...");
+                            && (idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_CAS || idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_FORM)) {
+                        LOG.debug("Process "
+                                + idp.getAuthTypeName()
+                                + " redirect response (302 + Location header)...");
                         Header location = postLoginFormMethod.getResponseHeader("Location");
                         if (location != null) {
                             String locationURL = location.getValue();
                             LOG.debug("302 Location: " + locationURL);
-                            // CAS: if location path (/cas/login) is not the IdP 1.3
-                            // SSO path (/shibboleth-idp/SSO) or the IdP 2.X /Authn/RemoteUser 
+                            // CAS: if location path (/cas/login) is not the IdP
+                            // 1.3
+                            // SSO path (/shibboleth-idp/SSO) or the IdP 2.X
+                            // /Authn/RemoteUser
                             // handler, then it's a wrong login
                             URI locationURI = new URI(locationURL, false);
                             String locationPath = locationURI.getPath();
@@ -756,32 +887,43 @@ public class ShibbolethClient {
                             String idpSSOPath = idpSSOURI.getPath();
                             if (LOG.isDebugEnabled()) {
                                 LOG.debug("location path: " + locationPath);
-                                LOG.debug("location is the /Authn/RemoteUser hanlder? " + locationPath.endsWith("/Authn/RemoteUser"));
+                                LOG.debug("location is the /Authn/RemoteUser hanlder? "
+                                        + locationPath.endsWith("/Authn/RemoteUser"));
                                 LOG.debug("IdP SSO path: " + idpSSOPath);
                             }
-                            if (!locationPath.equals(idpSSOPath) && !locationPath.endsWith("/Authn/RemoteUser")) {
+                            if (!locationPath.equals(idpSSOPath)
+                                    && !locationPath.endsWith("/Authn/RemoteUser")) {
                                 LOG.error("Redirect response is not the SSO ("
-                                        + idpSSOURL + ") or the /Authn/RemoteUser handler: " + locationURL);
+                                        + idpSSOURL
+                                        + ") or the /Authn/RemoteUser handler: "
+                                        + locationURL);
                                 throw new AuthException(idp.getAuthTypeName()
                                         + " Authentication failed: "
                                         + this.credentials_);
                             }
-                            idpLoginFormResponseURI = new URI(locationURL,false);
-                            LOG.debug("(" + idp.getAuthTypeName() + ": 302 + Location) idpLoginFormReponseURI= " + idpLoginFormResponseURI);
+                            idpLoginFormResponseURI = new URI(locationURL,
+                                    false);
+                            LOG.debug("("
+                                    + idp.getAuthTypeName()
+                                    + ": 302 + Location) idpLoginFormReponseURI= "
+                                    + idpLoginFormResponseURI);
                         }
                         else {
-                            LOG.error( idp.getAuthTypeName() + ": Status 302 but no redirect Location header");
+                            LOG.error(idp.getAuthTypeName()
+                                    + ": Status 302 but no redirect Location header");
                             throw new AuthException(idp.getAuthTypeName()
                                     + " Authentication failed: "
                                     + this.credentials_);
                         }
                     }
-                    // IdP 2.1 FORM authN send 200 and directly the SAMLResponse form
+                    // IdP 2.1 FORM authN send 200 and directly the SAMLResponse
+                    // form
                     else if (formLoginResponseStatus == 200
                             && idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_FORM) {
-                        // BUG FIX: check for Browser/POST hidden form element SAMLResponse for valid authentication
+                        // BUG FIX: check for Browser/POST hidden form element
+                        // SAMLResponse for valid authentication
                         LOG.debug("check for SAMLResponse hidden element");
-                        boolean samlResponseFound= false;
+                        boolean samlResponseFound = false;
                         InputStream authnLoginResponse = postLoginFormMethod.getResponseBodyAsStream();
                         Source authnSource = new Source(authnLoginResponse);
                         List<Element> browserPOSTForms = authnSource.findAllElements(Tag.FORM);
@@ -792,45 +934,55 @@ public class ShibbolethClient {
                                 if (type.equals(FormControlType.HIDDEN)) {
                                     String name = control.getName();
                                     if (name.equals("SAMLResponse")) {
-                                        LOG.debug("Hidden element found: " + control.getName());
-                                        samlResponseFound= true;
+                                        LOG.debug("Hidden element found: "
+                                                + control.getName());
+                                        samlResponseFound = true;
                                     }
                                 }
                             }
                         }
                         if (!samlResponseFound) {
-                            LOG.error( idp.getAuthTypeName() + ": no Browser/POST SAMLResponse hidden element found");
+                            LOG.error(idp.getAuthTypeName()
+                                    + ": no Browser/POST SAMLResponse hidden element found");
                             throw new AuthException(idp.getAuthTypeName()
                                     + " Authentication failed: "
                                     + this.credentials_);
 
                         }
-                        
+
                         LOG.debug("Process FORM (200 + full Browser/POST profile) response...");
-                        idpLoginFormResponseURI= new URI(idp.getUrl(),false);
+                        idpLoginFormResponseURI = new URI(idp.getUrl(), false);
                         // re-set the original SSO query params
                         idpLoginFormResponseURI.setQuery(ssoQuery);
-                        LOG.debug("(FORM: 200 + Browser/POST) idpLoginFormReponseURI= " + idpLoginFormResponseURI);                        
+                        LOG.debug("(FORM: 200 + Browser/POST) idpLoginFormReponseURI= "
+                                + idpLoginFormResponseURI);
                     }
-                    // Pubcookie send 200 + fucking HTML form relay with hidden fields!!!
-                    // <form method=post action="https://aai-login.ethz.ch/PubCookie.reply" name=relay>
+                    // Pubcookie send 200 + fucking HTML form relay with hidden
+                    // fields!!!
+                    // <form method=post
+                    // action="https://aai-login.ethz.ch/PubCookie.reply"
+                    // name=relay>
                     // then reply a redirect 302 + Location header
                     else if (formLoginResponseStatus == 200
                             && idp.getAuthType() == IdentityProvider.SSO_AUTHTYPE_PUBCOOKIE) {
                         LOG.debug("Process Pubcookie (200 + relay FORM) response...");
                         InputStream pubcookieLoginResponse = postLoginFormMethod.getResponseBodyAsStream();
-                        Source pubcookieSource = new Source(pubcookieLoginResponse);
-                        PostMethod postPubcookieRelayMethod= null;
+                        Source pubcookieSource = new Source(
+                                pubcookieLoginResponse);
+                        PostMethod postPubcookieRelayMethod = null;
                         List<Element> relayForms = pubcookieSource.findAllElements(Tag.FORM);
                         for (Element relayForm : relayForms) {
                             String relayFormAction = relayForm.getAttributeValue("ACTION");
-                            LOG.debug("Pubcookie relay form action= " + relayFormAction);
+                            LOG.debug("Pubcookie relay form action= "
+                                    + relayFormAction);
                             if (relayFormAction == null) {
                                 LOG.error("Pubcookie relay form action not found.");
-                                throw new RemoteException("Pubcookie relay form action not found");
+                                throw new RemoteException(
+                                        "Pubcookie relay form action not found");
                             }
                             // create PubCookie relay POST
-                            postPubcookieRelayMethod= new PostMethod(relayFormAction);
+                            postPubcookieRelayMethod = new PostMethod(
+                                    relayFormAction);
 
                             // add all HIDDEN fields to POST
                             List<FormControl> relayFormControls = relayForm.findFormControls();
@@ -840,17 +992,20 @@ public class ShibbolethClient {
                                     String name = control.getName();
                                     Collection<String> values = control.getValues();
                                     for (String value : values) {
-                                        LOG.debug("add hidden: " + name + "=" + value);
+                                        LOG.debug("add hidden: " + name + "="
+                                                + value);
                                         // add all hidden fields
-                                        postPubcookieRelayMethod.addParameter(name, value);
+                                        postPubcookieRelayMethod.addParameter(name,
+                                                                              value);
                                     }
                                 }
-                            }  // add hidden fields
+                            } // add hidden fields
                         } // for all relay forms
 
                         if (postPubcookieRelayMethod != null) {
-                            LOG.debug("POST postPubcookieRelayMethod: " + postPubcookieRelayMethod.getURI());
-                            int pubcookieRelayStatus= executeMethod(postPubcookieRelayMethod);
+                            LOG.debug("POST postPubcookieRelayMethod: "
+                                    + postPubcookieRelayMethod.getURI());
+                            int pubcookieRelayStatus = executeMethod(postPubcookieRelayMethod);
                             LOG.debug(postPubcookieRelayMethod.getStatusLine());
                             Header location = postPubcookieRelayMethod.getResponseHeader("Location");
                             LOG.debug("postPubcookieRelayMethod.releaseConnection()");
@@ -859,14 +1014,16 @@ public class ShibbolethClient {
                                 String locationURL = location.getValue();
                                 LOG.debug("302 Location: " + locationURL);
                                 // parse Location
-                                idpLoginFormResponseURI = new URI(locationURL,false);
-                                LOG.debug("(PubCookie: 302 + Location header) idpLoginFormReponseURI= " + idpLoginFormResponseURI);
+                                idpLoginFormResponseURI = new URI(locationURL,
+                                        false);
+                                LOG.debug("(PubCookie: 302 + Location header) idpLoginFormReponseURI= "
+                                        + idpLoginFormResponseURI);
                             }
                             else {
                                 LOG.error("Pubcookie relay response 302 + Location header not found");
                                 throw new AuthException(idp.getAuthTypeName()
-                                                        + " Authentication failed: "
-                                                        + this.credentials_);
+                                        + " Authentication failed: "
+                                        + this.credentials_);
                             }
                         }
                         else {
@@ -890,8 +1047,8 @@ public class ShibbolethClient {
 
                     LOG.debug("POSTLoginFormMethod.releaseConnection()");
                     postLoginFormMethod.releaseConnection();
-                    
-                } // end if form action is set and method is POST 
+
+                } // end if form action is set and method is POST
             } // end if form name match metadata
         } // end for all forms
 
@@ -955,14 +1112,13 @@ public class ShibbolethClient {
             Cookie[] cookies = this.httpClient_.getState().getCookies();
             StringBuffer sb = new StringBuffer();
             sb.append("\n");
-            sb.append("---[CookiePolicy=").append(
-                    httpClient_.getParams().getCookiePolicy()).append("]---\n");
+            sb.append("---[CookiePolicy=").append(httpClient_.getParams().getCookiePolicy()).append("]---\n");
             for (int i = 0; i < cookies.length; i++) {
-                Cookie cookie= cookies[i];
+                Cookie cookie = cookies[i];
                 String path = cookie.getPath();
                 String domain = cookie.getDomain();
                 boolean secure = cookie.getSecure();
-                int version= cookie.getVersion();
+                int version = cookie.getVersion();
                 // sb.append(name).append('=').append(value).append("\n");
                 sb.append(i).append(": ").append(cookie);
                 sb.append(" domain:").append(domain);
@@ -996,11 +1152,11 @@ public class ShibbolethClient {
         }
         return null;
     }
-    
+
     private Cookie[] getMatchingCookies(String host, String path) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("search all Cookies matching for host:" + host
-                    + " path:" + path);
+            LOG.debug("search all Cookies matching for host:" + host + " path:"
+                    + path);
         }
         List<Cookie> matchingCookies = new ArrayList<Cookie>();
         Cookie[] cookies = this.httpClient_.getState().getCookies();
@@ -1014,7 +1170,6 @@ public class ShibbolethClient {
         }
         return (Cookie[]) matchingCookies.toArray(new Cookie[matchingCookies.size()]);
     }
-    
 
     private Cookie[] getMatchingCookies(String name, String host, String path) {
         if (LOG.isDebugEnabled()) {
