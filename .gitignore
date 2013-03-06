@@ -1,6 +1,4 @@
-/.project
-/.cdtproject
-/build
-/.etics
+/target
+/.settings
 /*.tar.gz
 /*.zip
