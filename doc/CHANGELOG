@@ -1,6 +1,14 @@
+TODO: 
+- add slcs-info option to show cert subject, issuer, and TTL...
+- add <Version/> element in metadata
 
-TODO: add slcs-info option to show cert subject, issuer, and TTL...
-      add <Version/> element in metadata
+Version 2.0
+-----------
+* Refactoring:
+  - Unused classes removed.
+  - Uses SLF4J.
+* Compatible with Java SE 6 and Java SE 7.
+* Project build with maven.
 
 Version 1.5.0
 -------------
