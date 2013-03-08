@@ -35,10 +35,15 @@ fi
 
 # /etc/slcs or $SLCS_HOME/etc/slcs in CLASSPATH
 if [ -d $SLCS_HOME/etc/slcs ]; then 
-    SLCS_CP=$SLCS_HOME/etc/slcs
+    SLCS_ETC=$SLCS_HOME/etc/slcs
 else
-    SLCS_CP=/etc/slcs
+    SLCS_ETC=/etc/slcs
 fi
+if [ ! -d $SLCS_ETC ]; then
+    echo "$0: ERROR: sysconfdir $SLCS_ETC does not exist!"
+    exit 1
+fi
+SLCS_CP=$SLCS_ETC
 
 # all SLCS libs in classpath ($SLCS_HOME/share/slcs)
 for jar in $SLCS_HOME/share/slcs/*.jar ; do
