@@ -26,6 +26,7 @@ bindir=$(prefix)/bin
 sysconfdir=$(prefix)/etc
 datarootdir=$(prefix)/share
 datadir=$(datarootdir)/slcs
+mandir=$(datarootdir)/man
 docdir=$(datarootdir)/doc/$(name)
 
 # tmp
@@ -72,6 +73,8 @@ install:
 	install -m 0755 target/$(name)-package.dir/bin/slcs-* $(DESTDIR)$(bindir)
 	install -d $(DESTDIR)$(datadir)
 	install -m 0644 target/$(name)-package.dir/share/slcs/*.jar $(DESTDIR)$(datadir)
+	install -d $(DESTDIR)$(mandir)/man1
+	install -m 0644 target/$(name)-package.dir/share/man/man1/slcs-init.1 $(DESTDIR)$(mandir)/man1
 	install -d $(DESTDIR)$(docdir)
 	install -m 0644 target/$(name)-package.dir/share/doc/slcs/* $(DESTDIR)$(docdir)
 

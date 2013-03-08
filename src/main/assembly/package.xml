@@ -54,5 +54,10 @@ Installed in a fakeroot directory structure.
             <outputDirectory>/share/doc/slcs</outputDirectory>
             <fileMode>0644</fileMode>
         </fileSet>
+        <fileSet>
+            <directory>src/main/man</directory>
+            <outputDirectory>/share/man/man1</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
     </fileSets>
 </assembly>
