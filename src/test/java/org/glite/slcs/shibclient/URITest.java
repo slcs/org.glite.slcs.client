@@ -14,6 +14,18 @@ import org.apache.commons.httpclient.URIException;
  */
 public class URITest extends TestCase {
 
+	protected void setUp() throws Exception {
+		System.out.println("---[START:" + getName() + "]---");
+		super.setUp();
+
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		System.out.println("---[DONE:" + getName() + "]---");
+	}
+
     public void testURI() throws URIException {
         URI uri= new URI("https://localhost/path/test;jsessionid=ABCDEF?param1=value1",false);
         System.out.println("uri: " + uri);
