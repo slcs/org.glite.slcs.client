@@ -25,7 +25,7 @@ NOTICE: logback.xml file must be in classpath
 	<appender name="logfile" class="ch.qos.logback.core.FileAppender">
 		<file>${user.home}/slcs-init.log</file>
 		<encoder>
-			<pattern>%d{ISO8601} %-5p %C{1}.%M: %m%n</pattern>
+			<pattern>%d{ISO8601} %-5p %C{0}.%M: %m%n</pattern>
 		</encoder>
 	</appender>
 
