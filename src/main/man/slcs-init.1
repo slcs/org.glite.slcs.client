@@ -1,0 +1,107 @@
+.\" Copyright (c) 2010, SWITCH
+.\" Copyright (c) 2009-2010, Members of the EGEE Collaboration.
+.\" SLCS client CLI: slcs-init(1) man page
+.\" Valery Tschopp - SWITCH
+.TH slcs-init 1 "June 2011" "SWITCH" "Short Lived Certificate Service"
+.SH NAME
+slcs\-init \- client command line interface for the Short Lived Certificate Service (SLCS)
+.SH SYNOPSIS
+\fBslcs\-init\fR \-\-idp \fIproviderId\fR [options...]
+.SH DESCRIPTION
+.B slcs\-init
+is a client command line interface for the Short Lived Certificate Service (SLCS). The user uses 
+his AAI credentials to log in and receives a short lived (valid for ~11 days) X.509 
+certificate.
+.P
+The command stores the user private key
+.B userkey.pem
+and X.509 certificate 
+.B usercert.pem
+in the 
+.B storedir
+directory ($HOME/.globus).
+.SH OPTIONS
+.TP
+.BI "\-i" " providerId" ", \-\-idp" " providerId"
+.B Mandatory
+AAI Shibboleth identity provider 
+.IR providerId 
+to log into.
+.TP
+.BI "\-c" " FILE" ", \-\-config" " FILE"
+Alternative SLCS client configuration 
+.I FILE
+to use.
+.TP
+.BI "\-D" " DIR" ", \-\-storedir" " DIR"
+Absolute
+.I DIR
+pathname to the store directory [Default: $HOME/.globus]
+.TP
+.BR "\-h" , " \-\-help"
+Display the help text.
+.TP
+.BI "\-k" " password" ", \-\-keypass" " password"
+Password for the generated private key, also called GRID pass phrase.
+.TP
+.BI "\-P" " prefix" ", \-\-prefix" " prefix"
+Optional filename
+.I prefix
+for the 
+.B usercert.pem
+and
+.B userkey.pem
+files.
+.TP
+.BI "\-p" " password" ", \-\-password" " password"
+The user AAI
+.I password
+to  use  to log into the Shibboleth identity provider.
+.TP
+.BI "\-s" " size" ", \-\-keysize" " size"
+Private key
+.I size
+to generate [Default: 1024]
+.TP
+.BI "\-u" " username" ", \-\-username" " username" 
+The AAI 
+.I username
+to use to log into the Shibboleth identity provider [Default: current username]
+.TP
+.BR "\-v" , " \-\-verbose"
+Display verbose information.
+.TP
+.BR "\-V" , " \-\-version"
+Shows the slcs\-init version and exit.
+.BR "\-x" , " \-\-p12"
+Store an additional PCKS#12 
+.B usercred.p12
+file.
+.SH LOG FILE
+The 
+.B slcs\-init
+command logs its message in the 
+.B $HOME/slcs\-init.log 
+file.
+.SH EXIT STATUS
+The
+.B slcs\-init
+command returns a
+.B 0
+exit status on success. Non zero is returned in case of failure.
+.SH AUTHORS
+The Short Lived Certificate Service and the 
+.B slcs\-init
+command are written by Valery Tschopp - SWITCH
+.SH COPYRIGHT
+Copyright \(co 2008-2010 Members of the EGEE Collaboration
+.BR
+Copyright \(co 2010-2013 SWITCH
+.SH SEE ALSO
+.TP 
+.I SWITCHaai 
+http://www.switch.ch/aai/
+.TP
+.I Short Lived Certificate Service
+http://www.switch.ch/grid/slcs/
+
