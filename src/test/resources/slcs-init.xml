@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!-- 
+SLCS Client (slcs-init, slcs-info) configuration 
+
+$Id: slcs-init.xml,v 1.11 2009/08/19 14:29:17 vtschopp Exp $
+$Name:  $
+
+Copyright (c) 2008-2009. Members of the EGEE Collaboration. 
+http://www.eu-egee.org/
+-->
+
+<SLCSClientConfiguration>
+
+    <!-- Extended Trust configuration for the HTTP agent -->
+    <HttpClient>
+        <!-- Absolute filename or file in CLASSPATH -->
+        <TrustStoreFile>truststore.slcs.jks</TrustStoreFile>
+    </HttpClient>
+
+    <!-- Default directory to store the key and certificate -->
+    <StoreDirectory>${user.home}/.globus</StoreDirectory>
+    <!-- Default filename for usercert.pem stored in StoreDirectory -->
+    <UserCertFile>usercert.pem</UserCertFile>
+    <!-- Default filename for userkey.pem stored in StoreDirectory -->
+    <UserKeyFile>userkey.pem</UserKeyFile>
+    <!-- Default filename for PKCS12 (.p12) cred stored in StoreDirectory -->
+    <UserPKCS12File>usercred.p12</UserPKCS12File>
+    <!-- Default private key size (512, 1024 or 2048 bits) -->
+    <UserKeySize>1024</UserKeySize>
+
+    <!-- Pseudo Metadata for the Shibboleth federation description -->
+    <!--  <ShibbolethClientMetadata filename="slcs-metadata.switchaai.xml"/> -->
+    <ShibbolethClientMetadata url="https://slcs.switch.ch/download/slcs-metadata.switchaai.xml" />
+
+</SLCSClientConfiguration>
