@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -22,6 +38,7 @@ package org.glite.slcs.jericho.html;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents the <a target="_blank" href="http://www.w3.org/TR/html401/interact/forms.html#h-17.2.1">control type</a>
@@ -140,8 +157,8 @@ public final class FormControlType {
 	private boolean hasPredefinedValue;
 	private boolean submit;
 
-	private static final HashMap ID_MAP=new HashMap(16,1.0F); // 12 types in total
-	private static final HashMap INPUT_ELEMENT_TYPE_MAP=new HashMap(11,1.0F); // 8 input element types in total
+	private static final Map<String,FormControlType> ID_MAP=new HashMap<String,FormControlType>(16,1.0F); // 12 types in total
+	private static final Map<String,FormControlType> INPUT_ELEMENT_TYPE_MAP=new HashMap<String,FormControlType>(11,1.0F); // 8 input element types in total
 
 	/**
 	 * The form control type given to a <a href="#submit-button">submit button</a> control implemented using a

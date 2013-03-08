@@ -1,68 +1,47 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
-<!-- 
-	$Id: log4j.xml,v 1.5 2009/01/13 14:11:09 vtschopp Exp $
-	
-	Copyright (c) 2004. Members of the EGEE Collaboration. http://www.eu-egee.org
-	
-	org.glite.slcs.ui log4j configuration
-	
-	NOTICE: log4j.xml file must be in classpath
+<!--
+
+    Copyright (c) 2010-2013 SWITCH
+    Copyright (c) 2006-2010 Members of the EGEE Collaboration
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+org.glite.slcs.client logging configuration
+NOTICE: logback.xml file must be in classpath
 -->
-<log4j:configuration debug="false"
-	xmlns:log4j="http://jakarta.apache.org/log4j/">
+<configuration debug="false">
 
 	<!-- log file appender -->
-	<appender name="logfile" class="org.apache.log4j.FileAppender">
-		<param name="File" value="${user.home}/slcs-init.log" />
-		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%d{ISO8601} %-5p %C{1}.%M: %m%n" />
-		</layout>
+	<appender name="logfile" class="ch.qos.logback.core.FileAppender">
+		<file>${user.home}/slcs-init.log</file>
+		<encoder>
+			<pattern>%d{ISO8601} %-5p %C{1}.%M: %m%n</pattern>
+		</encoder>
 	</appender>
-
-	<!-- stdout appender -->
-	<appender name="stdout" class="org.apache.log4j.ConsoleAppender">
-		<param name="Target" value="System.out" />
-		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%-5p %C{1}.%M: %m%n" />
-		</layout>
-	</appender>
-	<!-- stderr appender -->
-	<appender name="stderr" class="org.apache.log4j.ConsoleAppender">
-		<param name="Target" value="System.err" />
-		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%-5p %C{1}.%M: %m%n" />
-		</layout>
-	</appender>
-
 
 	<!-- SLCS loggers -->
-	<logger name="org.glite.slcs">
-		<level value="info" />
-	</logger>
-	<logger name="org.glite.slcs.shibclient">
-		<level value="info" />
-	</logger>
-	<logger name="org.glite.slcs.httpclient">
-		<level value="info" />
-	</logger>
+	<logger name="org.glite.slcs" level="INFO" />
+	<logger name="org.glite.slcs.shibclient" level="INFO" />
+	<logger name="org.glite.slcs.httpclient" level="INFO" />
 
 	<!-- HttpClient loggers -->
-	<logger name="org.apache.commons.httpclient">
-		<level value="warn" />
-	</logger>
-	<logger name="httpclient">
-		<level value="info" />
-	</logger>
-	<logger name="httpclient.wire">
-		<level value="info" />
-	</logger>
+	<logger name="org.apache.commons.httpclient" level="WARN" />
+	<logger name="httpclient" level="INFO" />
+	<logger name="httpclient.wire" level="INFO" />
 
 	<!-- root logger level -->
-	<root>
-		<priority value="info" />
+	<root level="INFO">
 		<appender-ref ref="logfile" />
-		<!-- <appender-ref ref="stderr" /> -->
 	</root>
 
-</log4j:configuration>
+</configuration>

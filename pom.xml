@@ -6,7 +6,7 @@
     <artifactId>slcs-client</artifactId>
 
     <name>SLCS client CLI</name>
-    <version>1.6-SNAPSHOT</version>
+    <version>2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <description>Short Lived Certificate Service (Client CLI)</description>
@@ -29,7 +29,18 @@
         <dependency>
             <groupId>org.glite.slcs</groupId>
             <artifactId>slcs-common</artifactId>
-            <version>1.7-SNAPSHOT</version>
+            <version>2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.9</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -40,6 +51,7 @@
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -49,7 +61,7 @@
                     <archive>
                         <manifestSections>
                             <manifestSection>
-                                <name>org/glite/slcs/common/</name>
+                                <name>org/glite/slcs/ui/</name>
                                 <manifestEntries>
                                     <Implementation-Title>${project.artifactId}</Implementation-Title>
                                     <Implementation-Version>${project.version}</Implementation-Version>
@@ -103,6 +115,26 @@
                     </execution>
                 </executions>
             </plugin>
+            
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.1</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/main/assembly/package.xml</descriptor>
+                    </descriptors>
+                </configuration>
+            </plugin>
+            
         </plugins>
         <extensions>
             <extension>

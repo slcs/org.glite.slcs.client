@@ -1,12 +1,9 @@
 #!/bin/bash
 #
-# Execute the SLCS info
+# slcs-info: SLCS client info
 #
-# Copyright (c) 2004-2009. Members of the EGEE Collaboration. 
-# http://www.eu-egee.org
-#
-# $Id: slcs-info,v 1.5 2010/02/19 13:14:21 vtschopp Exp $
-# $Name:  $
+# Copyright (c) 2004-2009 Members of the EGEE Collaboration. 
+# Copyright (c) 2010-2013 SWITCH 
 #
 #set -x
 
@@ -32,19 +29,17 @@ if [ -z $JAVA_HOME ]; then
     fi
 fi
 
-# /opt/glite/etc/glite-slcs-ui in CLASSPATH
-SLCS_CP=$SLCS_HOME/etc/glite-slcs-ui
-# glite slcs libs
-SLCS_CP=$SLCS_CP:$SLCS_HOME/share/java/glite-slcs-common.jar:$SLCS_HOME/share/java/glite-slcs-ui.jar
+# /etc/slcs or $SLCS_HOME/etc/slcs in CLASSPATH
+if [ -d $SLCS_HOME/etc/slcs ]; then 
+    SLCS_CP=$SLCS_HOME/etc/slcs
+else
+    SLCS_CP=/etc/slcs
+fi
 
-# external slcs libs classpath
-EXTERNAL_CP=
-for ext_jar in $SLCS_HOME/externals/share/java/*.jar ; do
-    EXTERNAL_CP=$EXTERNAL_CP:$ext_jar
+# all slcs libs classpath
+for jar in $SLCS_HOME/share/slcs/*.jar ; do
+    SLCS_CP=$SLCS_CP:$jar
 done
-
-# SLCS classpath
-SLCS_CP=$SLCS_CP:$EXTERNAL_CP
 #echo $SLCS_CP
 
 if [ -z $JAVA_HOME ]; then

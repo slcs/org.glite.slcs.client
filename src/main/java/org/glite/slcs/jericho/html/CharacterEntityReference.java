@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -572,7 +588,7 @@ public class CharacterEntityReference extends CharacterReference {
 	 */
 	public static final char _apos='\'';
 
-	private static Map NAME_TO_CODE_POINT_MAP=new HashMap(512,1.0F); // 253 entities in total
+	private static Map<String,Integer> NAME_TO_CODE_POINT_MAP=new HashMap<String, Integer>(512,1.0F); // 253 entities in total
 	private static IntStringHashMap CODE_POINT_TO_NAME_MAP;
 
 	private static int MAX_NAME_LENGTH=0;
@@ -833,11 +849,11 @@ public class CharacterEntityReference extends CharacterReference {
 		NAME_TO_CODE_POINT_MAP.put("apos",new Integer(_apos));
 
 		CODE_POINT_TO_NAME_MAP=new IntStringHashMap((int)(NAME_TO_CODE_POINT_MAP.size()/0.75F),1.0F);
-		for (final Iterator i=NAME_TO_CODE_POINT_MAP.entrySet().iterator(); i.hasNext();) {
-			Map.Entry entry=(Map.Entry)i.next();
-			String name=(String)entry.getKey();
+		for (final Iterator<Map.Entry<String, Integer>> i=NAME_TO_CODE_POINT_MAP.entrySet().iterator(); i.hasNext();) {
+			Map.Entry<String,Integer> entry=i.next();
+			String name=entry.getKey();
 			if (MAX_NAME_LENGTH<name.length()) MAX_NAME_LENGTH=name.length();
-			CODE_POINT_TO_NAME_MAP.put(((Integer)entry.getValue()).intValue(),name);
+			CODE_POINT_TO_NAME_MAP.put(entry.getValue(),name);
 		}
 	}
 
@@ -962,7 +978,7 @@ public class CharacterEntityReference extends CharacterReference {
 	 * Returns a map of character entity reference names (<code>String</code>) to unicode code points (<code>Integer</code>).
 	 * @return a map of character entity reference names to unicode code points.
 	 */
-	public static Map getNameToCodePointMap() {
+	public static Map<String, Integer> getNameToCodePointMap() {
 		return NAME_TO_CODE_POINT_MAP;
 	}
 

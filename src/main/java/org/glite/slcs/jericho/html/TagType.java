@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -138,7 +154,7 @@ public abstract class TagType {
 	 * <br />(<a href="TagType.html#RegistrationRelated">registration related</a> method)
 	 * @return a list of all the currently registered tag types in order of lowest to highest <a href="TagType.html#Precedence">precedence</a>.
 	 */
-	public static final List getRegisteredTagTypes() {
+	public static final List<TagType> getRegisteredTagTypes() {
 		return TagTypeRegister.getList();
 	}
 

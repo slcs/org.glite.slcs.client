@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -22,20 +38,23 @@ package org.glite.slcs.jericho.html;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 
-final class HTMLElementNameSet extends HashSet {
+final class HTMLElementNameSet extends HashSet<String> {
+	private static final long serialVersionUID = -4930685638827136014L;
+
 	public HTMLElementNameSet() {
 		super(1);
 	}
 
 	public HTMLElementNameSet(final String[] items) {
-		super(items.length*2);
-		for (int i=0; i<items.length; i++) add(items[i]);
+		super(items.length);
+		for (String item : items) {
+			add(item);
+		}
 	}
 
-	public HTMLElementNameSet(final Collection collection) {
-		super(collection.size()*2);
+	public HTMLElementNameSet(final Collection<String> collection) {
+		super(collection.size());
 		union(collection);
 	}
 
@@ -49,8 +68,8 @@ final class HTMLElementNameSet extends HashSet {
 		return this;
 	}
 
-	HTMLElementNameSet union(final Collection collection) {
-		for (final Iterator i=collection.iterator(); i.hasNext();) add(i.next());
+	HTMLElementNameSet union(final Collection<String> collection) {
+		addAll(collection);
 		return this;
 	}
 
@@ -59,8 +78,8 @@ final class HTMLElementNameSet extends HashSet {
 		return this;
 	}
 
-	HTMLElementNameSet minus(final Collection collection) {
-		for (final Iterator i=collection.iterator(); i.hasNext();) remove(i.next());
+	HTMLElementNameSet minus(final Collection<String> collection) {
+		removeAll(collection);
 		return this;
 	}
 }

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -74,9 +90,9 @@ public class Source extends Segment {
 	int endOfLastTagIgnoringEnclosedMarkup=-1; // Always has a value of -1 unless doing full sequential parse.  Used in TagType.isValidPosition() method.
 	// cached result lists:
 	Tag[] allTagsArray=null; // non-null iff fullSequentialParse was called
-	List allTags=null;
-	List allStartTags=null;
-	private List allElements=null;
+	List<Tag> allTags=null;
+	List<StartTag> allStartTags=null;
+	private List<Element> allElements=null;
 
 	private static final String UNINITIALISED="";
 
@@ -471,13 +487,13 @@ public class Source extends Segment {
 	 * @see Element#getChildElements()
 	 * @see Element#getDepth()
 	 */
-	public List getChildElements() {
+	public List<Element> getChildElements() {
 		if (childElements==null) {
 			if (length()==0) {
-				childElements=Collections.EMPTY_LIST;
+				childElements=Collections.emptyList();
 			} else {
 				if (allTags==null) log("NOTE: Calling Source.fullSequentialParse() can significantly improve the performance of this operation");
-				childElements=new ArrayList();
+				childElements=new ArrayList<Element>();
 				int pos=0;
 				while (true) {
 					final StartTag childStartTag=source.findNextStartTag(pos);
@@ -506,7 +522,7 @@ public class Source extends Segment {
 	 *
 	 * @return a list of all {@linkplain Tag tags} in this source document.
 	 */
-	public List findAllTags() {
+	public List<Tag> findAllTags() {
 		if (allTags==null) {
 			log("NOTE: Calling Source.fullSequentialParse() can significantly improve the performance of this operation");
 			allTags=super.findAllTags();
@@ -523,13 +539,12 @@ public class Source extends Segment {
 	 *
 	 * @return a list of all {@linkplain StartTag start tags} in this source document.
 	 */
-	public List findAllStartTags() {
+	public List<StartTag> findAllStartTags() {
 		if (allStartTags==null) {
-			final List allTags=findAllTags();
-			allStartTags=new ArrayList(allTags.size());
-			for (final Iterator i=allTags.iterator(); i.hasNext();) {
-				final Object next=i.next();
-				if (next instanceof StartTag) allStartTags.add(next);
+			final List<Tag> allTags=findAllTags();
+			allStartTags= new ArrayList<StartTag>(allTags.size());
+			for (Tag tag : allTags) {
+				if (tag instanceof StartTag) allStartTags.add((StartTag) tag);
 			}
 		}
 		return allStartTags;
@@ -544,12 +559,12 @@ public class Source extends Segment {
 	 *
 	 * @return a list of all {@linkplain Element elements} in this source document.
 	 */
-	public List findAllElements() {
+	public List<Element> findAllElements() {
 		if (allElements==null) {
-			final List allStartTags=findAllStartTags();
-			if (allStartTags.isEmpty()) return Collections.EMPTY_LIST;
-			allElements=new ArrayList(allStartTags.size());
-			for (final Iterator i=allStartTags.iterator(); i.hasNext();) {
+			final List<?> allStartTags=findAllStartTags();
+			if (allStartTags.isEmpty()) return Collections.emptyList();
+			allElements=new ArrayList<Element>(allStartTags.size());
+			for (final Iterator<?> i=allStartTags.iterator(); i.hasNext();) {
 				final StartTag startTag=(StartTag)i.next();
 				allElements.add(startTag.getElement());
 			}
@@ -1010,8 +1025,8 @@ public class Source extends Segment {
 	 * <p>
 	 * This is equivalent to calling {@link Segment#ignoreWhenParsing()} on each segment in the collection.
 	 */
-	public void ignoreWhenParsing(final Collection segments) {
-		for (final Iterator i=segments.iterator(); i.hasNext();) {
+	public void ignoreWhenParsing(final Collection<?> segments) {
+		for (final Iterator<?> i=segments.iterator(); i.hasNext();) {
 			((Segment)i.next()).ignoreWhenParsing();
 		}
 	}
@@ -1163,9 +1178,9 @@ public class Source extends Segment {
 	 * @return a list of all the tags that have been parsed so far.
 	 * @see #getCacheDebugInfo()
 	 */
-	List getParsedTags() {
-		final ArrayList list=new ArrayList();
-		for (final Iterator i=cache.getTagIterator(); i.hasNext();) list.add(i.next());
+	List<Tag> getParsedTags() {
+		final List<Tag> list=new ArrayList<Tag>();
+		for (final Iterator<Tag> i=cache.getTagIterator(); i.hasNext();) list.add(i.next());
 		return list;
 	}
 
@@ -1253,7 +1268,7 @@ public class Source extends Segment {
 	 * @return an iterator of {@link Tag} objects beginning at and following the specified position in the source document.
 	 * @deprecated  Use {@link #findAllTags()}<code>.iterator()</code> instead, or multiple calls to the {@link Tag#findNextTag()} method.
 	 */
-	public Iterator getNextTagIterator(final int pos) {
+	public Iterator<?> getNextTagIterator(final int pos) {
 		return Tag.getNextTagIterator(this,pos);
 	}
 

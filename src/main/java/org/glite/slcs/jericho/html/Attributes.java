@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -58,8 +74,8 @@ import java.util.Map;
  * @see StartTag
  * @see Attribute
  */
-public final class Attributes extends SequentialListSegment {
-	private final LinkedList attributeList; // never null
+public final class Attributes extends SequentialListSegment<Attribute> {
+	private final List<Attribute> attributeList; // never null
 
 	// parsing states:
 	private static final int AFTER_TAG_NAME=0;
@@ -68,11 +84,12 @@ public final class Attributes extends SequentialListSegment {
 	private static final int AFTER_NAME=3; // this only happens if an attribute name is followed by whitespace
 	private static final int START_VALUE=4;
 	private static final int IN_VALUE=5;
+	@SuppressWarnings("unused")
 	private static final int AFTER_VALUE_FINAL_QUOTE=6;
 
 	private static int defaultMaxErrorCount=2; // defines maximum number of minor errors that can be encountered in attributes before entire start tag is rejected.
 
-	private Attributes(final Source source, final int begin, final int end, final LinkedList attributeList) {
+	private Attributes(final Source source, final int begin, final int end, final List<Attribute> attributeList) {
 		super(source,begin,end);
 		this.attributeList=attributeList;
 	}
@@ -115,7 +132,7 @@ public final class Attributes extends SequentialListSegment {
 			attributesBegin=logBegin;
 		}
 		int attributesEnd=attributesBegin;
-		final LinkedList attributeList=new LinkedList();
+		final List<Attribute> attributeList=new LinkedList<Attribute>();
 		final ParseText parseText=source.getParseText();
 		int i=attributesBegin;
 		char quote=' ';
@@ -347,8 +364,8 @@ public final class Attributes extends SequentialListSegment {
 	 * Returns an iterator over the {@link Attribute} objects in this list in order of appearance.
 	 * @return an iterator over the {@link Attribute} objects in this list in order of appearance.
 	 */
-	public Iterator iterator() {
-		return listIterator();
+	public Iterator<Attribute> iterator() {
+		return attributeList.iterator();
 	}
 
 	/**
@@ -366,7 +383,7 @@ public final class Attributes extends SequentialListSegment {
 	 * @return a list iterator of the items in this list (in proper sequence), starting at the specified position in the list.
 	 * @throws IndexOutOfBoundsException if the specified index is out of range (<code>index &lt; 0 || index &gt; size()</code>).
 	 */
-	public ListIterator listIterator(final int index) {
+	public ListIterator<Attribute> listIterator(final int index) {
 		return attributeList.listIterator(index);
 	}
 
@@ -387,8 +404,8 @@ public final class Attributes extends SequentialListSegment {
 	 * @return the same map specified as the argument to the <code>attributesMap</code> parameter, populated with the name/value pairs from these attributes.
 	 * @see #generateHTML(Map attributesMap)
 	 */
-	public Map populateMap(final Map attributesMap, final boolean convertNamesToLowerCase) {
-		for (final Iterator i=listIterator(0); i.hasNext();) {
+	public Map<String, CharSequence> populateMap(final Map<String, CharSequence> attributesMap, final boolean convertNamesToLowerCase) {
+		for (final Iterator<Attribute> i=listIterator(0); i.hasNext();) {
 			final Attribute attribute=(Attribute)i.next();
 			attributesMap.put(convertNamesToLowerCase ? attribute.getKey() : attribute.getName(),attribute.getValue());
 		}
@@ -406,7 +423,7 @@ public final class Attributes extends SequentialListSegment {
 			sb.append("EMPTY");
 		} else {
 			sb.append('\n');
-			for (final Iterator i=listIterator(0); i.hasNext();) {
+			for (final Iterator<Attribute> i=listIterator(0); i.hasNext();) {
 				Attribute attribute=(Attribute)i.next();
 				sb.append("  ").append(attribute.getDebugInfo());
 			}
@@ -482,7 +499,7 @@ public final class Attributes extends SequentialListSegment {
 	 * @return the contents of the specified {@linkplain #populateMap(Map,boolean) attributes map} as HTML attribute name/value pairs.
 	 * @see StartTag#generateHTML(String tagName, Map attributesMap, boolean emptyElementTag)
 	 */
-	public static String generateHTML(final Map attributesMap) {
+	public static String generateHTML(final Map<String, CharSequence> attributesMap) {
 		final StringWriter stringWriter=new StringWriter();
 		try {appendHTML(stringWriter,attributesMap);} catch (IOException ex) {} // IOException never occurs in StringWriter
 		return stringWriter.toString();
@@ -497,7 +514,7 @@ public final class Attributes extends SequentialListSegment {
 	 * @return this instance.
 	 * @deprecated  Use the {@link Attributes} object itself instead.
 	 */
-	public List getList() {
+	public List<?> getList() {
 		return this;
 	}
 
@@ -512,21 +529,21 @@ public final class Attributes extends SequentialListSegment {
 	 * @throws IOException if an I/O exception occurs.
 	 * @see #populateMap(Map attributesMap, boolean convertNamesToLowerCase)
 	 */
-	static void appendHTML(final Writer writer, final Map attributesMap) throws IOException {
-		for (final Iterator i=attributesMap.entrySet().iterator(); i.hasNext();) {
-			final Map.Entry entry=(Map.Entry)i.next();
-			Attribute.appendHTML(writer,(String)entry.getKey(),(CharSequence)entry.getValue());
+	static void appendHTML(final Writer writer, final Map<String, CharSequence> attributesMap) throws IOException {
+		for (final Iterator<Map.Entry<String, CharSequence>> i=attributesMap.entrySet().iterator(); i.hasNext();) {
+			final Map.Entry<String, CharSequence> entry=i.next();
+			Attribute.appendHTML(writer,entry.getKey(),entry.getValue());
 		}
 	}
 
 	StringBuffer appendTidy(final StringBuffer sb, Tag nextTag) {
-		for (final Iterator i=listIterator(0); i.hasNext();)
+		for (final Iterator<Attribute> i=listIterator(0); i.hasNext();)
 			nextTag=((Attribute)i.next()).appendTidy(sb,nextTag);
 		return sb;
 	}
 
-	Map getMap(final boolean convertNamesToLowerCase) {
-		return populateMap(new LinkedHashMap(getCount()*2,1.0F),convertNamesToLowerCase);
+	Map<String, CharSequence> getMap(final boolean convertNamesToLowerCase) {
+		return populateMap(new LinkedHashMap<String, CharSequence>(getCount()*2,1.0F),convertNamesToLowerCase);
 	}
 	
 	private static void log(final Source source, final String part1, final CharSequence part2, final int begin, final String part3, final int pos) {

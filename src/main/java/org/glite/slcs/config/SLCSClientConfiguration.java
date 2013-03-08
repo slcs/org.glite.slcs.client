@@ -1,40 +1,35 @@
 /*
- * Copyright (c) Members of the EGEE Collaboration. 2007.
- * See http://www.eu-egee.org/partners/ for details on the copyright
- * holders.
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *        http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * Version: $Id: SLCSClientConfiguration.java,v 1.3 2009/08/19 14:46:30 vtschopp Exp $
  */
 package org.glite.slcs.config;
 
 import org.glite.slcs.SLCSConfigurationException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * SLCSClientConfiguration is the XML file based configuration for the SLCS
  * client.
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.3 $
  */
 public class SLCSClientConfiguration extends SLCSConfiguration {
 
 	/** Logging */
-	private static Log LOG = LogFactory.getLog(SLCSClientConfiguration.class);
+	private static Logger LOG = LoggerFactory.getLogger(SLCSClientConfiguration.class);
 
 	/** Singleton pattern */
 	private static SLCSClientConfiguration SINGLETON = null;

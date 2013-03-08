@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -22,14 +38,12 @@ package org.glite.slcs.jericho.html;
 
 import java.util.Comparator;
 
-final class OutputSegmentComparator implements Comparator {
-	public int compare(final Object o1, final Object o2) {
-		final OutputSegment outputSegment1=(OutputSegment)o1;
-		final OutputSegment outputSegment2=(OutputSegment)o2;
-		if (outputSegment1.getBegin()<outputSegment2.getBegin()) return -1;
-		if (outputSegment1.getBegin()>outputSegment2.getBegin()) return 1;
-		if (outputSegment1.getEnd()<outputSegment2.getEnd()) return -1;
-		if (outputSegment1.getEnd()>outputSegment2.getEnd()) return 1;
+final class OutputSegmentComparator implements Comparator<OutputSegment> {
+	public int compare(final OutputSegment os1, final OutputSegment os2) {
+		if (os1.getBegin()<os2.getBegin()) return -1;
+		if (os1.getBegin()>os2.getBegin()) return 1;
+		if (os1.getEnd()<os2.getEnd()) return -1;
+		if (os1.getEnd()>os2.getEnd()) return 1;
 		return 0;
 	}
 }

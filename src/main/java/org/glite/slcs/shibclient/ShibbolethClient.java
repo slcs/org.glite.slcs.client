@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2007-2009. Members of the EGEE Collaboration.
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *        http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
- * $Id: ShibbolethClient.java,v 1.19 2010/10/25 09:11:56 vtschopp Exp $
  */
 package org.glite.slcs.shibclient;
 
@@ -32,15 +31,12 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookieSpecBase;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.glite.slcs.AuthException;
 import org.glite.slcs.RemoteException;
 import org.glite.slcs.SLCSConfigurationException;
@@ -53,6 +49,8 @@ import org.glite.slcs.jericho.html.Source;
 import org.glite.slcs.jericho.html.Tag;
 import org.glite.slcs.shibclient.metadata.IdentityProvider;
 import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ShibbolethClient is a SSO login parser and a Shibboleth Browser/POST
@@ -62,12 +60,11 @@ import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
  * have been warned.</b>
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.19 $
  */
 public class ShibbolethClient {
 
     /** Logging */
-    private static final Log LOG = LogFactory.getLog(ShibbolethClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ShibbolethClient.class);
 
     /** The HttpClient delegate */
     private HttpClient httpClient_;
@@ -235,8 +232,9 @@ public class ShibbolethClient {
         }
 
         LOG.info("GET IdPSSOResponse: " + idpSSOResponseURL);
-        int idpSSOResponseStatus = executeMethod(getIdPSSOResponseMethod);
-        LOG.debug(getIdPSSOResponseMethod.getStatusLine());
+        @SuppressWarnings("unused")
+		int idpSSOResponseStatus = executeMethod(getIdPSSOResponseMethod);
+        LOG.debug(getIdPSSOResponseMethod.getStatusLine().toString());
 
         // SAML/Artifact are already processed.
         if (isPossiblyUsingArtifact) {
@@ -282,7 +280,7 @@ public class ShibbolethClient {
             }
             reader.close();
         } catch (IOException e) {
-            LOG.error(e);
+            LOG.warn(e.getMessage());
         }
         return sb.toString();
     }
@@ -333,12 +331,12 @@ public class ShibbolethClient {
                         FormControlType type = control.getFormControlType();
                         if (type.equals(FormControlType.HIDDEN)) {
                             String name = control.getName();
-                            Collection<CharSequence> values = control.getValues();
-                            for (CharSequence value : values) {
+                            Collection<String> values = control.getValues();
+                            for (String value : values) {
                                 LOG.debug("HIDDEN " + name + "=" + value);
                                 // add all hidden fields
                                 postSPSAMLMethod.addParameter(name,
-                                                              (String) value);
+                                                              value);
                             }
                         }
                     }
@@ -346,7 +344,7 @@ public class ShibbolethClient {
                     // execute the SAML post
                     LOG.info("POST SPSAMLMethod: " + postSPSAMLMethod.getURI());
                     int spSAMLResponseStatus = executeMethod(postSPSAMLMethod);
-                    LOG.debug(postSPSAMLMethod.getStatusLine());
+                    LOG.debug(postSPSAMLMethod.getStatusLine().toString());
 
                     // status must be 302 and redirect Location
                     Header location = postSPSAMLMethod.getResponseHeader("Location");
@@ -725,8 +723,9 @@ public class ShibbolethClient {
 
             //
             LOG.debug("POST " + postPubcookieFormMethod.getURI());
-            int postPubcookieFormStatus = executeMethod(postPubcookieFormMethod);
-            LOG.debug(postPubcookieFormMethod.getStatusLine());
+            @SuppressWarnings("unused")
+			int postPubcookieFormStatus = executeMethod(postPubcookieFormMethod);
+            LOG.debug(postPubcookieFormMethod.getStatusLine().toString());
 
             // XXX
             dumpHttpClientCookies();
@@ -860,7 +859,7 @@ public class ShibbolethClient {
                             + postLoginFormMethod.getURI());
 
                     int formLoginResponseStatus = executeMethod(postLoginFormMethod);
-                    LOG.debug(postLoginFormMethod.getStatusLine());
+                    LOG.debug(postLoginFormMethod.getStatusLine().toString());
 
                     // XXX
                     dumpHttpClientCookies();
@@ -1005,8 +1004,9 @@ public class ShibbolethClient {
                         if (postPubcookieRelayMethod != null) {
                             LOG.debug("POST postPubcookieRelayMethod: "
                                     + postPubcookieRelayMethod.getURI());
-                            int pubcookieRelayStatus = executeMethod(postPubcookieRelayMethod);
-                            LOG.debug(postPubcookieRelayMethod.getStatusLine());
+                            @SuppressWarnings("unused")
+							int pubcookieRelayStatus = executeMethod(postPubcookieRelayMethod);
+                            LOG.debug(postPubcookieRelayMethod.getStatusLine().toString());
                             Header location = postPubcookieRelayMethod.getResponseHeader("Location");
                             LOG.debug("postPubcookieRelayMethod.releaseConnection()");
                             postPubcookieRelayMethod.releaseConnection();
@@ -1139,7 +1139,8 @@ public class ShibbolethClient {
      *            The Cookie name
      * @return The cookie or <code>null</code>
      */
-    private Cookie getCookie(String name) {
+    @SuppressWarnings("unused")
+	private Cookie getCookie(String name) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Cookie name=" + name);
         }
@@ -1153,7 +1154,8 @@ public class ShibbolethClient {
         return null;
     }
 
-    private Cookie[] getMatchingCookies(String host, String path) {
+    @SuppressWarnings("unused")
+	private Cookie[] getMatchingCookies(String host, String path) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("search all Cookies matching for host:" + host + " path:"
                     + path);
@@ -1171,7 +1173,8 @@ public class ShibbolethClient {
         return (Cookie[]) matchingCookies.toArray(new Cookie[matchingCookies.size()]);
     }
 
-    private Cookie[] getMatchingCookies(String name, String host, String path) {
+    @SuppressWarnings("unused")
+	private Cookie[] getMatchingCookies(String name, String host, String path) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("search Cookie matching name:" + name + " host:" + host
                     + " path:" + path);

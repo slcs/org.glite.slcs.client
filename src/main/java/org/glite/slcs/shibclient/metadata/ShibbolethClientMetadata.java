@@ -1,26 +1,24 @@
 /*
- * Copyright (c) Members of the EGEE Collaboration. 2007.
- * See http://www.eu-egee.org/partners/ for details on the copyright
- * holders.
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *        http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * Version: $Id: ShibbolethClientMetadata.java,v 1.9 2010/10/25 09:10:02 vtschopp Exp $
  */
 package org.glite.slcs.shibclient.metadata;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -32,11 +30,11 @@ import java.util.Vector;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.FileConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.glite.slcs.SLCSConfigurationException;
 import org.glite.slcs.config.SLCSClientConfiguration;
 import org.glite.slcs.config.SLCSConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ShibbolethClientMetadata is the description of all Shibboleth
@@ -51,7 +49,7 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
     static public final String DEFAULT_SLCS_PROVIDERID= "slcs";
 
     /** Log object for this class. */
-    private static final Log LOG= LogFactory.getLog(ShibbolethClientMetadata.class);
+    private static final Logger LOG= LoggerFactory.getLogger(ShibbolethClientMetadata.class);
 
     /** Metadata Entities */
     private Map<String,Provider> providers_;
@@ -186,7 +184,7 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
         if (idpsConfig.isEmpty()) {
             throw new SLCSConfigurationException("IdentityProviders element not found in metadata");
         }
-        List<String> idps= idpsConfig.getList("IdentityProvider[@id]");
+        List<Object> idps= idpsConfig.getList("IdentityProvider[@id]");
         int nIdp= idps.size();
         if (nIdp < 1) {
             throw new SLCSConfigurationException("No IdentityProvider element found in metadata");
@@ -291,10 +289,10 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
     }
 
     /**
-     * @return An enumeration of all <code>IdentityProvider</code>
+     * @return List of all <code>IdentityProvider</code>
      */
-    public Enumeration<IdentityProvider> getIdentityProviders() {
-        Vector<IdentityProvider> idps= new Vector<IdentityProvider>();
+    public List<IdentityProvider> getIdentityProviders() {
+        List<IdentityProvider> idps= new ArrayList<IdentityProvider>();
         Iterator<Provider> providers= getProviders();
         while (providers.hasNext()) {
             Provider provider= (Provider) providers.next();
@@ -302,7 +300,7 @@ public class ShibbolethClientMetadata extends SLCSConfiguration {
                 idps.add((IdentityProvider) provider);
             }
         }
-        return idps.elements();
+        return idps;
     }
 
     /**

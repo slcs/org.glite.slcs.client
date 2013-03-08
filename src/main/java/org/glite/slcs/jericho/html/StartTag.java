@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -438,7 +454,7 @@ public final class StartTag extends Tag {
 	 * @return the HTML text of a {@linkplain StartTagType#NORMAL normal} start tag with the specified tag name and {@linkplain Attributes#populateMap(Map,boolean) attributes map}.
 	 * @see EndTag#generateHTML(String tagName)
 	 */
-	public static String generateHTML(final String tagName, final Map attributesMap, final boolean emptyElementTag) {
+	public static String generateHTML(final String tagName, final Map<String,CharSequence> attributesMap, final boolean emptyElementTag) {
 		final StringWriter stringWriter=new StringWriter();
 		final StringBuffer sb=stringWriter.getBuffer();
 		sb.append('<').append(tagName);
@@ -713,7 +729,7 @@ public final class StartTag extends Tag {
 		while (pos<source.end) {
 			final Tag tag=Tag.findPreviousOrNextTag(source,pos,false);
 			if (tag==null) break;
-			Set terminatingTagNameSet;
+			Set<String> terminatingTagNameSet;
 			if (tag instanceof EndTag) {
 				if (tag.name==name) return (EndTag)tag;
 				terminatingTagNameSet=terminatingTagNameSets.TerminatingEndTagNameSet;

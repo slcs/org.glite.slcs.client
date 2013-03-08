@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -31,12 +47,12 @@ import java.util.List;
  * <p>
  * The <i>span</i> of a segment is defined by the combination of its begin and end character positions.
  */
-public class Segment implements Comparable, CharSequence {
+public class Segment implements Comparable<Segment>, CharSequence {
 	final int begin;
 	final int end;
 	final Source source;
 	
-	List childElements=null;
+	List<Element> childElements=null;
 
 	private static final char[] WHITESPACE={' ','\n','\r','\t','\f','\u200B'}; // see comments in isWhiteSpace(char) method
 
@@ -212,8 +228,8 @@ public class Segment implements Comparable, CharSequence {
 		final StringBuffer sb=new StringBuffer(length());
 		int textBegin=begin;
 		// use findAllTags().iterator() instead of source.findNextTag(textBegin) to take advantage of allTags cache in Source object
-		for (final Iterator i=findAllTags().iterator(); i.hasNext();) {
-			final Tag tag=(Tag)i.next();
+		for (final Iterator<Tag> i=findAllTags().iterator(); i.hasNext();) {
+			final Tag tag= i.next();
 			final int textEnd=tag.begin;
 			if (textEnd<textBegin) continue;
 			while (textBegin<textEnd) sb.append(source.charAt(textBegin++));
@@ -259,7 +275,7 @@ public class Segment implements Comparable, CharSequence {
 	 *
 	 * @return a list of all {@link Tag} objects that are {@linkplain #encloses(Segment) enclosed} by this segment.
 	 */
-	public List findAllTags() {
+	public List<Tag> findAllTags() {
 		return findAllTags(null);
 	}
 
@@ -273,10 +289,10 @@ public class Segment implements Comparable, CharSequence {
 	 * @param tagType  the {@linkplain TagType type} of tags to find.
 	 * @return a list of all {@link Tag} objects of the specified {@linkplain TagType type} that are {@linkplain #encloses(Segment) enclosed} by this segment.
 	 */
-	public List findAllTags(final TagType tagType) {
+	public List<Tag> findAllTags(final TagType tagType) {
 		Tag tag=checkEnclosure(Tag.findPreviousOrNextTag(source,begin,tagType,false));
-		if (tag==null) return Collections.EMPTY_LIST;
-		final ArrayList list=new ArrayList();
+		if (tag==null) return Collections.emptyList();
+		final List<Tag> list=new ArrayList<Tag>();
 		do {
 			list.add(tag);
 			tag=checkEnclosure(Tag.findPreviousOrNextTag(source,tag.begin+1,tagType,false));
@@ -291,7 +307,7 @@ public class Segment implements Comparable, CharSequence {
 	 *
 	 * @return a list of all {@link StartTag} objects that are {@linkplain #encloses(Segment) enclosed} by this segment.
 	 */
-	public List findAllStartTags() {
+	public List<StartTag> findAllStartTags() {
 		return findAllStartTags(null);
 	}
 
@@ -307,12 +323,12 @@ public class Segment implements Comparable, CharSequence {
 	 * @param name  the {@linkplain StartTag#getName() name} of the start tags to find.
 	 * @return a list of all {@link StartTag} objects with the specified name that are {@linkplain #encloses(Segment) enclosed} by this segment.
 	 */
-	public List findAllStartTags(String name) {
+	public List<StartTag> findAllStartTags(String name) {
 		if (name!=null) name=name.toLowerCase();
 		final boolean isXMLTagName=Tag.isXMLName(name);
 		StartTag startTag=(StartTag)checkEnclosure(StartTag.findPreviousOrNext(source,begin,name,isXMLTagName,false));
-		if (startTag==null) return Collections.EMPTY_LIST;
-		final ArrayList list=new ArrayList();
+		if (startTag==null) return Collections.emptyList();
+		final List<StartTag> list=new ArrayList<StartTag>();
 		do {
 			list.add(startTag);
 			startTag=(StartTag)checkEnclosure(StartTag.findPreviousOrNext(source,startTag.begin+1,name,isXMLTagName,false));
@@ -331,10 +347,10 @@ public class Segment implements Comparable, CharSequence {
 	 * @param valueCaseSensitive  specifies whether the attribute value matching is case sensitive.
 	 * @return a list of all {@link StartTag} objects with the specified attribute name/value pair that are {@linkplain #encloses(Segment) enclosed} by this segment.
 	 */
-	public List findAllStartTags(final String attributeName, final String value, final boolean valueCaseSensitive) {
+	public List<Segment> findAllStartTags(final String attributeName, final String value, final boolean valueCaseSensitive) {
 		StartTag startTag=(StartTag)checkEnclosure(source.findNextStartTag(begin,attributeName,value,valueCaseSensitive));
-		if (startTag==null) return Collections.EMPTY_LIST;
-		final ArrayList list=new ArrayList();
+		if (startTag==null) return Collections.emptyList();
+		final ArrayList<Segment> list=new ArrayList<Segment>();
 		do {
 			list.add(startTag);
 			startTag=(StartTag)checkEnclosure(source.findNextStartTag(startTag.begin+1,attributeName,value,valueCaseSensitive));
@@ -354,12 +370,12 @@ public class Segment implements Comparable, CharSequence {
 	 * @return the a list of the immediate children of this segment in the document element hierarchy, guaranteed not <code>null</code>.
 	 * @see Element#getParentElement()
 	 */
-	public List getChildElements() {
+	public List<Element> getChildElements() {
 		if (childElements==null) {
 			if (length()==0) {
-				childElements=Collections.EMPTY_LIST;
+				childElements=Collections.emptyList();
 			} else {
-				childElements=new ArrayList();
+				childElements=new ArrayList<Element>();
 				int pos=begin;
 				while (true) {
 					final StartTag childStartTag=source.findNextStartTag(pos);
@@ -385,7 +401,7 @@ public class Segment implements Comparable, CharSequence {
 	 *
 	 * @return a list of all {@link Element} objects that are {@linkplain #encloses(Segment) enclosed} by this segment.
 	 */
-	public List findAllElements() {
+	public List<Element> findAllElements() {
 		return findAllElements((String)null);
 	}
 
@@ -401,12 +417,12 @@ public class Segment implements Comparable, CharSequence {
 	 * @param name  the {@linkplain Element#getName() name} of the elements to find.
 	 * @return a list of all {@link Element} objects with the specified name that are {@linkplain #encloses(Segment) enclosed} by this segment.
 	 */
-	public List findAllElements(String name) {
+	public List<Element> findAllElements(String name) {
 		if (name!=null) name=name.toLowerCase();
-		final List startTags=findAllStartTags(name);
-		if (startTags.isEmpty()) return Collections.EMPTY_LIST;
-		final ArrayList elements=new ArrayList(startTags.size());
-		for (final Iterator i=startTags.iterator(); i.hasNext();) {
+		final List<?> startTags=findAllStartTags(name);
+		if (startTags.isEmpty()) return Collections.emptyList();
+		final List<Element> elements=new ArrayList<Element>(startTags.size());
+		for (final Iterator<?> i=startTags.iterator(); i.hasNext();) {
 			final StartTag startTag=(StartTag)i.next();
 			final Element element=startTag.getElement();
 			if (element.end>end) break;
@@ -423,11 +439,11 @@ public class Segment implements Comparable, CharSequence {
 	 * @param startTagType  the {@linkplain StartTagType type} of start tags to find, must not be <code>null</code>.
 	 * @return a list of all {@link Element} objects with start tags of the specified {@linkplain StartTagType type} that are {@linkplain #encloses(Segment) enclosed} by this segment.
 	 */
-	public List findAllElements(final StartTagType startTagType) {
-		final List startTags=findAllTags(startTagType);
-		if (startTags.isEmpty()) return Collections.EMPTY_LIST;
-		final ArrayList elements=new ArrayList(startTags.size());
-		for (final Iterator i=startTags.iterator(); i.hasNext();) {
+	public List<Element> findAllElements(final StartTagType startTagType) {
+		final List<Tag> startTags=findAllTags(startTagType);
+		if (startTags.isEmpty()) return Collections.emptyList();
+		final List<Element> elements=new ArrayList<Element>(startTags.size());
+		for (final Iterator<?> i=startTags.iterator(); i.hasNext();) {
 			final StartTag startTag=(StartTag)i.next();
 			final Element element=startTag.getElement();
 			if (element.end>end) break;
@@ -440,10 +456,10 @@ public class Segment implements Comparable, CharSequence {
 	 * Returns a list of all {@link CharacterReference} objects that are {@linkplain #encloses(Segment) enclosed} by this segment.
 	 * @return a list of all {@link CharacterReference} objects that are {@linkplain #encloses(Segment) enclosed} by this segment.
 	 */
-	public List findAllCharacterReferences() {
+	public List<Segment> findAllCharacterReferences() {
 		CharacterReference characterReference=findNextCharacterReference(begin);
-		if (characterReference==null) return Collections.EMPTY_LIST;
-		final ArrayList list=new ArrayList();
+		if (characterReference==null) return Collections.emptyList();
+		final ArrayList<Segment> list=new ArrayList<Segment>();
 		do {
 			list.add(characterReference);
 			characterReference=findNextCharacterReference(characterReference.end);
@@ -455,7 +471,7 @@ public class Segment implements Comparable, CharSequence {
 	 * Returns a list of the {@link FormControl} objects that are {@linkplain #encloses(Segment) enclosed} by this segment.
 	 * @return a list of the {@link FormControl} objects that are {@linkplain #encloses(Segment) enclosed} by this segment.
 	 */
-	public List findFormControls() {
+	public List<FormControl> findFormControls() {
 		return FormControl.findAll(this);
 	}
 
@@ -526,9 +542,8 @@ public class Segment implements Comparable, CharSequence {
 	 * @return a negative integer, zero, or a positive integer as this segment is before, equal to, or after the specified segment.
 	 * @throws ClassCastException if the argument is not a <code>Segment</code>
 	 */
-	public int compareTo(final Object o) {
-		if (this==o) return 0;
-		final Segment segment=(Segment)o;
+	public int compareTo(final Segment segment) {
+		if (this==segment) return 0;
 		if (begin<segment.begin) return -1;
 		if (begin>segment.begin) return 1;
 		if (end<segment.end) return -1;
@@ -642,7 +657,7 @@ public class Segment implements Comparable, CharSequence {
 	 * @return a list of all {@link StartTag} objects representing HTML {@linkplain StartTagType#COMMENT comments} that are {@linkplain #encloses(Segment) enclosed} by this segment.
 	 * @deprecated  Use {@link #findAllTags(TagType) findAllTags}<code>(</code>{@link StartTagType#COMMENT}<code>)</code> instead.
 	 */
-	public List findAllComments() {
+	public List<?> findAllComments() {
 		return findAllTags(StartTagType.COMMENT);
 	}
 
@@ -684,8 +699,8 @@ public class Segment implements Comparable, CharSequence {
 	 * @return a list of <code>Segment</code> objects representing every word in this segment separated by white space.
 	 * @deprecated  no replacement
 	 */
-	public final List findWords() {
-		final ArrayList words=new ArrayList();
+	public final List<Segment> findWords() {
+		final ArrayList<Segment> words=new ArrayList<Segment>();
 		int wordBegin=-1;
 		for (int i=begin; i<end; i++) {
 			if (isWhiteSpace(source.charAt(i))) {

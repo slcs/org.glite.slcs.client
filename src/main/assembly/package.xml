@@ -20,16 +20,16 @@ Binary distribution with dependency jar files.
 Installed in a fakeroot directory structure.
 -->
 <assembly>
-    <id>full-package</id>
+    <id>package</id>
     <formats>
         <format>dir</format>
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
-    <!-- /var/lib/slcs library and endorsed directories -->
+    <!-- /usr/share/slcs library -->
     <dependencySets>
         <dependencySet>
             <scope>runtime</scope>
-            <outputDirectory>/var/lib/slcs</outputDirectory>
+            <outputDirectory>/share/slcs</outputDirectory>
             <fileMode>0644</fileMode>
         </dependencySet>
     </dependencySets>
@@ -38,7 +38,8 @@ Installed in a fakeroot directory structure.
        <!-- /usr/bin directory -->
         <fileSet>
             <directory>src/main/bin</directory>
-            <outputDirectory>/usr/bin</outputDirectory>
+            <outputDirectory>/bin</outputDirectory>
+            <fileMode>0755</fileMode>
         </fileSet>
         <!-- /etc/slcs config directory -->
         <fileSet>
@@ -50,7 +51,7 @@ Installed in a fakeroot directory structure.
         <!-- Documentation -->
         <fileSet>
             <directory>doc</directory>
-            <outputDirectory>/usr/share/doc/slcs</outputDirectory>
+            <outputDirectory>/share/doc/slcs</outputDirectory>
             <fileMode>0644</fileMode>
         </fileSet>
     </fileSets>

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -24,11 +40,11 @@ import java.util.Set;
 
 final class HTMLElementTerminatingTagNameSets {
 	// all fields are guaranteed not null and contain unique sets.
-	public final Set TerminatingStartTagNameSet; // Set of start tags that terminate the element
-	public final Set TerminatingEndTagNameSet; // Set of end tags that terminate the element (the end tag of this element is assumed and not included in this set)
-	public final Set NonterminatingElementNameSet; // Set of elements that can be inside this element, which may contain tags from TerminatingStartTagNameSet and TerminatingEndTagNameSet that must be ignored
+	public final Set<String> TerminatingStartTagNameSet; // Set of start tags that terminate the element
+	public final Set<String> TerminatingEndTagNameSet; // Set of end tags that terminate the element (the end tag of this element is assumed and not included in this set)
+	public final Set<String> NonterminatingElementNameSet; // Set of elements that can be inside this element, which may contain tags from TerminatingStartTagNameSet and TerminatingEndTagNameSet that must be ignored
 
-	public HTMLElementTerminatingTagNameSets(final Set terminatingStartTagNameSet, final Set terminatingEndTagNameSet, final Set nonterminatingElementNameSet) {
+	public HTMLElementTerminatingTagNameSets(final Set<String> terminatingStartTagNameSet, final Set<String> terminatingEndTagNameSet, final Set<String> nonterminatingElementNameSet) {
 		this.TerminatingStartTagNameSet=terminatingStartTagNameSet;
 		this.TerminatingEndTagNameSet=terminatingEndTagNameSet;
 		this.NonterminatingElementNameSet=nonterminatingElementNameSet;

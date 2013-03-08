@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -28,6 +44,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents a <em>field</em> in an HTML <a target="_blank" href="http://www.w3.org/TR/html401/interact/forms.html">form</a>,
@@ -110,8 +127,8 @@ public final class FormField {
 	private final String name;
 	private int userValueCount=0;
 	private boolean allowsMultipleValues=false;
-	private LinkedHashSet predefinedValues=null; // String objects, null if none
-	private final LinkedHashSet formControls=new LinkedHashSet();
+	private Set<String> predefinedValues=null; // String objects, null if none
+	private final Set<FormControl> formControls=new LinkedHashSet<FormControl>();
 	private transient FormControl firstFormControl=null; // this field is simply a cache for the getFirstFormControl() method
 	int columnIndex; // see FormFields.initColumns()
 
@@ -146,7 +163,7 @@ public final class FormField {
 	 * @see #getFormControl()
 	 * @see #getFormControl(String predefinedValue)
 	 */
-	public Collection getFormControls() {
+	public Collection<FormControl> getFormControls() {
 		return formControls;
 	}
 
@@ -162,13 +179,13 @@ public final class FormField {
 	 */
 	public FormControl getFormControl(final String predefinedValue) {
 		if (predefinedValue==null) {
-			for (final Iterator i=formControls.iterator(); i.hasNext();) {
+			for (final Iterator<FormControl> i=formControls.iterator(); i.hasNext();) {
 				final FormControl formControl=(FormControl)i.next();
 				if (!formControl.getFormControlType().hasPredefinedValue()) return formControl;
 				if (formControl.getFormControlType().getElementName()!=Tag.SELECT && formControl.getPredefinedValue()==null) return formControl;
 			}
 		} else {
-			for (final Iterator i=formControls.iterator(); i.hasNext();) {
+			for (final Iterator<FormControl> i=formControls.iterator(); i.hasNext();) {
 				final FormControl formControl=(FormControl)i.next();
 				if (formControl.getFormControlType().getElementName()==Tag.SELECT) {
 					if (formControl.getPredefinedValues().contains(predefinedValue)) return formControl;
@@ -243,8 +260,13 @@ public final class FormField {
 	 * @return a collection of the {@linkplain FormControl#getPredefinedValue() predefined values} of all constituent {@linkplain FormControl controls} in this field, or <code>null</code> if none.
 	 * @see FormControl#getPredefinedValues()
 	 */
-	public Collection getPredefinedValues() {
-		return predefinedValues!=null ? predefinedValues : Collections.EMPTY_SET;
+	public Collection<String> getPredefinedValues() {
+		if (predefinedValues != null) {
+			return predefinedValues;
+		}
+		else {
+			return Collections.emptySet();
+		}
 	}
 
 	/**
@@ -257,10 +279,11 @@ public final class FormField {
 	 *
 	 * @return a collection of the <a href="#FieldSubmissionValue">field submission values</a>, guaranteed not <code>null</code>.
 	 */
-	public Collection getValues() {
-		final HashSet values=new HashSet();
-		for (final Iterator i=formControls.iterator(); i.hasNext();)
-			((FormControl)i.next()).addValuesTo(values);
+	public Collection<String> getValues() {
+		final Set<String> values=new HashSet<String>();
+		for (FormControl formControl : formControls) {
+			formControl.addValuesTo(values);
+		}
 		return values;
 	}
 
@@ -269,8 +292,9 @@ public final class FormField {
 	 * @see FormControl#clearValues()
 	 */
 	public void clearValues() {
-		for (final Iterator i=formControls.iterator(); i.hasNext();)
-			((FormControl)i.next()).clearValues();
+		for (FormControl formControl : formControls) {
+			formControl.clearValues();
+		}		
 	}
 
 	/**
@@ -284,7 +308,7 @@ public final class FormField {
 	 * @param values  the new <a href="#FieldSubmissionValues">field submission values</a> of this field.
 	 * @see #addValue(CharSequence value)
 	 */
-	public void setValues(final Collection values) {
+	public void setValues(final Collection<String> values) {
 		clearValues();
 		addValues(values);
 	}
@@ -329,21 +353,21 @@ public final class FormField {
 	public boolean addValue(final CharSequence value) {
 		if (value==null) throw new IllegalArgumentException("value argument must not be null");
 		if (formControls.size()==1) return getFirstFormControl().addValue(value);
-		List userValueControls=null;
-		for (final Iterator i=formControls.iterator(); i.hasNext();) {
+		List<FormControl> userValueControls=null;
+		for (final Iterator<FormControl> i=formControls.iterator(); i.hasNext();) {
 			final FormControl formControl=(FormControl)i.next();
 			if (!formControl.getFormControlType().hasPredefinedValue()) {
 				// A user value control has been found, but is not the only control with this name.
 				// This shouldn't normally happen in a well designed form, but we will save the user value control
 				// for later and give all predefined value controls first opportunity to take the value.
-				if (userValueControls==null) userValueControls=new LinkedList();
+				if (userValueControls==null) userValueControls=new LinkedList<FormControl>();
 				userValueControls.add(formControl);
 				continue;
 			}
 			if (formControl.addValue(value)) return true; // return value of true from formControl.addValue(value) means the value was taken by the control
 		}
 		if (userValueControls==null) return false;
-		for (final Iterator i=userValueControls.iterator(); i.hasNext();) {
+		for (final Iterator<FormControl> i=userValueControls.iterator(); i.hasNext();) {
 			final FormControl formControl=(FormControl)i.next();
 			if (formControl.addValue(value)) return true;
 		}
@@ -358,12 +382,12 @@ public final class FormField {
 		final StringBuffer sb=new StringBuffer();
 		sb.append("Field: ").append(name).append(", UserValueCount=").append(userValueCount).append(", AllowsMultipleValues=").append(allowsMultipleValues);
 		if (predefinedValues!=null) {
-			for (final Iterator i=predefinedValues.iterator(); i.hasNext();) {
+			for (final Iterator<String> i=predefinedValues.iterator(); i.hasNext();) {
 				sb.append("\nPredefinedValue: ");
 				sb.append(i.next());
 			}
 		}
-		for (final Iterator i=formControls.iterator(); i.hasNext();) {
+		for (final Iterator<FormControl> i=formControls.iterator(); i.hasNext();) {
 			sb.append("\nFormControl: ");
 			sb.append(((FormControl)i.next()).getDebugInfo());
 		}
@@ -382,8 +406,8 @@ public final class FormField {
 		return getDebugInfo();
 	}
 
-	void addValues(final Collection values) {
-		if (values!=null) for (final Iterator i=values.iterator(); i.hasNext();) addValue((CharSequence)i.next());
+	void addValues(final Collection<String> values) {
+		if (values!=null) for (final Iterator<?> i=values.iterator(); i.hasNext();) addValue((CharSequence)i.next());
 	}
 
 	void addValues(final CharSequence[] values) {
@@ -395,7 +419,7 @@ public final class FormField {
 		if (predefinedValue==null) {
 			userValueCount++;
 		} else {
-			if (predefinedValues==null) predefinedValues=new LinkedHashSet();
+			if (predefinedValues==null) predefinedValues=new LinkedHashSet<String>();
 			predefinedValues.add(predefinedValue);
 		}
 		formControls.add(formControl);
@@ -436,10 +460,10 @@ public final class FormField {
 		if (predefinedValues==null) {
 			predefinedValues=formField.predefinedValues;
 		} else if (formField.predefinedValues!=null) {
-			for (final Iterator i=formField.predefinedValues.iterator(); i.hasNext();)
+			for (final Iterator<String> i=formField.predefinedValues.iterator(); i.hasNext();)
 				predefinedValues.add(i.next());
 		}
-		for (final Iterator i=formField.getFormControls().iterator(); i.hasNext();)
+		for (final Iterator<FormControl> i=formField.getFormControls().iterator(); i.hasNext();)
 			formControls.add(i.next());
 	}
 }

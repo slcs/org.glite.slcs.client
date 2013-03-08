@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -20,7 +36,6 @@
 
 package org.glite.slcs.jericho.html;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -185,7 +200,7 @@ public final class FormControlOutputStyle {
 		 * <p>
 		 * The default list is modifiable.
 		 */
-		public static volatile List AttributeNames=new ArrayList(Arrays.asList(new String[] {Attribute.ID,Attribute.CLASS,Attribute.STYLE}));
+		public static volatile List<String> AttributeNames= Arrays.asList(new String[] {Attribute.ID,Attribute.CLASS,Attribute.STYLE});
 
 		/**
 		 * Defines the content of a <a href="FormControlOutputStyle.html#DisplayValueElement">display value element</a>

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -271,18 +287,18 @@ public final class Element extends Segment implements HTMLElementName {
 	 * @return a list of the immediate children of this element in the document element hierarchy, guaranteed not <code>null</code>.
 	 * @see #getParentElement()
 	 */
-	public final List getChildElements() {
+	public final List<Element> getChildElements() {
 		return childElements!=null ? childElements : getChildElements(-1);
 	}
 
-	final List getChildElements(int depth) {
+	final List<Element> getChildElements(int depth) {
 		if (depth!=-1) this.depth=depth;
 		if (childElements==null) {
 			if (!Config.IncludeServerTagsInElementHierarchy && end==startTag.end) {
-				childElements=Collections.EMPTY_LIST;
+				childElements=Collections.emptyList();
 			} else {
 				final int childDepth=(depth==-1 ? -1 : depth+1);
-				childElements=new ArrayList();
+				childElements=new ArrayList<Element>();
 				int pos=Config.IncludeServerTagsInElementHierarchy ? begin+1 : startTag.end;
 				final int maxChildBegin=(Config.IncludeServerTagsInElementHierarchy || endTag==null) ? end : endTag.begin;
 				while (true) {

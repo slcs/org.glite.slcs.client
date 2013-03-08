@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -26,7 +42,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -85,7 +101,7 @@ import java.util.Map;
  */
 public final class OutputDocument implements CharStreamSource {
 	private CharSequence sourceText;
-	private ArrayList outputSegments=new ArrayList();
+	private List<OutputSegment> outputSegments=new ArrayList<OutputSegment>();
 
 	/**
 	 * Constructs a new output document based on the specified source document.
@@ -128,8 +144,10 @@ public final class OutputDocument implements CharStreamSource {
 	 *
 	 * @param segments  a collection of segments to remove, represented by source {@link Segment} objects.
 	 */
-	public void remove(final Collection segments) {
-		for (Iterator i=segments.iterator(); i.hasNext();) remove((Segment)i.next());
+	public void remove(final Collection<Segment> segments) {
+		for (Segment segment : segments) {
+			remove(segment);
+		}
 	}
 
 	/**
@@ -137,6 +155,7 @@ public final class OutputDocument implements CharStreamSource {
 	 * @param pos  the character position at which to insert the text.
 	 * @param text  the replacement text.
 	 */
+	@SuppressWarnings("deprecation")
 	public void insert(final int pos, final CharSequence text) {
 		register(new StringOutputSegment(pos,pos,text));
 	}
@@ -164,6 +183,7 @@ public final class OutputDocument implements CharStreamSource {
 	 * @param end  the character position at which to end the replacement.
 	 * @param text  the replacement text, or <code>null</code> to remove the segment.
 	 */
+	@SuppressWarnings("deprecation")
 	public void replace(final int begin, final int end, final CharSequence text) {
 		register(new StringOutputSegment(begin,end,text));
 	}
@@ -265,7 +285,8 @@ public final class OutputDocument implements CharStreamSource {
 	 * @return a <code>Map</code> containing the name/value entries to be output.
 	 * @see #replace(Attributes,Map)
 	 */
-	public Map replace(final Attributes attributes, boolean convertNamesToLowerCase) {
+	@SuppressWarnings("deprecation")
+	public Map<String,CharSequence> replace(final Attributes attributes, boolean convertNamesToLowerCase) {
 		AttributesOutputSegment attributesOutputSegment=new AttributesOutputSegment(attributes,convertNamesToLowerCase);
 		register(attributesOutputSegment);
 		return attributesOutputSegment.getMap();
@@ -295,7 +316,8 @@ public final class OutputDocument implements CharStreamSource {
 	 * @param map  the <code>Map</code> containing the name/value entries.
 	 * @see #replace(Attributes, boolean convertNamesToLowerCase)
 	 */
-	public void replace(final Attributes attributes, final Map map) {
+	@SuppressWarnings("deprecation")
+	public void replace(final Attributes attributes, final Map<String,CharSequence> map) {
 		register(new AttributesOutputSegment(attributes,map));
 	}
 
@@ -347,8 +369,7 @@ public final class OutputDocument implements CharStreamSource {
 		int pos=0;
 		Collections.sort(outputSegments,OutputSegment.COMPARATOR);
 		OutputSegment lastOutputSegment=null;
-		for (final Iterator i=outputSegments.iterator(); i.hasNext();) {
-			final OutputSegment outputSegment=(OutputSegment)i.next();
+		for (OutputSegment outputSegment : outputSegments) {
 			if (outputSegment==lastOutputSegment) continue; // silently ignore duplicate output segment
 			if (outputSegment.getBegin()<pos) throw new OverlappingOutputSegmentsException(lastOutputSegment,outputSegment);
 			if (outputSegment.getBegin()>pos) Util.appendTo(writer,sourceText,pos,outputSegment.getBegin());
@@ -362,8 +383,7 @@ public final class OutputDocument implements CharStreamSource {
 
 	public long getEstimatedMaximumOutputLength() {
 		long estimatedMaximumOutputLength=sourceText.length();
-		for (final Iterator i=outputSegments.iterator(); i.hasNext();) {
-			final OutputSegment outputSegment=(OutputSegment)i.next();
+		for (OutputSegment outputSegment : outputSegments) {
 			final int outputSegmentOriginalLength=outputSegment.getEnd()-outputSegment.getBegin();
 			estimatedMaximumOutputLength+=(outputSegment.getEstimatedMaximumOutputLength()-outputSegmentOriginalLength);
 		}

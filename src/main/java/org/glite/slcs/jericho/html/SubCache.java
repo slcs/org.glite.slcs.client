@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -120,7 +136,7 @@ final class SubCache {
 		return tag;
 	}
 
-	public Iterator getTagIterator() {
+	public Iterator<Tag> getTagIterator() {
 		return new TagIterator();
 	}
 
@@ -350,24 +366,30 @@ final class SubCache {
 	}
 
 	private static class CacheEntryMissingInternalException extends RuntimeException {
+		private static final long serialVersionUID = -1625106883918770495L;
+
 		public CacheEntryMissingInternalException(final TagType tagType, final Tag tag, final SubCache subCache, final String message) {
 			super("INTERNAL ERROR: Inconsistent Cache State for TagType \""+tagType+"\" - "+message+' '+tag.getDebugInfo()+'\n'+subCache);
 		}
 	}
 
 	private static class SourceCacheEntryMissingInternalException extends CacheEntryMissingInternalException {
+		private static final long serialVersionUID = 6733824628263900459L;
+
 		public SourceCacheEntryMissingInternalException(final TagType tagType, final Tag tag, final SubCache subCache) {
 			super(tagType,tag,subCache,"cache entry no longer found in source:");
 		}
 	}
 
 	private static class FoundCacheEntryMissingInternalException extends CacheEntryMissingInternalException {
+		private static final long serialVersionUID = 6355169045696534466L;
+
 		public FoundCacheEntryMissingInternalException(final TagType tagType, final Tag tag, final SubCache subCache) {
 			super(tagType,tag,subCache,"missing cache entry for found tag");
 		}
 	}
 
-	private final class TagIterator implements Iterator {
+	private final class TagIterator implements Iterator<Tag> {
 		private int i=0;
 		private Tag nextTag;
 		public TagIterator() {
@@ -376,7 +398,7 @@ final class SubCache {
 		public boolean hasNext() {
 			return nextTag!=null;
 		}
-		public Object next() {
+		public Tag next() {
 			final Tag result=nextTag;
 			loadNextTag();
 			return result;

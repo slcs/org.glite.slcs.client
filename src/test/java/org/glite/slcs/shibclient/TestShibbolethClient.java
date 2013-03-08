@@ -24,12 +24,13 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
-import org.glite.slcs.SLCSClientVersion;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.glite.slcs.httpclient.ssl.ExtendedProtocolSocketFactory;
 import org.glite.slcs.pki.Certificate;
 import org.glite.slcs.pki.CertificateKeys;
 import org.glite.slcs.pki.CertificateRequest;
 import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
+import org.glite.slcs.ui.Version;
 
 public class TestShibbolethClient {
 
@@ -42,7 +43,7 @@ public class TestShibbolethClient {
         String userAgent = (String) httpClient.getParams().getParameter(
                 HttpClientParams.USER_AGENT);
         String newUserAgent = "Mozilla/5.0 (" + userAgent + ") slcs-init/"
-                + SLCSClientVersion.getVersion();
+                + Version.getVersion();
         httpClient.getParams().setParameter(HttpClientParams.USER_AGENT,
                 newUserAgent);
         userAgent = (String) httpClient.getParams().getParameter(
@@ -55,7 +56,8 @@ public class TestShibbolethClient {
      * 
      * @param httpClient
      */
-    private static void setHttpClientCookiePolicy(HttpClient httpClient) {
+    @SuppressWarnings("unused")
+	private static void setHttpClientCookiePolicy(HttpClient httpClient) {
         System.out.println("actual CookiePolicy= " +httpClient.getParams().getCookiePolicy());
 //        httpClient.getState().setCookiePolicy(CookiePolicy.COMPATIBILITY);
         DefaultHttpParams.getDefaultParams().setParameter(HttpMethodParams.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
@@ -70,9 +72,9 @@ public class TestShibbolethClient {
 
         // create credentials
         // XXX WARNING PASSWORD IN SOURCE CODE
-        final String idpProviderID = "vho-switchaai.ch";
-        final String username = "test-tschopp";
-        final String password = "XXXXXXXXXXXX";
+        final String idpProviderID = "switch.ch";
+        final String username = "tschopp";
+        final String password = "112358Absinthes";
         ShibbolethCredentials credentials = new ShibbolethCredentials(username,
                 password, idpProviderID);
         // create metadata
@@ -81,8 +83,8 @@ public class TestShibbolethClient {
                 filename);
 
         // create httpclient
-        String truststore = "truststore.switchaai.jks";
-        ExtendedProtocolSocketFactory protocolSocketFactory = new ExtendedProtocolSocketFactory(
+        String truststore = "truststore.slcs.jks";
+        ProtocolSocketFactory protocolSocketFactory = new ExtendedProtocolSocketFactory(
                 truststore);
         Protocol https = new Protocol("https", protocolSocketFactory, 443);
         Protocol.registerProtocol("https", https);
@@ -116,11 +118,11 @@ public class TestShibbolethClient {
 
         System.out.println(loginResponse);
 
-        System.exit(1);
+//        System.exit(1);
 
         // parse response
-        String dn = getDN(loginResponse);
-        // System.out.println("DN=" + dn);
+        String dn = getSubject(loginResponse);
+        System.out.println("User DN=" + dn);
         String authToken = getAuthorizationToken(loginResponse);
         // System.out.println("AuthorizationToken=" + authToken);
         // TODO checks null
@@ -187,21 +189,21 @@ public class TestShibbolethClient {
 
     }
 
-    public static String getDN(StringBuffer response) {
+    public static String getSubject(StringBuffer response) {
         String dn = null;
-        int start = response.indexOf("<DN>");
+        int start = response.indexOf("<Subject>");
         if (start != -1) {
-            start += "<DN>".length();
-            int stop = response.indexOf("</DN>", start);
+            start += "<Subject>".length();
+            int stop = response.indexOf("</Subject>", start);
             if (stop != -1) {
                 dn = response.substring(start, stop);
             }
             else {
-                System.err.println("</DN> not found!");
+                System.err.println("</Subject> not found!");
             }
         }
         else {
-            System.err.println("<DN> not found!");
+            System.err.println("<Subject> not found!");
         }
         return dn;
     }

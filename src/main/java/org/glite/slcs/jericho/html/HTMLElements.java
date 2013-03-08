@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -20,11 +36,10 @@
 
 package org.glite.slcs.jericho.html;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -155,7 +170,7 @@ import java.util.Set;
  * @see Element
  */
 public final class HTMLElements implements HTMLElementName {
-	private static final List ALL=new ArrayList(Arrays.asList(new String[] {A,ABBR,ACRONYM,ADDRESS,APPLET,AREA,B,BASE,BASEFONT,BDO,BIG,BLOCKQUOTE,BODY,BR,BUTTON,CAPTION,CENTER,CITE,CODE,COL,COLGROUP,DD,DEL,DFN,DIR,DIV,DL,DT,EM,FIELDSET,FONT,FORM,FRAME,FRAMESET,H1,H2,H3,H4,H5,H6,HEAD,HR,HTML,I,IFRAME,IMG,INPUT,INS,ISINDEX,KBD,LABEL,LEGEND,LI,LINK,MAP,MENU,META,NOFRAMES,NOSCRIPT,OBJECT,OL,OPTGROUP,OPTION,P,PARAM,PRE,Q,S,SAMP,SCRIPT,SELECT,SMALL,SPAN,STRIKE,STRONG,STYLE,SUB,SUP,TABLE,TBODY,TD,TEXTAREA,TFOOT,TH,THEAD,TITLE,TR,TT,U,UL,VAR}));
+	private static final List<String> ALL= Arrays.asList(new String[] {A,ABBR,ACRONYM,ADDRESS,APPLET,AREA,B,BASE,BASEFONT,BDO,BIG,BLOCKQUOTE,BODY,BR,BUTTON,CAPTION,CENTER,CITE,CODE,COL,COLGROUP,DD,DEL,DFN,DIR,DIV,DL,DT,EM,FIELDSET,FONT,FORM,FRAME,FRAMESET,H1,H2,H3,H4,H5,H6,HEAD,HR,HTML,I,IFRAME,IMG,INPUT,INS,ISINDEX,KBD,LABEL,LEGEND,LI,LINK,MAP,MENU,META,NOFRAMES,NOSCRIPT,OBJECT,OL,OPTGROUP,OPTION,P,PARAM,PRE,Q,S,SAMP,SCRIPT,SELECT,SMALL,SPAN,STRIKE,STRONG,STYLE,SUB,SUP,TABLE,TBODY,TD,TEXTAREA,TFOOT,TH,THEAD,TITLE,TR,TT,U,UL,VAR});
 	private static final HTMLElementNameSet BLOCK=new HTMLElementNameSet(new String[] {P,H1,H2,H3,H4,H5,H6,UL,OL,DIR,MENU,PRE,DL,DIV,CENTER,NOSCRIPT,NOFRAMES,BLOCKQUOTE,FORM,ISINDEX,HR,TABLE,FIELDSET,ADDRESS});
 	private static final HTMLElementNameSet INLINE=new HTMLElementNameSet(new String[] {TT,I,B,U,S,STRIKE,BIG,SMALL,EM,STRONG,DFN,CODE,SAMP,KBD,VAR,CITE,ABBR,ACRONYM,A,IMG,APPLET,OBJECT,FONT,BASEFONT,BR,SCRIPT,MAP,Q,SUB,SUP,SPAN,BDO,IFRAME,INPUT,SELECT,TEXTAREA,LABEL,BUTTON,INS,DEL});
 
@@ -169,9 +184,9 @@ public final class HTMLElements implements HTMLElementName {
 	private static final HTMLElementNameSet DEPRECATED=new HTMLElementNameSet().union(APPLET).union(BASEFONT).union(CENTER).union(DIR).union(FONT).union(ISINDEX).union(MENU).union(S).union(STRIKE).union(U);
 	private static final HTMLElementNameSet START_TAG_OPTIONAL_SET=new HTMLElementNameSet().union(BODY).union(HEAD).union(HTML).union(TBODY);
 
-	private static final HashMap CONSTANT_NAME_MAP=buildTagMap(); // contains a map of tag names to the tag constants, allowing standard tags to be tested using == operator instead of equals()
-	private static final HashMap TERMINATING_TAG_NAME_SETS_MAP=buildTerminatingTagNameSetsMap(); // contains a map of tags having optional end tags to the HTMLElementTerminatingTagNameSets that can terminate the element if the end tag is not present
-	private static final Set END_TAG_OPTIONAL_SET=TERMINATING_TAG_NAME_SETS_MAP.keySet();
+	private static final Map<String,String> CONSTANT_NAME_MAP=buildTagMap(); // contains a map of tag names to the tag constants, allowing standard tags to be tested using == operator instead of equals()
+	private static final Map<String,HTMLElementTerminatingTagNameSets> TERMINATING_TAG_NAME_SETS_MAP=buildTerminatingTagNameSetsMap(); // contains a map of tags having optional end tags to the HTMLElementTerminatingTagNameSets that can terminate the element if the end tag is not present
+	private static final Set<String> END_TAG_OPTIONAL_SET=TERMINATING_TAG_NAME_SETS_MAP.keySet();
 	private static final HTMLElementNameSet END_TAG_REQUIRED_SET=new HTMLElementNameSet().union(ALL).minus(END_TAG_FORBIDDEN_SET).minus(END_TAG_OPTIONAL_SET);
 	private static final HTMLElementNameSet CLOSING_SLASH_IGNORED_SET=new HTMLElementNameSet().union(END_TAG_OPTIONAL_SET).union(END_TAG_REQUIRED_SET);
 
@@ -188,7 +203,7 @@ public final class HTMLElements implements HTMLElementName {
 	 *
 	 * @return a list containing of all the {@linkplain HTMLElementName HTML element names}.
 	 */
-	public static final List getElementNames() {
+	public static final List<String> getElementNames() {
 		return ALL;
 	}
 
@@ -214,7 +229,7 @@ public final class HTMLElements implements HTMLElementName {
 	 * @return a set containing the {@linkplain Element#getName() names} of all the <a target="_blank" href="http://www.w3.org/TR/REC-CSS2/visuren.html#q5">block-level elements</a>.
 	 * @see #getInlineLevelElementNames()
 	 */
-	public static Set getBlockLevelElementNames() {
+	public static Set<String> getBlockLevelElementNames() {
 		return BLOCK;
 	}
 
@@ -247,7 +262,7 @@ public final class HTMLElements implements HTMLElementName {
 	 * @return a set containing the {@linkplain Element#getName() names} of all the <a target="_blank" href="http://www.w3.org/TR/REC-CSS2/visuren.html#q7">inline-level elements</a>.
 	 * @see #getBlockLevelElementNames()
 	 */
-	public static Set getInlineLevelElementNames() {
+	public static Set<String> getInlineLevelElementNames() {
 		return INLINE;
 	}
 
@@ -256,7 +271,7 @@ public final class HTMLElements implements HTMLElementName {
 	 * <a target="_blank" href="http://www.w3.org/TR/html401/conform.html#deprecated">deprecated</a> elements in HTML 4.01.
 	 * @return a set containing the {@linkplain Element#getName() names} of all <a target="_blank" href="http://www.w3.org/TR/html401/conform.html#deprecated">deprecated</a> elements in HTML 4.01.
 	 */
-	public static Set getDeprecatedElementNames() {
+	public static Set<String> getDeprecatedElementNames() {
 		return DEPRECATED;
 	}
 
@@ -274,7 +289,7 @@ public final class HTMLElements implements HTMLElementName {
 	 * @see #getEndTagOptionalElementNames()
 	 * @see #getEndTagRequiredElementNames()
 	 */
-	public static Set getEndTagForbiddenElementNames() {
+	public static Set<String> getEndTagForbiddenElementNames() {
 		return END_TAG_FORBIDDEN_SET;
 	}
 
@@ -298,7 +313,7 @@ public final class HTMLElements implements HTMLElementName {
 	 * @see #getEndTagForbiddenElementNames()
 	 * @see #getEndTagRequiredElementNames()
 	 */
-	public static Set getEndTagOptionalElementNames() {
+	public static Set<String> getEndTagOptionalElementNames() {
 		return END_TAG_OPTIONAL_SET;
 	}
 
@@ -316,7 +331,7 @@ public final class HTMLElements implements HTMLElementName {
 	 * @see #getEndTagForbiddenElementNames()
 	 * @see #getEndTagOptionalElementNames()
 	 */
-	public static Set getEndTagRequiredElementNames() {
+	public static Set<String> getEndTagRequiredElementNames() {
 		return END_TAG_REQUIRED_SET;
 	}
 
@@ -341,7 +356,7 @@ public final class HTMLElements implements HTMLElementName {
 	 *
 	 * @return a set containing the {@linkplain Element#getName() names} of all of the <a href="#HTMLElement">HTML elements</a> for which the {@linkplain Element#getStartTag() start tag} is optional.
 	 */
-	public static Set getStartTagOptionalElementNames() {
+	public static Set<String> getStartTagOptionalElementNames() {
 		return START_TAG_OPTIONAL_SET;
 	}
 
@@ -359,7 +374,7 @@ public final class HTMLElements implements HTMLElementName {
 	 * @see #getTerminatingEndTagNames(String endTagOptionalElementName)
 	 * @see #getNonterminatingElementNames(String endTagOptionalElementName)
 	 */
-	public static Set getTerminatingStartTagNames(final String endTagOptionalElementName) {
+	public static Set<String> getTerminatingStartTagNames(final String endTagOptionalElementName) {
 		final HTMLElementTerminatingTagNameSets terminatingTagNameSets=getTerminatingTagNameSets(endTagOptionalElementName);
 		if (terminatingTagNameSets==null) return null;
 		return terminatingTagNameSets.TerminatingStartTagNameSet;
@@ -382,7 +397,7 @@ public final class HTMLElements implements HTMLElementName {
 	 * @see #getTerminatingStartTagNames(String endTagOptionalElementName)
 	 * @see #getNonterminatingElementNames(String endTagOptionalElementName)
 	 */
-	public static Set getTerminatingEndTagNames(final String endTagOptionalElementName) {
+	public static Set<String> getTerminatingEndTagNames(final String endTagOptionalElementName) {
 		final HTMLElementTerminatingTagNameSets terminatingTagNameSets=getTerminatingTagNameSets(endTagOptionalElementName);
 		if (terminatingTagNameSets==null) return null;
 		return terminatingTagNameSets.TerminatingEndTagNameSet;
@@ -405,7 +420,7 @@ public final class HTMLElements implements HTMLElementName {
 	 * @see #getTerminatingStartTagNames(String endTagOptionalElementName)
 	 * @see #getTerminatingEndTagNames(String endTagOptionalElementName)
 	 */
-	public static Set getNonterminatingElementNames(final String endTagOptionalElementName) {
+	public static Set<String> getNonterminatingElementNames(final String endTagOptionalElementName) {
 		final HTMLElementTerminatingTagNameSets terminatingTagNameSets=getTerminatingTagNameSets(endTagOptionalElementName);
 		if (terminatingTagNameSets==null) return null;
 		return terminatingTagNameSets.NonterminatingElementNameSet;
@@ -417,7 +432,7 @@ public final class HTMLElements implements HTMLElementName {
 	 *
 	 * @return a set containing the {@linkplain Element#getName() names} of all of the <a href="#HTMLElement">HTML elements</a> which should never contain elements of the same name.
 	 */
-	public static Set getNestingForbiddenElementNames() {
+	public static Set<String> getNestingForbiddenElementNames() {
 		return NESTING_FORBIDDEN_SET;
 	}
 
@@ -434,9 +449,9 @@ public final class HTMLElements implements HTMLElementName {
 		return (HTMLElementTerminatingTagNameSets)TERMINATING_TAG_NAME_SETS_MAP.get(endTagOptionalElementName);
 	}
 
-	private static HashMap buildTerminatingTagNameSetsMap() {
+	private static Map<String,HTMLElementTerminatingTagNameSets> buildTerminatingTagNameSetsMap() {
 		// HTML is included in the NonterminatingElementNameSet of BODY and HTML in case the source contains (illegaly) nested HTML documents
-		final HashMap map=new HashMap(20,1.0F); // 15 entries in total
+		final Map<String,HTMLElementTerminatingTagNameSets> map=new HashMap<String,HTMLElementTerminatingTagNameSets>(20,1.0F); // 15 entries in total
 		map.put(BODY,new HTMLElementTerminatingTagNameSets(new HTMLElementNameSet(), new HTMLElementNameSet(HTML).union(BODY), new HTMLElementNameSet(HTML)));
 		map.put(COLGROUP,new HTMLElementTerminatingTagNameSets(new HTMLElementNameSet(_THEAD_TBODY_TFOOT_TR).union(COLGROUP), new HTMLElementNameSet(TABLE).union(COLGROUP), new HTMLElementNameSet(TABLE)));
 		map.put(DD,new HTMLElementTerminatingTagNameSets(new HTMLElementNameSet(_DD_DT), new HTMLElementNameSet(DL).union(DD), new HTMLElementNameSet(DL)));
@@ -455,11 +470,10 @@ public final class HTMLElements implements HTMLElementName {
 		return map;
 	}
 	
-	private static HashMap buildTagMap() {
-		final HashMap map=new HashMap(132,1.0F); // 99 tags total
-		for (final Iterator i=ALL.iterator(); i.hasNext();) {
-			final String tagName=(String)i.next();
-			map.put(tagName,tagName);
+	private static Map<String,String> buildTagMap() {
+		final Map<String,String> map=new HashMap<String,String>(132,1.0F); // 99 tags total
+		for (String tagName: ALL) {
+			map.put(tagName, tagName);
 		}
 		map.put(StartTagTypeMarkupDeclaration.ELEMENT,StartTagTypeMarkupDeclaration.ELEMENT);
 		map.put(StartTagTypeMarkupDeclaration.ATTLIST,StartTagTypeMarkupDeclaration.ATTLIST);

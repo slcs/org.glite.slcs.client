@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -30,6 +46,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * Represents an HTML form <a target="_blank" href="http://www.w3.org/TR/html401/interact/forms.html#form-controls">control</a>.
@@ -83,7 +100,7 @@ public abstract class FormControl extends Segment {
 	FormControlOutputStyle outputStyle=FormControlOutputStyle.NORMAL;
 
 	private static final String CHECKBOX_NULL_DEFAULT_VALUE="on";
-	private static Comparator COMPARATOR=new PositionComparator();
+	private static Comparator<FormControl> COMPARATOR=new PositionComparator();
 
 	static FormControl construct(final Element element) {
 		final String tagName=element.getStartTag().getName();
@@ -170,7 +187,7 @@ public abstract class FormControl extends Segment {
 	 * @return an iterator over the {@link Tag#OPTION OPTION} {@linkplain Element elements} contained within this control, in order of appearance.
 	 * @throws UnsupportedOperationException if the {@linkplain #getFormControlType() type} of this control is not {@link FormControlType#SELECT_SINGLE SELECT_SINGLE} or {@link FormControlType#SELECT_MULTIPLE SELECT_MULTIPLE}.
 	 */
-	public Iterator getOptionElementIterator() {
+	public Iterator<?> getOptionElementIterator() {
 		// overridden in SelectFormControl
 		throw new UnsupportedOperationException("Only SELECT controls contain OPTION elements");
 	}
@@ -230,7 +247,7 @@ public abstract class FormControl extends Segment {
 	 *
 	 * @return a map of the names and values of this form control's <a href="#OutputAttributes">output attributes</a>.
 	 */
-	public final Map getAttributesMap() {
+	public final Map<String,CharSequence> getAttributesMap() {
 		return elementContainer.getAttributesMap();
 	}
 
@@ -372,8 +389,14 @@ public abstract class FormControl extends Segment {
 	 * @return a collection of all {@linkplain #getPredefinedValue() predefined values} in this control, guaranteed not <code>null</code>.
 	 * @see FormField#getPredefinedValues()
 	 */
-	public Collection getPredefinedValues() {
-		return getPredefinedValue()!=null ? Collections.singleton(getPredefinedValue()) : Collections.EMPTY_SET;
+	public Collection<String> getPredefinedValues() {
+		if (getPredefinedValue() == null) {
+			return Collections.emptySet();
+		}
+		else {
+			return Collections.singleton(getPredefinedValue());
+		}
+		//		return getPredefinedValue()!=null ? Collections.singleton(getPredefinedValue()) : Collections.EMPTY_SET;
 	}
 
 	/**
@@ -440,8 +463,8 @@ public abstract class FormControl extends Segment {
 	 * @return a collection of the control's <i>submission values</i>, guaranteed not <code>null</code>.
 	 * @see #getPredefinedValues()
 	 */
-	public Collection getValues() {
-		final HashSet values=new HashSet();
+	public Collection<String> getValues() {
+		final Set<String> values=new HashSet<String>();
 		addValuesTo(values);
 		return values;
 	}
@@ -525,7 +548,7 @@ public abstract class FormControl extends Segment {
 		return setValue(value);
 	}
 
-	abstract void addValuesTo(Collection collection); // should not add null values, values must be of type CharSequence
+	abstract void addValuesTo(Collection<String> collection); // should not add null values, values must be of type CharSequence
 	abstract void addToFormFields(FormFields formFields);
 	abstract void replaceInOutputDocument(OutputDocument outputDocument);
 
@@ -546,7 +569,7 @@ public abstract class FormControl extends Segment {
 			elementContainer.setAttributeValue(Attribute.VALUE,value);
 			return true;
 		}
-		void addValuesTo(final Collection collection) {
+		void addValuesTo(final Collection<String> collection) {
 			addValueTo(collection,elementContainer.getAttributeValue(Attribute.VALUE));
 		}
 		void addToFormFields(final FormFields formFields) {
@@ -580,7 +603,7 @@ public abstract class FormControl extends Segment {
 			this.value=value;
 			return true;
 		}
-		void addValuesTo(final Collection collection) {
+		void addValuesTo(final Collection<String> collection) {
 			addValueTo(collection,getValue());
 		}
 		void addToFormFields(final FormFields formFields) {
@@ -617,7 +640,7 @@ public abstract class FormControl extends Segment {
 		public boolean addValue(final CharSequence value) {
 			return elementContainer.setSelected(value,Attribute.CHECKED,formControlType==FormControlType.CHECKBOX);
 		}
-		void addValuesTo(final Collection collection) {
+		void addValuesTo(final Collection<String> collection) {
 			if (isChecked()) addValueTo(collection,getPredefinedValue());
 		}
 		public boolean isChecked() {
@@ -651,7 +674,7 @@ public abstract class FormControl extends Segment {
 		public boolean setValue(final CharSequence value) {
 			return false;
 		}
-		void addValuesTo(final Collection collection) {}
+		void addValuesTo(final Collection<String> collection) {}
 		void addToFormFields(final FormFields formFields) {
 			if (getPredefinedValue()!=null) formFields.add(this);
 		}
@@ -682,10 +705,10 @@ public abstract class FormControl extends Segment {
 		public ElementContainer[] optionElementContainers;
 		public SelectFormControl(final Element element) {
 			super(element,element.getAttributes().get(Attribute.MULTIPLE)!=null ? FormControlType.SELECT_MULTIPLE : FormControlType.SELECT_SINGLE,false);
-			final List optionElements=element.findAllElements(Tag.OPTION);
+			final List<?> optionElements=element.findAllElements(Tag.OPTION);
 			optionElementContainers=new ElementContainer[optionElements.size()];
 			int x=0;
-			for (final Iterator i=optionElements.iterator(); i.hasNext();) {
+			for (final Iterator<?> i=optionElements.iterator(); i.hasNext();) {
 				final ElementContainer optionElementContainer=new ElementContainer((Element)i.next(),true);
 				if (optionElementContainer.predefinedValue==null)
 					// use the content of the element if it has no value attribute
@@ -696,13 +719,13 @@ public abstract class FormControl extends Segment {
 		public String getPredefinedValue() {
 			throw new UnsupportedOperationException("Use getPredefinedValues() method instead on SELECT controls");
 		}
-		public Collection getPredefinedValues() {
-			final ArrayList arrayList=new ArrayList(optionElementContainers.length);
+		public Collection<String> getPredefinedValues() {
+			final ArrayList<String> arrayList=new ArrayList<String>(optionElementContainers.length);
 			for (int i=0; i<optionElementContainers.length; i++)
 			arrayList.add(optionElementContainers[i].predefinedValue);
 			return arrayList;
 		}
-		public Iterator getOptionElementIterator() {
+		public Iterator<?> getOptionElementIterator() {
 			return new OptionElementIterator();
 		}
 		public boolean setValue(final CharSequence value) {
@@ -718,7 +741,7 @@ public abstract class FormControl extends Segment {
 			}
 			return valueFound;
 		}
-		void addValuesTo(final Collection collection) {
+		void addValuesTo(final Collection<String> collection) {
 			for (int i=0; i<optionElementContainers.length; i++) {
 				if (optionElementContainers[i].getBooleanAttribute(Attribute.SELECTED))
 					addValueTo(collection,optionElementContainers[i].predefinedValue);
@@ -748,7 +771,7 @@ public abstract class FormControl extends Segment {
 				}
 			}
 		}
-		private final class OptionElementIterator implements Iterator {
+		private final class OptionElementIterator implements Iterator<Object> {
 			private int i=0;
 			public boolean hasNext() {
 				return i<optionElementContainers.length;
@@ -766,7 +789,7 @@ public abstract class FormControl extends Segment {
 	final String getDisplayValueHTML(final CharSequence text, final boolean whiteSpaceFormatting) {
 		final StringBuffer sb=new StringBuffer((text==null ? 0 : text.length()*2)+50);
 		sb.append('<').append(FormControlOutputStyle.ConfigDisplayValue.ElementName);
-		for (final Iterator i=FormControlOutputStyle.ConfigDisplayValue.AttributeNames.iterator(); i.hasNext();) {
+		for (final Iterator<?> i=FormControlOutputStyle.ConfigDisplayValue.AttributeNames.iterator(); i.hasNext();) {
 			final String attributeName=i.next().toString();
 			final CharSequence attributeValue=elementContainer.getAttributeValue(attributeName);
 			if (attributeValue==null) continue;
@@ -785,8 +808,8 @@ public abstract class FormControl extends Segment {
 		elementContainer.replaceAttributesInOutputDocumentIfModified(outputDocument);
 	}
 
-	static List findAll(final Segment segment) {
-		final ArrayList list=new ArrayList();
+	static List<FormControl> findAll(final Segment segment) {
+		final ArrayList<FormControl> list=new ArrayList<FormControl>();
 		findAll(segment,list,Tag.INPUT);
 		findAll(segment,list,Tag.TEXTAREA);
 		findAll(segment,list,Tag.SELECT);
@@ -795,8 +818,8 @@ public abstract class FormControl extends Segment {
 		return list;
 	}
 
-	private static void findAll(final Segment segment, final ArrayList list, final String tagName) {
-		for (final Iterator i=segment.findAllElements(tagName).iterator(); i.hasNext();)
+	private static void findAll(final Segment segment, final ArrayList<FormControl> list, final String tagName) {
+		for (final Iterator<?> i=segment.findAllElements(tagName).iterator(); i.hasNext();)
 			list.add(((Element)i.next()).getFormControl());
 	}
 
@@ -820,14 +843,14 @@ public abstract class FormControl extends Segment {
 		if (source.isLoggingEnabled()) source.log(getElement().source.getRowColumnVector(getElement().begin).appendTo(new StringBuffer(200)).append(": compulsory \"name\" attribute of ").append(formControlType).append(" control is ").append(missingOrBlank).toString());
 	}
 
-	private static final void addValueTo(final Collection collection, final CharSequence value) {
-		collection.add(value!=null ? value : "");
+	private static final void addValueTo(final Collection<String> collection, final CharSequence value) {
+		collection.add(value!=null ? (String)value : "");
 	}
 
-	private static final class PositionComparator implements Comparator {
-		public int compare(final Object o1, final Object o2) {
-			int formControl1Begin=((FormControl)o1).getElement().getBegin();
-			int formControl2Begin=((FormControl)o2).getElement().getBegin();
+	private static final class PositionComparator implements Comparator<FormControl> {
+		public int compare(final FormControl fc1, final FormControl fc2) {
+			int formControl1Begin=fc1.getElement().getBegin();
+			int formControl2Begin=fc2.getElement().getBegin();
 			if (formControl1Begin<formControl2Begin) return -1;
 			if (formControl1Begin>formControl2Begin) return 1;
 			return 0;
@@ -840,7 +863,7 @@ public abstract class FormControl extends Segment {
 		// Contains the information common to both a FormControl and to each OPTION element
 		// within a SELECT FormControl
 		public final Element element;
-		public Map attributesMap=null;
+		public Map<String,CharSequence> attributesMap=null;
 		public String predefinedValue; // never null for option, checkbox or radio elements
 
 		public ElementContainer(final Element element, final boolean loadPredefinedValue) {
@@ -848,7 +871,7 @@ public abstract class FormControl extends Segment {
 			predefinedValue=loadPredefinedValue ? element.getAttributes().getValue(Attribute.VALUE) : null;
 		}
 
-		public Map getAttributesMap() {
+		public Map<String, CharSequence> getAttributesMap() {
 			if (attributesMap==null) attributesMap=element.getAttributes().getMap(true);
 			return attributesMap;
 		}

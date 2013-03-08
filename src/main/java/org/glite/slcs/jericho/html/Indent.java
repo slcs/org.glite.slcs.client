@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -22,9 +38,7 @@ package org.glite.slcs.jericho.html;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -65,10 +79,9 @@ final class Indent implements CharStreamSource {
 		return sourceText.length()*2;
 	}
 
-	private void writeContent(final int end, final List childElements, final int depth) throws IOException {
+	private void writeContent(final int end, final List<Element> childElements, final int depth) throws IOException {
 		// sets index to end
-		for (final Iterator i=childElements.iterator(); i.hasNext();) {
-			final Element element=(Element)i.next();
+		for (Element element : childElements) {
 			final int elementBegin=element.begin;
 			if (elementBegin>=end) break;
 			if (indentAllElements) {
@@ -395,10 +408,12 @@ final class Indent implements CharStreamSource {
 
 	private boolean containsNonInlineLevelChildElements(final Element element) {
 		// returns true if the element contains any non-inline-level elements or SCRIPT elements.
-		final Collection childElements=element.getChildElements();
+		final List<Element> childElements=element.getChildElements();
+		// if (childElements==Collections.EMPTY_LIST) return false;
 		if (childElements==Collections.EMPTY_LIST) return false;
-		for (final Iterator i=childElements.iterator(); i.hasNext();) {
-			final Element childElement=(Element)i.next();
+		//for (final Iterator i=childElements.iterator(); i.hasNext();) {
+		for (Element childElement : childElements) {
+			// final Element childElement=(Element)i.next();
 			final String elementName=childElement.getName();
 			if (elementName==HTMLElementName.SCRIPT || !HTMLElements.getInlineLevelElementNames().contains(elementName)) return true;
 			if (containsNonInlineLevelChildElements(childElement)) return true;

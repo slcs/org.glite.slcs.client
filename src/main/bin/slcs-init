@@ -1,16 +1,17 @@
 #!/bin/bash
 #
-# Execute the SLCS client
+# slcs-init: SLCS client CLI
 #
-# Copyright (c) 2004-2009. Members of the EGEE Collaboration. 
-# http://www.eu-egee.org
+# Command line interface for the Short Lived Certificate Service (SLCS). 
+# The user uses his Shibboleth AAI credentials to log in and receives a
+# short lived (valid for ~11 days) X.509 certificate.
 #
-# $Id: slcs-init,v 1.5 2010/02/19 13:14:21 vtschopp Exp $
-# $Name:  $
+# Copyright (c) 2004-2009 Members of the EGEE Collaboration. 
+# Copyright (c) 2010-2013 SWITCH 
 #
 #set -x
 
-# dertermine SLCS_HOME
+# determine SLCS_HOME
 # resolve links - $0 may be a softlink
 PRG="$0"
 while [ -h "$PRG" ]; do
@@ -25,26 +26,24 @@ done
 PRGDIR=`dirname "$PRG"`
 SLCS_HOME="$(cd "$PRGDIR/.." && pwd)"
 
-# source java conf
+# source java conf (RHEL)
 if [ -z $JAVA_HOME ]; then
     if [ -r /etc/java/java.conf ]; then
         . /etc/java/java.conf
     fi
 fi
 
-# /opt/glite/etc/glite-slcs-ui in CLASSPATH
-SLCS_CP=$SLCS_HOME/etc/glite-slcs-ui
+# /etc/slcs or $SLCS_HOME/etc/slcs in CLASSPATH
+if [ -d $SLCS_HOME/etc/slcs ]; then 
+    SLCS_CP=$SLCS_HOME/etc/slcs
+else
+    SLCS_CP=/etc/slcs
+fi
 
-# glite slcs libs
-SLCS_CP=$SLCS_CP:$SLCS_HOME/share/java/glite-slcs-common.jar:$SLCS_HOME/share/java/glite-slcs-ui.jar
-
-# external slcs libs classpath
-for ext_jar in $SLCS_HOME/externals/share/java/*.jar ; do
-    EXTERNAL_CP=$EXTERNAL_CP:$ext_jar
+# all SLCS libs in classpath ($SLCS_HOME/share/slcs)
+for jar in $SLCS_HOME/share/slcs/*.jar ; do
+    SLCS_CP=$SLCS_CP:$jar
 done
-
-# SLCS classpath
-SLCS_CP=$SLCS_CP:$EXTERNAL_CP
 #echo $SLCS_CP
 
 if [ -z $JAVA_HOME ]; then

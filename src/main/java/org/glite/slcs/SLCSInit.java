@@ -1,25 +1,26 @@
 /*
- * Copyright (c) 2007-2009. Members of the EGEE Collaboration.
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *        http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
- * $Id: SLCSInit.java,v 1.18 2010/02/09 17:06:48 vtschopp Exp $
  */
 package org.glite.slcs;
 
+import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.StringReader;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
@@ -38,8 +39,6 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.glite.slcs.config.SLCSClientConfiguration;
 import org.glite.slcs.jericho.html.Element;
 import org.glite.slcs.jericho.html.Source;
@@ -54,17 +53,18 @@ import org.glite.slcs.shibclient.ShibbolethCredentials;
 import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
 import org.glite.slcs.ui.Version;
 import org.glite.slcs.util.PasswordReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * SLCSInit: slcs-init command
  * 
  * @author Valery Tschopp <tschopp@switch.ch>
- * @version $Revision: 1.18 $
  */
 public class SLCSInit extends SLCSBaseClient {
 
     /** Logging */
-    static Log LOG = LogFactory.getLog(SLCSInit.class);
+    static Logger LOG = LoggerFactory.getLogger(SLCSInit.class);
 
     /** Default number of backup file to keep */
     static private int MAX_BACKUP = 3;
@@ -170,25 +170,38 @@ public class SLCSInit extends SLCSBaseClient {
      * to prevent PubCookie from denying access (bug fix)
      */
     private static void setHttpClientUserAgent(HttpClient httpClient) {
-        String userAgent = (String) httpClient.getParams().getParameter(
-                                                                        HttpClientParams.USER_AGENT);
+        String userAgent = (String) httpClient.getParams().getParameter(HttpClientParams.USER_AGENT);
         String newUserAgent = "Mozilla/5.0 (" + userAgent + ") slcs-init/"
                 + Version.getVersion();
         httpClient.getParams().setParameter(HttpClientParams.USER_AGENT,
                                             newUserAgent);
         if (LOG.isDebugEnabled()) {
-            userAgent = (String) httpClient.getParams().getParameter(
-                                                                     HttpClientParams.USER_AGENT);
+            userAgent = (String) httpClient.getParams().getParameter(HttpClientParams.USER_AGENT);
             LOG.debug("User-Agent=" + userAgent);
         }
     }
 
+    private static void printVersion(PrintStream out, boolean withJavaVersion) {
+        out.println("slcs-init: " + SLCSInit.class.getName() + " - " + Version.getCopyright());
+        out.println("Version: " + Version.getName() + " " + Version.getVersion() + 
+        		" (" + org.glite.slcs.common.Version.getName() + " " + org.glite.slcs.common.Version.getVersion() + ")");
+        if ( withJavaVersion && System.getProperty("java.version") != null) {
+        	out.println("Java: " + System.getProperty("java.version"));
+        }
+    }
+    
     /**
      * @param args
      */
     public static void main(String[] args) {
-        LOG.info("Version: ui " + Version.getVersion() + ", common "
-                + org.glite.slcs.common.Version.getVersion());
+    	
+    	// dump version info
+    	LOG.info("slcs-init: " + SLCSInit.class.getName() + " - " + Version.getCopyright());
+        LOG.info("Version: " + Version.getName() + " " + Version.getVersion() + 
+        		" (" + org.glite.slcs.common.Version.getName() + " " + org.glite.slcs.common.Version.getVersion() + ")");
+        if ( System.getProperty("java.version") != null) {
+        	LOG.info("Java: " + System.getProperty("java.version"));
+        }
 
         // parse command line
         CommandLineParser parser = new PosixParser();
@@ -204,10 +217,7 @@ public class SLCSInit extends SLCSBaseClient {
 
         // help? or error
         if (error || cmd.hasOption('h')) {
-            System.out.println("slcs-init: " + SLCSInit.class.getName() + " - "
-                    + Version.getCopyright());
-            System.out.println("Version: ui " + Version.getVersion()
-                    + ", common " + org.glite.slcs.common.Version.getVersion());
+        	printVersion(System.out,false);
             HelpFormatter help = new HelpFormatter();
             help.printHelp("slcs-init --idp <providerId> [options]", options);
             System.exit(1);
@@ -215,10 +225,7 @@ public class SLCSInit extends SLCSBaseClient {
 
         // version?
         if (cmd.hasOption('V')) {
-            System.out.println("slcs-init: " + SLCSInit.class.getName() + " - "
-                    + Version.getCopyright());
-            System.out.println("Version: ui " + Version.getVersion()
-                    + ", common " + org.glite.slcs.common.Version.getVersion());
+        	printVersion(System.out, true);
             System.exit(0);
         }
 
@@ -226,8 +233,7 @@ public class SLCSInit extends SLCSBaseClient {
         boolean verbose = false;
         if (cmd.hasOption('v')) {
             verbose = true;
-            System.out.println("Version: ui " + Version.getVersion()
-                    + ", common " + org.glite.slcs.common.Version.getVersion());
+        	printVersion(System.out, true);
         }
 
         // config
@@ -321,12 +327,24 @@ public class SLCSInit extends SLCSBaseClient {
         }
         else {
             // read from console
+        	
             try {
-                password = PasswordReader.getPassword(System.in,
-                                                      "Shibboleth Password: ");
+            	// use new Java 6 console :)
+            	Console console= System.console();
+            	if (console != null) {
+            		password= console.readPassword("%s: ", "AAI password");
+            	}
+            	else {
+            		// use old implementation
+            		password = PasswordReader.getPassword(System.in,
+                                                         "Shibboleth Password: ");
+            	}
             } catch (IOException e) {
                 // ignored?
-                LOG.error(e);
+                LOG.error(e.getMessage());
+                System.err.println("ERROR: failed to read password: " + e.getMessage());
+                System.exit(1);
+
             }
         }
         if (password == null) {
@@ -345,11 +363,21 @@ public class SLCSInit extends SLCSBaseClient {
         else {
             // read from console
             try {
-                keyPassword = PasswordReader.getPassword(System.in,
+            	// use new Java 6 console :)
+            	Console console= System.console();
+            	if (console != null) {
+            		keyPassword= console.readPassword("%s: ", "New GRID pass phrase");
+            	}
+            	else {
+            		// use old implementation
+            		keyPassword = PasswordReader.getPassword(System.in,
                                                          "New Key Password: ");
+            	}
             } catch (IOException e) {
                 // ignored?
-                LOG.error(e);
+                LOG.error(e.getMessage());
+                System.err.println("ERROR: failed to read password: " + e.getMessage());
+                System.exit(1);
             }
         }
         if (keyPassword == null) {
@@ -387,7 +415,7 @@ public class SLCSInit extends SLCSBaseClient {
                 client.setUserPrefix(userPrefix);
             }
         } catch (SLCSException e) {
-            LOG.fatal("SLCS client creation error", e);
+            LOG.error("SLCS client creation error", e);
             System.err.println("ERROR: Failed to create SLCS client: " + e);
             System.exit(1);
         }
@@ -400,7 +428,7 @@ public class SLCSInit extends SLCSBaseClient {
             }
             client.shibbolethLogin();
         } catch (SLCSException e) {
-            LOG.fatal("SLCSClient Shibboleth login error", e);
+            LOG.error("SLCSClient Shibboleth login error", e);
             System.err.println("ERROR: " + e);
             System.exit(1);
         }
@@ -413,7 +441,7 @@ public class SLCSInit extends SLCSBaseClient {
             }
             client.slcsLogin();
         } catch (SLCSException e) {
-            LOG.fatal("SLCS login request error", e);
+            LOG.error("SLCS login request error", e);
             System.err.println("ERROR: " + e);
             System.exit(1);
         }
@@ -435,9 +463,7 @@ public class SLCSInit extends SLCSBaseClient {
             }
             client.generateCertificateRequest();
         } catch (GeneralSecurityException e) {
-            LOG.fatal(
-                      "SLCSClient failed to generate key and certificate request",
-                      e);
+            LOG.error("SLCSClient failed to generate key and certificate request", e);
             System.err.println("ERROR: " + e);
             System.exit(1);
         }
@@ -450,7 +476,7 @@ public class SLCSInit extends SLCSBaseClient {
             }
             client.slcsCertificateRequest();
         } catch (SLCSException e) {
-            LOG.fatal("SLCS certificate request error", e);
+            LOG.error("SLCS certificate request error", e);
             System.err.println("ERROR: " + e);
             System.exit(1);
         }
@@ -480,7 +506,7 @@ public class SLCSInit extends SLCSBaseClient {
             }
 
         } catch (IOException e) {
-            LOG.fatal("SLCS failed to store key or certificate", e);
+            LOG.error("SLCS failed to store key or certificate", e);
             System.err.println("ERROR: " + e);
             System.exit(1);
         }
@@ -519,7 +545,7 @@ public class SLCSInit extends SLCSBaseClient {
         try {
             LOG.info("GET login: " + slcsLoginURL);
             int status = shibClient_.executeMethod(getLoginMethod);
-            LOG.debug(getLoginMethod.getStatusLine());
+            LOG.debug(getLoginMethod.getStatusLine().toString());
             if (status != 200) {
                 LOG.error("SLCS login failed: "
                         + getLoginMethod.getStatusLine());
@@ -559,7 +585,7 @@ public class SLCSInit extends SLCSBaseClient {
         try {
             LOG.info("POST CSR: " + certificateRequestUrl_);
             int status = shibClient_.executeMethod(postCertificateRequestMethod);
-            LOG.debug(postCertificateRequestMethod.getStatusLine());
+            LOG.debug(postCertificateRequestMethod.getStatusLine().toString());
             // check status
             if (status != 200) {
                 LOG.error("SLCS certificate request failed: "
@@ -984,8 +1010,8 @@ public class SLCSInit extends SLCSBaseClient {
             LOG.info("Store PKCS12: " + filename);
             Codec.storePKCS12(privateKey, certificate, chain, file, password);
         } catch (GeneralSecurityException e) {
-            LOG.error(e);
-            throw new IOException("Failed to store PKCS12: " + e);
+            LOG.error(e.getMessage());
+            throw new IOException("Failed to store PKCS12: " + e, e);
         }
     }
 }

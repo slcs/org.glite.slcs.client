@@ -16,6 +16,7 @@ import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.cookie.CookieSpecBase;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.glite.slcs.httpclient.ssl.ExtendedProtocolSocketFactory;
 
 /**
@@ -25,7 +26,7 @@ public class TestAuthnUsernamePassword {
 
     public static void main(String[] args) throws Exception {
         String truststore = "truststore.slcs.jks";
-        ExtendedProtocolSocketFactory protocolSocketFactory = new ExtendedProtocolSocketFactory(
+        ProtocolSocketFactory protocolSocketFactory = new ExtendedProtocolSocketFactory(
                 truststore);
         Protocol https = new Protocol("https", protocolSocketFactory, 443);
         Protocol.registerProtocol("https", https);
@@ -35,7 +36,7 @@ public class TestAuthnUsernamePassword {
         String cookiePolicy = DebugCookiePolicy.ID; //CookiePolicy.DEFAULT;
         System.out.println("set CookiePolicy: " + cookiePolicy);
         httpClient.getParams().setCookiePolicy(cookiePolicy);
-        String idpSsoUrl = "https://aai.unil.ch/idp/profile/Shibboleth/SSO";
+        String idpSsoUrl = "https://aai-logon.switch.ch/idp/profile/Shibboleth/SSO";
         String ssoUrl = idpSsoUrl
                 + "?shire=https://slcs.switch.ch/Shibboleth.sso/SAML/POST&target=cookie&providerId=https://slcs.switch.ch/shibboleth";
 /*

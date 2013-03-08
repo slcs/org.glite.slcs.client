@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -70,7 +86,7 @@ import java.util.Map;
 public class AttributesOutputSegment implements OutputSegment {
 	private int begin;
 	private int end;
-	private Map map;
+	private Map<String,CharSequence> map;
 
 	/**
 	 * Constructs a new <code>AttributesOutputSegment</code> with the same span and initial name/value entries as the specified source {@link Attributes}.
@@ -112,7 +128,7 @@ public class AttributesOutputSegment implements OutputSegment {
 	 * @param map  the <code>Map</code> containing the name/value entries.
 	 * @see #AttributesOutputSegment(Attributes, boolean convertNamesToLowerCase)
 	 */
-	public AttributesOutputSegment(final Attributes attributes, final Map map) {
+	public AttributesOutputSegment(final Attributes attributes, final Map<String,CharSequence> map) {
 		if (map==null || attributes==null) throw new IllegalArgumentException("both arguments must be non-null");
 		begin=attributes.getBegin();
 		end=attributes.getEnd();
@@ -131,7 +147,7 @@ public class AttributesOutputSegment implements OutputSegment {
 	 * Returns the <code>Map</code> containing the name/value entries to be output.
 	 * @return the <code>Map</code> containing the name/value entries to be output.
 	 */
-	public Map getMap() {
+	public Map<String,CharSequence> getMap() {
 		return map;
 	}
 

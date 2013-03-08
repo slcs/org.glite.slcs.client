@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -24,6 +40,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -509,7 +526,7 @@ public abstract class Tag extends Segment implements HTMLElementName {
 	static final Tag[] parseAll(final Source source, final boolean assumeNoNestedTags) {
 		int registeredTagCount=0;
 		int registeredStartTagCount=0;
-		final ArrayList list=new ArrayList();
+		final List<Tag> list=new ArrayList<Tag>();
 		if (source.end!=0) {
 			final ParseText parseText=source.getParseText();
 			Tag tag=parseAllFindNextTag(source,parseText,0,assumeNoNestedTags);
@@ -562,11 +579,11 @@ public abstract class Tag extends Segment implements HTMLElementName {
 	}
 
 	// delete when deprecated Source.getNextTagIterator method is removed
-	static Iterator getNextTagIterator(final Source source, final int pos) {
+	static Iterator<Tag> getNextTagIterator(final Source source, final int pos) {
 		return new NextTagIterator(source,pos);
 	}
 
-	private static final class NextTagIterator implements Iterator {
+	private static final class NextTagIterator implements Iterator<Tag> {
 		private Tag nextTag=null;
 
 		public NextTagIterator(final Source source, final int pos) {
@@ -577,7 +594,7 @@ public abstract class Tag extends Segment implements HTMLElementName {
 			return nextTag!=null;
 		}
 
-		public Object next() {
+		public Tag next() {
 			final Tag result=nextTag;
 			try {
 				nextTag=findPreviousOrNextTag(result.source,result.begin+1,false);

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2010-2013 SWITCH
+ * Copyright (c) 2006-2010 Members of the EGEE Collaboration
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 // Jericho HTML Parser - Java based library for analysing and manipulating HTML
 // Version 2.2
 // Copyright (C) 2006 Martin Jericho
@@ -176,21 +192,20 @@ import java.util.Map;
  * @see FormField
  * @see FormControl
  */
-public final class FormFields extends AbstractCollection {
-	private final LinkedHashMap map=new LinkedHashMap();
-	private final ArrayList formControls=new ArrayList();
+public final class FormFields extends AbstractCollection<FormField> {
+	private final Map<String,FormField> map=new LinkedHashMap<String, FormField>();
+	private final List<FormControl> formControls=new ArrayList<FormControl>();
 
 	/**
 	 * Constructs a new <code>FormFields</code> object consisting of the specified {@linkplain FormControl form controls}.
 	 * @param formControls  a collection of {@link FormControl} objects.
 	 * @see Segment#findFormFields()
 	 */
-	public FormFields(final Collection formControls) {
+	public FormFields(final Collection<FormControl> formControls) {
 		// Passing "this" as a parameter inside a constructor used to cause some strange problems back in java 1.0,
 		// but it seems to work here and there is no explicit mention in the Java language spec about any potential problems.
 		// The alternative is an ugly static FormFields constructFrom(List formControls) method.
-		for (final Iterator i=formControls.iterator(); i.hasNext();) {
-			final FormControl formControl=(FormControl)i.next();
+		for (FormControl formControl : formControls) {
 			if (formControl.getName()!=null && formControl.getName().length()!=0) {
 				formControl.addToFormFields(this);
 				this.formControls.add(formControl);
@@ -228,7 +243,9 @@ public final class FormFields extends AbstractCollection {
 	 * @return the <code>FormField</code> with the specified {@linkplain FormField#getName() name}, or <code>null</code> if no <code>FormField</code> with the specified name exists.
 	 */
 	public FormField get(String fieldName) {
-		if (Config.CurrentCompatibilityMode.isFormFieldNameCaseInsensitive()) fieldName=fieldName.toLowerCase();
+		if (Config.CurrentCompatibilityMode.isFormFieldNameCaseInsensitive()) {
+			fieldName=fieldName.toLowerCase();
+		}
 		return (FormField)map.get(fieldName);
 	}
 
@@ -243,7 +260,7 @@ public final class FormFields extends AbstractCollection {
 	 *
 	 * @return an iterator over the {@link FormField} objects in the collection.
 	 */
-	public Iterator iterator() {
+	public Iterator<FormField> iterator() {
 		return map.values().iterator();
 	}
 
@@ -259,7 +276,7 @@ public final class FormFields extends AbstractCollection {
 	 * @return a collection of the <a href="FormField.html#FieldSubmissionValue">field submission values</a> of all the specified constituent {@linkplain FormField form field} with the specified {@linkplain FormField#getName() name}, or <code>null</code> if no form field with this name exists.
 	 * @see FormField#getValues()
 	 */
-	public Collection getValues(final String fieldName) {
+	public Collection<String> getValues(final String fieldName) {
 		final FormField formField=get(fieldName);
 		return formField==null ? null : formField.getValues();
 	}
@@ -277,15 +294,12 @@ public final class FormFields extends AbstractCollection {
 	 * @return the entire <a href="#FieldDataSet">field data set</a> represented by the {@linkplain FormField#getValues() values} of the constituent form fields.
 	 * @see #setDataSet(Map)
 	 */
-	public Map getDataSet() {
-		final HashMap map=new HashMap((int)(getCount()/0.7));
-		for (final Iterator i=iterator(); i.hasNext();) {
-			final FormField formField=(FormField)i.next();
-			final Collection values=formField.getValues();
+	public Map<String,String[]> getDataSet() {
+		final Map<String,String[]> map=new HashMap<String,String[]>((int)(getCount()/0.7));
+		for (FormField formField : this) {
+			final Collection<String> values=formField.getValues();
 			if (values.isEmpty()) continue;
-			final String[] valuesArray=new String[values.size()];
-			final Iterator valuesIterator=values.iterator();
-			for (int x=0; x<values.size(); x++) valuesArray[x]=valuesIterator.next().toString();
+			final String[] valuesArray=values.toArray(new String[values.size()]);
 			map.put(formField.getName(),valuesArray);
 		}
 		return map;
@@ -296,8 +310,9 @@ public final class FormFields extends AbstractCollection {
 	 * @see FormControl#clearValues()
 	 */
 	public void clearValues() {
-		for (final Iterator i=formControls.iterator(); i.hasNext();)
-			((FormControl)i.next()).clearValues();
+		for (FormControl formControl : formControls) {
+			formControl.clearValues();
+		}
 	}
 
 	/**
@@ -319,18 +334,15 @@ public final class FormFields extends AbstractCollection {
 	 * @param dataSet  the <a href="#FieldDataSet">field data set</a> containing the new {@linkplain FormField#setValues(Collection) values} of the constituent form fields.
 	 * @see #getDataSet()
 	 */
-	public void setDataSet(final Map dataSet) {
+	public void setDataSet(final Map<String,String[]> dataSet) {
 		clearValues();
 		if (map==null) return;
-		for (final Iterator i=dataSet.entrySet().iterator(); i.hasNext();) {
-			final Map.Entry entry=(Map.Entry)i.next();
-			final String fieldName=entry.getKey().toString();
+		for (final Iterator<Map.Entry<String, String[]>> i=dataSet.entrySet().iterator(); i.hasNext();) {
+			final Map.Entry<String, String[]> entry= i.next();
+			final String fieldName=entry.getKey();
 			final FormField formField=get(fieldName);
 			if (formField!=null) {
-				if (entry.getValue() instanceof Collection)
-					formField.addValues((Collection)entry.getValue());
-				else
-					formField.addValues((CharSequence[])entry.getValue());
+				formField.addValues(entry.getValue());
 			}
 		}
 	}
@@ -502,7 +514,7 @@ public final class FormFields extends AbstractCollection {
 	 * @see #getColumnLabels()
 	 * @see #getColumnValues()
 	 */
-	public String[] getColumnValues(final Map dataSet) {
+	public String[] getColumnValues(final Map<String,String[]> dataSet) {
 		initColumns();
 		final String[] columnValues=new String[columns.length];
 		if (Config.ColumnValueFalse!=null) {
@@ -510,17 +522,14 @@ public final class FormFields extends AbstractCollection {
 			for (int i=0; i<columns.length; i++)
 				if (columns[i].isBoolean) columnValues[i]=Config.ColumnValueFalse;
 		}
-		for (final Iterator i=dataSet.entrySet().iterator(); i.hasNext();) {
-			final Map.Entry entry=(Map.Entry)i.next();
+		for (final Iterator<Map.Entry<String,String[]>> i=dataSet.entrySet().iterator(); i.hasNext();) {
+			final Map.Entry<String,String[]> entry=i.next();
 			final String fieldName=entry.getKey().toString();
 			final FormField formField=get(fieldName);
 			if (formField!=null) {
-				final Collection values=(entry.getValue() instanceof Collection)
-					? (Collection)entry.getValue()
-					: Arrays.asList((CharSequence[])entry.getValue());
+				final List<String> values= Arrays.asList(entry.getValue());
 				final int columnIndex=formField.columnIndex;
-				for (final Iterator valueIterator=values.iterator(); valueIterator.hasNext();) {
-					final String value=valueIterator.next().toString();
+				for (String value : values) {
 					for (int ci=columnIndex; ci<columns.length; ci++) {
 						final Column column=columns[ci];
 						if (column.formField!=formField) break;
@@ -558,17 +567,20 @@ public final class FormFields extends AbstractCollection {
 
 	private void initColumns() {
 		if (columns!=null) return;
-		final ArrayList columnList=new ArrayList();
-		for (final Iterator i=iterator(); i.hasNext();) {
-			final FormField formField=(FormField)i.next();
+		final List<Column> columnList=new ArrayList<Column>();
+		for (FormField formField : this) {
 			formField.columnIndex=columnList.size();
 			if (!formField.allowsMultipleValues() || formField.getPredefinedValues().isEmpty()) {
 				columnList.add(new Column(formField,formField.getPredefinedValues().size()==1,null));
 			} else {
 				// add a column for every predefined value
-				for (final Iterator pvi=formField.getPredefinedValues().iterator(); pvi.hasNext();)
-					columnList.add(new Column(formField,true,(String)pvi.next()));
-				if (formField.getUserValueCount()>0) columnList.add(new Column(formField,false,null)); // add a column for user values, must come after predefined values for algorithm in getColumnValues to work
+				for (final Iterator<String> pvi=formField.getPredefinedValues().iterator(); pvi.hasNext();) {
+					columnList.add(new Column(formField,true,pvi.next()));
+				}
+				if (formField.getUserValueCount()>0) { 
+					// add a column for user values, must come after predefined values for algorithm in getColumnValues to work
+					columnList.add(new Column(formField,false,null)); 
+				}
 			}
 		}
 		columns=(Column[])columnList.toArray(new Column[columnList.size()]);
@@ -590,7 +602,7 @@ public final class FormFields extends AbstractCollection {
 	 * Returns a list of all the {@linkplain FormField#getFormControls() constituent form controls} from all the {@linkplain FormField form fields} in this collection.
 	 * @return a list of all the {@linkplain FormField#getFormControls() constituent form controls} from all the {@linkplain FormField form fields} in this collection.
 	 */
-	public List getFormControls() {
+	public List<FormControl> getFormControls() {
 		return formControls;
 	}
 
@@ -610,8 +622,7 @@ public final class FormFields extends AbstractCollection {
 	 * NOTE: Some underlying data structures may end up being shared between the two merged <code>FormFields</code> collections.
 	 */
 	public void merge(final FormFields formFields) {
-		for (final Iterator i=formFields.iterator(); i.hasNext();) {
-			final FormField formField=(FormField)i.next();
+		for (FormField formField : formFields) {
 			final String fieldName=formField.getName();
 			final FormField existingFormField=get(fieldName);
 			if (existingFormField==null)
@@ -627,7 +638,7 @@ public final class FormFields extends AbstractCollection {
 	 */
 	public String getDebugInfo() {
 		final StringBuffer sb=new StringBuffer();
-		for (final Iterator i=iterator(); i.hasNext();) {
+		for (final Iterator<FormField> i=iterator(); i.hasNext();) {
 			sb.append(i.next());
 		}
 		return sb.toString();
@@ -667,11 +678,13 @@ public final class FormFields extends AbstractCollection {
 	}
 
 	void replaceInOutputDocument(final OutputDocument outputDocument) {
-		for (final Iterator i=formControls.iterator(); i.hasNext();)
-			outputDocument.replace((FormControl)i.next());
+		for (FormControl formControl : formControls) {
+			outputDocument.replace(formControl);
+		}
 	}
 
-	private void add(final FormField formField) {
+	public boolean add(final FormField formField) {
 		map.put(formField.getName(),formField);
+		return true;
 	}
 }
