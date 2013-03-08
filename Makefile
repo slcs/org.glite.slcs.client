@@ -53,6 +53,11 @@ package:
 	@echo "Build package with maven"
 	mvn -B package
 
+bin-package:
+	test -d target/$(name)-package.dir || make package
+	@echo "Package the binary..."
+	test ! -f $(name)-$(version)-$(release).tar.gz || rm $(name)-$(version)-$(release).tar.gz
+	tar -C target/$(name)-package.dir -czf $(name)-$(version)-$(release).tar.gz bin etc share
 
 install:
 	test -d target/$(name)-package.dir || make package
