@@ -1,0 +1,57 @@
+<!--
+    Copyright (c) Members of the EGEE Collaboration. 2006-2010.
+    See http://www.eu-egee.org/partners/ for details on the copyright holders.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- 
+Binary distribution with dependency jar files.
+Installed in a fakeroot directory structure.
+-->
+<assembly>
+    <id>full-package</id>
+    <formats>
+        <format>dir</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <!-- /var/lib/slcs library and endorsed directories -->
+    <dependencySets>
+        <dependencySet>
+            <scope>runtime</scope>
+            <outputDirectory>/var/lib/slcs</outputDirectory>
+            <fileMode>0644</fileMode>
+        </dependencySet>
+    </dependencySets>
+    
+    <fileSets>
+       <!-- /usr/bin directory -->
+        <fileSet>
+            <directory>src/main/bin</directory>
+            <outputDirectory>/usr/bin</outputDirectory>
+        </fileSet>
+        <!-- /etc/slcs config directory -->
+        <fileSet>
+            <directory>src/main/etc</directory>
+            <outputDirectory>/etc/slcs</outputDirectory>
+            <fileMode>0644</fileMode>
+            <directoryMode>0755</directoryMode>
+        </fileSet>
+        <!-- Documentation -->
+        <fileSet>
+            <directory>doc</directory>
+            <outputDirectory>/usr/share/doc/slcs</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
+    </fileSets>
+</assembly>
