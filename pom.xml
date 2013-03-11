@@ -21,7 +21,7 @@
         <repository>
             <id>switch</id>
             <name>SWITCH Maven Repository</name>
-            <url>https://www.switch.ch/grid/authz/docs/maven2/release</url>
+            <url>http://www.switch.ch/grid/authz/docs/maven2/release</url>
         </repository>
     </repositories>
 
