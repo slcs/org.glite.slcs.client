@@ -18,7 +18,7 @@
 name=slcs-client
 
 version=2.0
-release=1
+release=2
 
 # install options (like configure)
 prefix=/usr/local
