@@ -32,7 +32,7 @@ import org.glite.slcs.pki.CertificateRequest;
 import org.glite.slcs.shibclient.metadata.ShibbolethClientMetadata;
 import org.glite.slcs.ui.Version;
 
-public class TestShibbolethClient {
+public class ShibbolethClient {
 
     /**
      * Sets the User-Agent request header as
