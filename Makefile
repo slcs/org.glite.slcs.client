@@ -46,8 +46,8 @@ dist:
 	cp .classpath .project Makefile README.md pom.xml $(tmp_dir)/$(name)-$(version)
 	cp -r doc $(tmp_dir)/$(name)-$(version)
 	cp -r src $(tmp_dir)/$(name)-$(version)
-	test ! -f $(name)-$(version).src.tar.gz || rm $(name)-$(version).src.tar.gz
-	tar -C $(tmp_dir) -czf $(name)-$(version).src.tar.gz $(name)-$(version)
+	test ! -f $(name)-$(version).tar.gz || rm $(name)-$(version).tar.gz
+	tar -C $(tmp_dir) -czf $(name)-$(version).tar.gz $(name)-$(version)
 	rm -fr $(tmp_dir)
 
 package:
