@@ -18,7 +18,7 @@
 name=slcs-client
 
 version=2.0
-release=2
+release=1
 
 # install options (like configure)
 prefix=/usr/local
@@ -32,6 +32,11 @@ docdir=$(datarootdir)/doc/$(name)
 # tmp
 tmp_dir=$(CURDIR)/tmp
 
+# RPM
+spec_file = fedora/$(rpm_name).spec
+rpmbuild_dir = $(CURDIR)/rpmbuild
+
+
 .PHONY: clean dist package install
 
 all: package
@@ -44,6 +49,7 @@ dist:
 	test ! -d $(tmp_dir) || rm -fr $(tmp_dir)
 	mkdir -p $(tmp_dir)/$(name)-$(version)
 	cp .classpath .project Makefile README.md pom.xml $(tmp_dir)/$(name)-$(version)
+	cp -r fedora $(tmp_dir)/$(name)-$(version)
 	cp -r doc $(tmp_dir)/$(name)-$(version)
 	cp -r src $(tmp_dir)/$(name)-$(version)
 	test ! -f $(name)-$(version).tar.gz || rm $(name)-$(version).tar.gz
@@ -67,6 +73,7 @@ install:
 	@echo " bindir: $(DESTDIR)$(bindir)"
 	@echo " datadir: $(DESTDIR)$(datadir)"
 	@echo " docdir: $(DESTDIR)$(docdir)"
+	@echo " mandir: $(DESTDIR)$(mandir)"
 	install -d $(DESTDIR)$(sysconfdir)/slcs
 	install -m 0644 target/$(name)-package.dir/etc/slcs/* $(DESTDIR)$(sysconfdir)/slcs
 	install -d $(DESTDIR)$(bindir)
@@ -77,4 +84,32 @@ install:
 	install -m 0644 target/$(name)-package.dir/share/man/man1/slcs-init.1 $(DESTDIR)$(mandir)/man1
 	install -d $(DESTDIR)$(docdir)
 	install -m 0644 target/$(name)-package.dir/share/doc/slcs/* $(DESTDIR)$(docdir)
+
+
+#
+# RPM
+#
+spec:
+	@echo "Setting version and release in spec file: $(version)-$(release)"
+	sed -e 's#@@SPEC_VERSION@@#$(version)#g' -e 's#@@SPEC_RELEASE@@#$(release)#g' $(spec_file).in > $(spec_file)
+
+
+pre_rpmbuild: spec
+	@echo "Preparing for rpmbuild in $(rpmbuild_dir)"
+	mkdir -p $(rpmbuild_dir)/BUILD $(rpmbuild_dir)/RPMS $(rpmbuild_dir)/SOURCES $(rpmbuild_dir)/SPECS $(rpmbuild_dir)/SRPMS
+	test -f $(name)-$(version).tar.gz || make dist
+	cp $(name)-$(version).tar.gz $(rpmbuild_dir)/SOURCES
+
+
+srpm: pre_rpmbuild
+	@echo "Building SRPM in $(rpmbuild_dir)"
+	rpmbuild --nodeps -v -bs $(spec_file) --define "_topdir $(rpmbuild_dir)"
+	cp $(rpmbuild_dir)/SRPMS/*.src.rpm .
+
+
+rpm: pre_rpmbuild
+	@echo "Building RPM/SRPM in $(rpmbuild_dir)"
+	rpmbuild --nodeps -v -ba $(spec_file) --define "_topdir $(rpmbuild_dir)"
+	find $(rpmbuild_dir)/RPMS -name "*.rpm" -exec cp '{}' . \;
+
 

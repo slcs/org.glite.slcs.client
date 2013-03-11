@@ -1,0 +1,74 @@
+## Turn off meaningless jar repackaging on SL6
+%define __jar_repack 0
+
+Name: slcs-client
+
+Version: @@SPEC_VERSION@@
+Release: @@SPEC_RELEASE@@%{?dist}
+Summary: Short Lived Certificate Service slcs-init command
+
+
+License: ASL 2.0
+Group: System Environment/Libraries
+URL: http://www.switch.ch/grid/slcs/
+
+Source: %{name}-%{version}.tar.gz
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildArch: noarch
+
+BuildRequires: java-devel
+BuildRequires: maven
+
+Requires: java
+
+%description
+Command line interface for the Short Lived Certificate Service (SLCS).
+The user uses his Shibboleth AAI credentials to log in and receives a
+short lived (valid for ~11 days) X.509 certificate.
+
+%prep
+%setup -q
+
+%build
+export JAVA_HOME=/usr/lib/jvm/java
+make package
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root,-)
+%dir %{_sysconfdir}/slcs
+%config(noreplace) %{_sysconfdir}/slcs/slcs-init.xml
+%config(noreplace) %{_sysconfdir}/slcs/logback.xml
+%config %{_sysconfdir}/slcs/truststore.slcs.jks
+%{_bindir}/slcs-init
+%{_bindir}/slcs-info
+%dir %{_datadir}/slcs
+%{_datadir}/slcs/bcprov-jdk15on-1.46.jar
+%{_datadir}/slcs/commons-cli-1.2.jar
+%{_datadir}/slcs/commons-codec-1.2.jar
+%{_datadir}/slcs/commons-configuration-1.9.jar
+%{_datadir}/slcs/commons-httpclient-3.1.jar
+%{_datadir}/slcs/commons-lang-2.6.jar
+%{_datadir}/slcs/jcl-over-slf4j-1.7.2.jar
+%{_datadir}/slcs/logback-classic-1.0.9.jar
+%{_datadir}/slcs/logback-core-1.0.9.jar
+%{_datadir}/slcs/slcs-client-2.0.jar
+%{_datadir}/slcs/slcs-common-2.0.jar
+%{_datadir}/slcs/slf4j-api-1.7.2.jar
+%{_mandir}/man1/slcs-init.1
+%doc README.md doc/AUTHORS doc/LICENSE doc/LICENSE.jericho-html doc/CHANGELOG
+
+%changelog
+* Mon Mar 11 2013 Valery Tschopp <valery.tschopp@switch.ch> 2.0-1
+- Upstream version 2.0.
+- Initial RPM release.
+
+
+
+
