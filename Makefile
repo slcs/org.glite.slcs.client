@@ -33,7 +33,7 @@ docdir=$(datarootdir)/doc/$(name)
 tmp_dir=$(CURDIR)/tmp
 
 # RPM
-spec_file = fedora/$(rpm_name).spec
+spec_file = fedora/$(name).spec
 rpmbuild_dir = $(CURDIR)/rpmbuild
 
 
