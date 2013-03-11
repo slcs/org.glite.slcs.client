@@ -42,7 +42,7 @@ rpmbuild_dir = $(CURDIR)/rpmbuild
 all: package
 
 clean:
-	rm -rf target $(tmp_dir) *.tar.gz
+	rm -rf target $(tmp_dir) *.tar.gz $(rpmbuild_dir) $(spec_file) *.rpm $(name)
 
 dist:
 	@echo "Package the sources..."
