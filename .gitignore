@@ -3,4 +3,4 @@
 /rpmbuild
 /.settings
 /*.tar.gz
-/*.zip
+/*.rpm
