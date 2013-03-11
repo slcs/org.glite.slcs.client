@@ -31,11 +31,11 @@ short lived (valid for ~11 days) X.509 certificate.
 
 %build
 export JAVA_HOME=/usr/lib/jvm/java
-make package
+make clean package
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make DESTDIR=$RPM_BUILD_ROOT install
+make prefix=%{_prefix} sysconfdir=%{_sysconfdir} DESTDIR=$RPM_BUILD_ROOT install
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -61,7 +61,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/slcs/slcs-client-2.0.jar
 %{_datadir}/slcs/slcs-common-2.0.jar
 %{_datadir}/slcs/slf4j-api-1.7.2.jar
-%{_mandir}/man1/slcs-init.1
+%{_mandir}/man1/slcs-init.1.gz
+%exclude %{_docdir}/%{name}
 %doc README.md doc/AUTHORS doc/LICENSE doc/LICENSE.jericho-html doc/CHANGELOG
 
 %changelog
