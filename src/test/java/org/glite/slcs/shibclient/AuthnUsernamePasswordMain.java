@@ -22,7 +22,7 @@ import org.glite.slcs.httpclient.ssl.ExtendedProtocolSocketFactory;
 /**
  * @author tschopp
  */
-public class AuthnUsernamePassword {
+public class AuthnUsernamePasswordMain {
 
     public static void main(String[] args) throws Exception {
         String truststore = "truststore.slcs.jks";
