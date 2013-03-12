@@ -1,0 +1,18 @@
+Source: slcs-client
+Priority: extra
+Maintainer: Valery Tschopp <valery.tschopp@switch.ch>
+Build-Depends: debhelper (>= 7.0.50~), maven2, default-jdk
+Standards-Version: 3.9.1
+Section: java
+Homepage: https://twiki.cern.ch/twiki/bin/view/EGEE/AuthZPEPCCLI
+Vcs-Git: git://github.com/slcs/org.glite.slcs.client.git
+Vcs-Browser: https://github.com/slcs/org.glite.slcs.client
+
+Package: slcs-client
+Architecture: all
+Depends: default-jre-headless, ${java:Depends}, ${misc:Depends}
+Recommends: ${java:Recommends}
+Description: SLCS slcs-init command 
+ Command line interface for the Short Lived Certificate Service (SLCS).
+ The user uses his Shibboleth AAI credentials to log in and receives a
+ short lived (valid for ~11 days) X.509 certificate.

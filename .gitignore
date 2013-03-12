@@ -1,4 +1,10 @@
 /target
+/fedora/slcs-client.spec
+/rpmbuild
+/debbuild
+/.pc
 /.settings
 /*.tar.gz
-/*.zip
+/*.rpm
+/*.dsc
+/*.deb
