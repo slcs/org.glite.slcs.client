@@ -36,13 +36,16 @@ tmp_dir=$(CURDIR)/tmp
 spec_file = fedora/$(name).spec
 rpmbuild_dir = $(CURDIR)/rpmbuild
 
+# Debian
+debbuild_dir = $(CURDIR)/debbuild
+
 
 .PHONY: clean dist package install
 
 all: package
 
 clean:
-	rm -rf target $(tmp_dir) *.tar.gz $(rpmbuild_dir) $(spec_file) *.rpm $(name)
+	rm -rf target $(tmp_dir) *.tar.gz $(rpmbuild_dir) $(spec_file) *.rpm $(name) $(debbuild_dir) 
 
 dist:
 	@echo "Package the sources..."
@@ -111,5 +114,26 @@ rpm: pre_rpmbuild
 	@echo "Building RPM/SRPM in $(rpmbuild_dir)"
 	rpmbuild --nodeps -v -ba $(spec_file) --define "_topdir $(rpmbuild_dir)"
 	find $(rpmbuild_dir)/RPMS -name "*.rpm" -exec cp '{}' . \;
+
+#
+# Debian
+#
+pre_debbuild:
+	@echo "Prepare for Debian building in $(debbuild_dir)"
+	mkdir -p $(debbuild_dir)
+	test -f $(name)-$(version).tar.gz || make dist
+	cp $(name)-$(version).tar.gz $(debbuild_dir)/$(name)_$(version).orig.tar.gz
+	tar -C $(debbuild_dir) -xzf $(debbuild_dir)/$(name)_$(version).orig.tar.gz
+	cp -r debian $(debbuild_dir)/$(name)-$(version)
+
+deb-src: pre_debbuild
+	@echo "Building Debian source package in $(debbuild_dir)"
+	cd $(debbuild_dir) && dpkg-source -b $(name)-$(version)
+	find $(debbuild_dir) -maxdepth 1 -type f -exec cp '{}' . \;
+
+deb: pre_debbuild
+	@echo "Building Debian package in $(debbuild_dir)"
+	cd $(debbuild_dir)/$(name)-$(version) && debuild -us -uc 
+	find $(debbuild_dir) -maxdepth 1 -name "*.deb" -exec cp '{}' . \;
 
 
