@@ -1,0 +1,19 @@
+Description: make install into prefix=/usr and sysconfdir=/etc
+Author: Valery Tschopp <valery.tschopp@switch.ch>
+
+Index: org.glite.slcs.client/Makefile
+===================================================================
+--- org.glite.slcs.client.orig/Makefile	2013-03-12 17:55:29.000000000 +0100
++++ org.glite.slcs.client/Makefile	2013-03-12 17:56:08.000000000 +0100
+@@ -21,9 +21,9 @@
+ release=1
+ 
+ # install options (like configure)
+-prefix=/usr/local
++prefix=/usr
+ bindir=$(prefix)/bin
+-sysconfdir=$(prefix)/etc
++sysconfdir=/etc
+ datarootdir=$(prefix)/share
+ datadir=$(datarootdir)/slcs
+ mandir=$(datarootdir)/man
