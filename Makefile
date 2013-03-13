@@ -53,6 +53,7 @@ dist:
 	mkdir -p $(tmp_dir)/$(name)-$(version)
 	cp .classpath .project Makefile README.md pom.xml $(tmp_dir)/$(name)-$(version)
 	cp -r fedora $(tmp_dir)/$(name)-$(version)
+	cp -r debian $(tmp_dir)/$(name)-$(version)
 	cp -r doc $(tmp_dir)/$(name)-$(version)
 	cp -r src $(tmp_dir)/$(name)-$(version)
 	test ! -f $(name)-$(version).tar.gz || rm $(name)-$(version).tar.gz
@@ -124,7 +125,6 @@ pre_debbuild:
 	test -f $(name)-$(version).tar.gz || make dist
 	cp $(name)-$(version).tar.gz $(debbuild_dir)/$(name)_$(version).orig.tar.gz
 	tar -C $(debbuild_dir) -xzf $(debbuild_dir)/$(name)_$(version).orig.tar.gz
-	cp -r debian $(debbuild_dir)/$(name)-$(version)
 
 deb-src: pre_debbuild
 	@echo "Building Debian source package in $(debbuild_dir)"
