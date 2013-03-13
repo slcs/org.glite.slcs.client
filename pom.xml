@@ -6,7 +6,7 @@
     <artifactId>slcs-client</artifactId>
 
     <name>SLCS client CLI</name>
-    <version>2-SNAPSHOT</version>
+    <version>2.0</version>
     <packaging>jar</packaging>
 
     <description>Short Lived Certificate Service (Client CLI)</description>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>org.glite.slcs</groupId>
             <artifactId>slcs-common</artifactId>
-            <version>2-SNAPSHOT</version>
+            <version>2.0</version>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -109,9 +109,18 @@
                     </mapping>
                     <excludes>
                         <exclude>.gitignore</exclude>
+                        <exclude>Makefile</exclude>
+                        <exclude>README.md</exclude>
                         <exclude>project/**</exclude>
+                        <exclude>debian/**</exclude>
+                        <exclude>fedora/**</exclude>
+                        <exclude>distrib/**</exclude>
                         <exclude>doc/**</exclude>
                         <exclude>src/test/**</exclude>
+                        <exclude>src/main/bin/**</exclude>
+                        <exclude>src/main/etc/**</exclude>
+                        <exclude>src/main/man/**</exclude>
+                        <exclude>src/main/assembly/**</exclude>
                     </excludes>
                     <useDefaultExcludes>true</useDefaultExcludes>
                 </configuration>

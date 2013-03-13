@@ -9,9 +9,12 @@
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
 
+export JAVA_HOME=/usr/lib/jvm/default-java
+
 %:
 	dh $@
 
+# install in official directories
 override_dh_auto_install:
-	dh_auto_install --destdir=debian/tmp
+	dh_auto_install --destdir=debian/tmp -- prefix=/usr sysconfdir=/etc
 

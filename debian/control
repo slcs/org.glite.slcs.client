@@ -1,17 +1,16 @@
 Source: slcs-client
+Section: utils
 Priority: extra
 Maintainer: Valery Tschopp <valery.tschopp@switch.ch>
 Build-Depends: debhelper (>= 7.0.50~), maven2, default-jdk
 Standards-Version: 3.9.1
-Section: java
 Homepage: http://www.switch.ch/grid/slcs/
 Vcs-Git: git://github.com/slcs/org.glite.slcs.client.git
 Vcs-Browser: https://github.com/slcs/org.glite.slcs.client
 
 Package: slcs-client
 Architecture: all
-Depends: default-jre-headless, ${java:Depends}, ${misc:Depends}
-Recommends: ${java:Recommends}
+Depends: default-jre-headless, ${misc:Depends}
 Description: SLCS slcs-init command 
  Command line interface for the Short Lived Certificate Service (SLCS).
  The user uses his Shibboleth AAI credentials to log in and receives a
