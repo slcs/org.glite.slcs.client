@@ -4,7 +4,7 @@ Maintainer: Valery Tschopp <valery.tschopp@switch.ch>
 Build-Depends: debhelper (>= 7.0.50~), maven2, default-jdk
 Standards-Version: 3.9.1
 Section: java
-Homepage: https://twiki.cern.ch/twiki/bin/view/EGEE/AuthZPEPCCLI
+Homepage: http://www.switch.ch/grid/slcs/
 Vcs-Git: git://github.com/slcs/org.glite.slcs.client.git
 Vcs-Browser: https://github.com/slcs/org.glite.slcs.client
 
