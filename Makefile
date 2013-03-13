@@ -45,7 +45,7 @@ debbuild_dir = $(CURDIR)/debbuild
 all: package
 
 clean:
-	rm -rf target $(tmp_dir) *.tar.gz $(rpmbuild_dir) $(spec_file) *.rpm $(name) $(debbuild_dir) 
+	rm -rf target $(tmp_dir) *.tar.gz $(rpmbuild_dir) $(spec_file) *.rpm $(name) $(debbuild_dir) *.deb *.dsc
 
 dist:
 	@echo "Package the sources..."
