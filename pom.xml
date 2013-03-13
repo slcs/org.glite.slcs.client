@@ -109,9 +109,18 @@
                     </mapping>
                     <excludes>
                         <exclude>.gitignore</exclude>
+                        <exclude>Makefile</exclude>
+                        <exclude>README.md</exclude>
                         <exclude>project/**</exclude>
+                        <exclude>debian/**</exclude>
+                        <exclude>fedora/**</exclude>
+                        <exclude>distrib/**</exclude>
                         <exclude>doc/**</exclude>
                         <exclude>src/test/**</exclude>
+                        <exclude>src/main/bin/**</exclude>
+                        <exclude>src/main/etc/**</exclude>
+                        <exclude>src/main/man/**</exclude>
+                        <exclude>src/main/assembly/**</exclude>
                     </excludes>
                     <useDefaultExcludes>true</useDefaultExcludes>
                 </configuration>
