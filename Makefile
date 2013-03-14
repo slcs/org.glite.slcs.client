@@ -65,13 +65,13 @@ package:
 	mvn -B package
 
 bin-package:
-	test -d target/$(name)-package.dir || make package
+	test -d target/$(name)-package || make package
 	@echo "Package the binary..."
 	test ! -f $(name)-$(version)-$(release).tar.gz || rm $(name)-$(version)-$(release).tar.gz
-	tar -C target/$(name)-package.dir -czf $(name)-$(version)-$(release).tar.gz bin etc share
+	tar -C target/$(name)-package -czf $(name)-$(version)-$(release).tar.gz bin etc share
 
 install:
-	test -d target/$(name)-package.dir || make package
+	test -d target/$(name)-package || make package
 	@echo "Install binary in $(DESTDIR)$(prefix)"
 	@echo " sysconfdir: $(DESTDIR)$(sysconfdir)"
 	@echo " bindir: $(DESTDIR)$(bindir)"
@@ -79,15 +79,15 @@ install:
 	@echo " docdir: $(DESTDIR)$(docdir)"
 	@echo " mandir: $(DESTDIR)$(mandir)"
 	install -d $(DESTDIR)$(sysconfdir)/slcs
-	install -m 0644 target/$(name)-package.dir/etc/slcs/* $(DESTDIR)$(sysconfdir)/slcs
+	install -m 0644 target/$(name)-package/etc/slcs/* $(DESTDIR)$(sysconfdir)/slcs
 	install -d $(DESTDIR)$(bindir)
-	install -m 0755 target/$(name)-package.dir/bin/slcs-* $(DESTDIR)$(bindir)
+	install -m 0755 target/$(name)-package/bin/slcs-* $(DESTDIR)$(bindir)
 	install -d $(DESTDIR)$(datadir)
-	install -m 0644 target/$(name)-package.dir/share/slcs/*.jar $(DESTDIR)$(datadir)
+	install -m 0644 target/$(name)-package/share/slcs/*.jar $(DESTDIR)$(datadir)
 	install -d $(DESTDIR)$(mandir)/man1
-	install -m 0644 target/$(name)-package.dir/share/man/man1/slcs-init.1 $(DESTDIR)$(mandir)/man1
+	install -m 0644 target/$(name)-package/share/man/man1/slcs-init.1 $(DESTDIR)$(mandir)/man1
 	install -d $(DESTDIR)$(docdir)
-	install -m 0644 target/$(name)-package.dir/share/doc/slcs/* $(DESTDIR)$(docdir)
+	install -m 0644 target/$(name)-package/share/doc/slcs/* $(DESTDIR)$(docdir)
 
 
 #
@@ -136,4 +136,11 @@ deb: pre_debbuild
 	cd $(debbuild_dir)/$(name)-$(version) && debuild -us -uc 
 	find $(debbuild_dir) -maxdepth 1 -name "*.deb" -exec cp '{}' . \;
 
-
+#
+# OS X package
+#
+osx-pkg:
+	@echo "Building OS X package in $(tmp_dir)"
+	test ! -d $(tmp_dir) || rm -fr $(tmp_dir)
+	make DESTDIR=$(tmp_dir) prefix=/usr sysconfdir=/etc install
+	pkgbuild --identifier org.glite.slcs.client --version $(version)-$(release) --root $(tmp_dir) $(name)-$(version)-$(release).pkg
