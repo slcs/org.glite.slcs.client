@@ -136,4 +136,11 @@ deb: pre_debbuild
 	cd $(debbuild_dir)/$(name)-$(version) && debuild -us -uc 
 	find $(debbuild_dir) -maxdepth 1 -name "*.deb" -exec cp '{}' . \;
 
-
+#
+# OS X package
+#
+osx-pkg:
+	@echo "Building OS X package in $(tmp_dir)"
+	test ! -d $(tmp_dir) || rm -fr $(tmp_dir)
+	make DESTDIR=$(tmp_dir) prefix=/usr sysconfdir=/etc install
+	pkgbuild --identifier org.glite.slcs.client --version $(version)-$(release) --root $(tmp_dir) $(name)-$(version)-$(release).pkg
