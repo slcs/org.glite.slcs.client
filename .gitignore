@@ -1,3 +1,4 @@
+/tmp
 /target
 /fedora/slcs-client.spec
 /rpmbuild
@@ -8,3 +9,4 @@
 /*.rpm
 /*.dsc
 /*.deb
+/*.pkg
