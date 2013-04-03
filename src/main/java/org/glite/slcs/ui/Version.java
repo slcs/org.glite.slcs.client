@@ -22,7 +22,7 @@ package org.glite.slcs.ui;
  */
 public class Version {
 
-    static final String COPYRIGHT= "Copyright (c) 2010 SWITCH";
+    static final String COPYRIGHT= "Copyright (c) 2013 SWITCH";
     static final Package PKG= Version.class.getPackage();
 
     /**
