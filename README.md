@@ -11,6 +11,7 @@ https://github.com/slcs/org.glite.slcs.client
 
 Packages
 --------
-You can download binary tarball or RPM packages from:
+You can download binary tarball, RPM packages, Debian package, and
+OSX package from:
 
    https://slcs.switch.ch/download
