@@ -18,7 +18,7 @@
 name=slcs-client
 
 version=2.0
-release=1
+release=2
 
 # install options (like configure)
 prefix=/usr/local
@@ -45,7 +45,7 @@ debbuild_dir = $(CURDIR)/debbuild
 all: package
 
 clean:
-	rm -rf target $(tmp_dir) *.tar.gz $(rpmbuild_dir) $(spec_file) *.rpm $(name) $(debbuild_dir) *.deb *.dsc
+	rm -rf target $(tmp_dir) *.tar.gz $(rpmbuild_dir) $(spec_file) *.rpm $(name) $(debbuild_dir) *.deb *.dsc *.pkg
 
 dist:
 	@echo "Package the sources..."
@@ -105,14 +105,14 @@ pre_rpmbuild: spec
 	cp $(name)-$(version).tar.gz $(rpmbuild_dir)/SOURCES
 
 
-srpm: pre_rpmbuild
-	@echo "Building SRPM in $(rpmbuild_dir)"
+rpm-src: pre_rpmbuild
+	@echo "Building source RPM in $(rpmbuild_dir)"
 	rpmbuild --nodeps -v -bs $(spec_file) --define "_topdir $(rpmbuild_dir)"
 	cp $(rpmbuild_dir)/SRPMS/*.src.rpm .
 
 
 rpm: pre_rpmbuild
-	@echo "Building RPM/SRPM in $(rpmbuild_dir)"
+	@echo "Building RPM in $(rpmbuild_dir)"
 	rpmbuild --nodeps -v -ba $(spec_file) --define "_topdir $(rpmbuild_dir)"
 	find $(rpmbuild_dir)/RPMS -name "*.rpm" -exec cp '{}' . \;
 
@@ -139,7 +139,7 @@ deb: pre_debbuild
 #
 # OS X package
 #
-osx-pkg:
+pkg:
 	@echo "Building OS X package in $(tmp_dir)"
 	test ! -d $(tmp_dir) || rm -fr $(tmp_dir)
 	make DESTDIR=$(tmp_dir) prefix=/usr sysconfdir=/etc install
