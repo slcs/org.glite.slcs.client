@@ -30,7 +30,7 @@ Date: 2013-07-12
         <!-- SWITCH -->
         <IdentityProvider id="switch.ch" entityID="https://aai-logon.switch.ch/idp/shibboleth">
             <name>SWITCH</name>
-            <url>https://aai-logon.switch.ch/idp/profile/Shibboleth/SSO</url>
+            <url>https://aai-logon.switch.ch/idp/profile/SAML2/Redirect/SSO</url>
             <authentication type="FORM">
                 <url>https://aai-logon.switch.ch/idp/Authn/UserPassword</url>
                 <form name="j_loginform">
@@ -43,7 +43,7 @@ Date: 2013-07-12
         <!-- Virtual Home Organization @SWITCHaai -->
         <IdentityProvider id="vho-switchaai.ch" entityID="https://aai-logon.vho-switchaai.ch/idp/shibboleth">
             <name>Virtual Home Organization</name>
-            <url>https://aai-logon.vho-switchaai.ch/idp/profile/Shibboleth/SSO</url>
+            <url>https://aai-logon.vho-switchaai.ch/idp/profile/SAML2/Redirect/SSO</url>
             <authentication type="FORM">
                 <url>https://aai-logon.vho-switchaai.ch/idp/Authn/UserPassword</url>
                 <form name="j_loginform">
@@ -56,7 +56,7 @@ Date: 2013-07-12
         <!-- Universite de Lausanne -->
         <IdentityProvider id="unil.ch" entityID="https://aai.unil.ch/idp/shibboleth">
             <name>Universite de Lausanne</name>
-            <url>https://aai.unil.ch/idp/profile/Shibboleth/SSO</url>
+            <url>https://aai.unil.ch/idp/profile/SAML2/Redirect/SSO</url>
             <authentication type="FORM">
                 <url>https://aai.unil.ch/idp/Authn/UserPassword</url>
                 <form name="">
@@ -69,7 +69,7 @@ Date: 2013-07-12
         <!-- Ecole Polytechnique Federale de Lausanne -->
         <IdentityProvider id="epfl.ch" entityID="https://idp.epfl.ch/idp/shibboleth">
             <name>EPFL</name>
-            <url>https://idp.epfl.ch/idp/profile/Shibboleth/SSO</url>
+            <url>https://idp.epfl.ch/idp/profile/SAML2/Redirect/SSO</url>
             <authentication type="FORM">
                 <url>https://idp.epfl.ch/idp/Authn/UserPassword</url>
                 <form name="">
@@ -82,7 +82,7 @@ Date: 2013-07-12
         <!-- ETH Zuerich -->
         <IdentityProvider id="ethz.ch" entityID="https://aai-logon.ethz.ch/idp/shibboleth">
             <name>ETH Zuerich</name>
-            <url>https://aai-logon.ethz.ch/idp/profile/Shibboleth/SSO</url>
+            <url>https://aai-logon.ethz.ch/idp/profile/SAML2/Redirect/SSO</url>
             <authentication type="FORM">
                 <url>https://aai-logon.ethz.ch/idp/Authn/UserPassword</url>
                 <form name="">
@@ -95,7 +95,7 @@ Date: 2013-07-12
         <!-- Universitaet Basel -->
         <IdentityProvider id="unibas.ch" entityID="https://aai-logon.unibas.ch/idp/shibboleth">
             <name>Universitaet Basel</name>
-            <url>https://aai-logon.unibas.ch/idp/profile/Shibboleth/SSO</url>
+            <url>https://aai-logon.unibas.ch/idp/profile/SAML2/Redirect/SSO</url>
             <authentication type="FORM">
                 <url>https://aai-logon.unibas.ch/idp/Authn/UserPassword</url>
                 <form name="j_loginform">
@@ -108,7 +108,7 @@ Date: 2013-07-12
         <!-- Universitaet Bern -->
         <IdentityProvider id="unibe.ch" entityID="https://aai-idp.unibe.ch/idp/shibboleth">
             <name>Universitaet Bern</name>
-            <url>https://aai-idp.unibe.ch/idp/profile/Shibboleth/SSO</url>
+            <url>https://aai-idp.unibe.ch/idp/profile/SAML2/Redirect/SSO</url>
             <authentication type="FORM">
                 <url>https://aai-idp.unibe.ch/idp/Authn/UserPassword</url>
                 <form name="j_loginform">
@@ -135,7 +135,7 @@ Date: 2013-07-12
         <!-- Universite de Geneve -->
         <IdentityProvider id="unige.ch" entityID="https://idp.unige.ch/idp/shibboleth">
             <name>Universite de Geneve</name>
-            <url>https://idp.unige.ch/idp/profile/Shibboleth/SSO</url>
+            <url>https://idp.unige.ch/idp/profile/SAML2/Redirect/SSO</url>
             <authentication type="FORM">
                 <url>https://idp.unige.ch/idp/Authn/UserPassword</url>
                 <form name="j_loginform">
@@ -161,7 +161,7 @@ Date: 2013-07-12
         <!-- Universite de Neuchatel -->
         <IdentityProvider id="unine.ch" entityID="https://aai-login.unine.ch/idp/shibboleth">
             <name>Universite de Neuchatel</name>
-            <url>https://aai-login.unine.ch/idp/profile/Shibboleth/SSO</url>
+            <url>https://aai-login.unine.ch/idp/profile/SAML2/Redirect/SSO</url>
             <authentication type="FORM">
                 <url>https://aai-login.unine.ch/idp/Authn/UserPassword</url>
                 <form name="j_loginform">
@@ -187,7 +187,7 @@ Date: 2013-07-12
         <!-- Universita della Svizzera Italiana -->
         <IdentityProvider id="unisi.ch" entityID="https://login2.usi.ch/idp/shibboleth">
             <name>Universita della Svizzera Italiana</name>
-            <url>https://login2.usi.ch/idp/profile/Shibboleth/SSO</url>
+            <url>https://login2.usi.ch/idp/profile/SAML2/Redirect/SSO</url>
             <authentication type="CAS">
                 <url>https://login2.usi.ch/cas/login</url>
                 <form name="fm1">
@@ -200,7 +200,7 @@ Date: 2013-07-12
         <!-- Universitaet Zuerich -->
         <IdentityProvider id="uzh.ch" entityID="https://aai-idp.uzh.ch/idp/shibboleth">
             <name>Universitaet Zuerich</name>
-            <url>https://aai-idp.uzh.ch/idp/profile/Shibboleth/SSO</url>
+            <url>https://aai-idp.uzh.ch/idp/profile/SAML2/Redirect/SSO</url>
             <authentication type="FORM">
                 <url>https://aai-idp.uzh.ch/idp/Authn/UserPassword</url>
                 <form name="login_form">
@@ -213,7 +213,7 @@ Date: 2013-07-12
         <!-- Paul Scherrer Institut (PSI) -->
         <IdentityProvider id="psi.ch" entityID="https://aai-logon.psi.ch/idp/shibboleth">
             <name>Paul-Scherrer-Institut (PSI)</name>
-            <url>https://aai-logon.psi.ch/idp/profile/Shibboleth/SSO</url>
+            <url>https://aai-logon.psi.ch/idp/profile/SAML2/Redirect/SSO</url>
             <authentication type="FORM">
                 <url>https://aai-logon.psi.ch/idp/Authn/UserPassword</url>
                 <form name="j_loginform">
@@ -226,7 +226,7 @@ Date: 2013-07-12
         <!-- Eidg. Forschungsanstalt WSL -->
         <IdentityProvider id="wsl.ch" entityID="https://aai-logon.wsl.ch/idp/shibboleth">
             <name>Eidg. Forschungsanstalt fuer Wald, Schnee und Landschaft (WSL)</name>
-            <url>https://aai-logon.wsl.ch/idp/profile/Shibboleth/SSO</url>
+            <url>https://aai-logon.wsl.ch/idp/profile/SAML2/Redirect/SSO</url>
             <authentication type="FORM">  
                 <url>https://aai-logon.wsl.ch/idp/Authn/UserPassword</url>
                 <form name="">
@@ -239,7 +239,7 @@ Date: 2013-07-12
         <!-- HES-SO -->
         <IdentityProvider id="hes-so.ch" entityID="https://aai-logon.hes-so.ch/idp/shibboleth">
             <name>HES-SO - Haute ecole specialisee de Suisse occidentale</name>
-            <url>https://aai-logon.hes-so.ch/idp/profile/Shibboleth/SSO</url>
+            <url>https://aai-logon.hes-so.ch/idp/profile/SAML2/Redirect/SSO</url>
             <authentication type="FORM">  
                 <url>https://aai-logon.hes-so.ch/idp/Authn/UserPassword</url>
                 <form name="j_loginform">
